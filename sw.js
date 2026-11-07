@@ -1,5 +1,5 @@
 /* Service worker: guarda o app em cache para funcionar sem internet. */
-const CACHE = 'sobrevivencia-urbana-v1';
+const CACHE = 'sobrevivencia-urbana-v2';
 const ARQUIVOS = [
   './',
   'index.html',
@@ -13,6 +13,11 @@ const ARQUIVOS = [
   'js/nucleo/kit.js',
   'js/nucleo/cenarios.js',
   'js/nucleo/rede.js',
+  'js/nucleo/mapa.js',
+  'js/nucleo/remedios.js',
+  'js/nucleo/partilha.js',
+  'js/nucleo/defesa.js',
+  'js/app-colapso.js',
   'icone.svg',
   'manifest.webmanifest',
 ];

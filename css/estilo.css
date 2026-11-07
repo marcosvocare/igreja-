@@ -16,6 +16,12 @@
   --laranja-fundo: #fbe7da;
   --vermelho-fundo: #fbe3e3;
   --sobre-alerta: #ffffff;
+  --cat-agua: #1d6fb8;
+  --cat-remedio: #7b3fa0;
+  --cat-alimento: #a8650a;
+  --cat-abrigo: #1f6f5c;
+  --cat-perigo: #c62828;
+  --zona-perigo: rgba(198, 40, 40, .14);
   --raio: 10px;
   color-scheme: light;
 }
@@ -38,6 +44,12 @@
     --laranja-fundo: #33221a;
     --vermelho-fundo: #351c1c;
     --sobre-alerta: #1a0f0f;
+    --cat-agua: #5aa9e6;
+    --cat-remedio: #c08ae0;
+    --cat-alimento: #e0a64a;
+    --cat-abrigo: #4fb39a;
+    --cat-perigo: #ef5350;
+    --zona-perigo: rgba(239, 83, 80, .2);
     color-scheme: dark;
   }
 }
@@ -59,6 +71,12 @@
   --laranja-fundo: #33221a;
   --vermelho-fundo: #351c1c;
   --sobre-alerta: #1a0f0f;
+  --cat-agua: #5aa9e6;
+  --cat-remedio: #c08ae0;
+  --cat-alimento: #e0a64a;
+  --cat-abrigo: #4fb39a;
+  --cat-perigo: #ef5350;
+  --zona-perigo: rgba(239, 83, 80, .2);
   color-scheme: dark;
 }
 
@@ -183,6 +201,7 @@ input[type="checkbox"] { width: 1.15rem; height: 1.15rem; accent-color: var(--pr
 .inline input { width: 6rem !important; display: inline-block !important; }
 
 .grade-numeros { display: grid; gap: 0 .75rem; grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr)); }
+.grade-numeros .largo { grid-column: 1 / -1; }
 .grade-checks { display: grid; gap: 0 .75rem; grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr)); }
 
 button, .botao {
@@ -315,3 +334,62 @@ td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; white-sp
   .cartao-bolso h4 { margin: 0 0 .1cm; font-size: 9pt; }
   .cartao-bolso p { margin: 0 0 .1cm; }
 }
+
+/* ------------------------------------------------- mapa de recursos */
+button[aria-pressed="true"] { box-shadow: inset 0 -3px 0 var(--foco); }
+.recomendado { border: 2px solid var(--primaria); border-radius: var(--raio); padding: .8rem 1rem; margin: .75rem 0; }
+.recomendado .rotulo-nivel { font-size: .8rem; font-weight: 700; color: var(--primaria); text-transform: uppercase; letter-spacing: .04em; }
+.nome-recurso { font-size: 1.35rem; font-weight: 800; line-height: 1.2; margin: .15rem 0 .35rem; }
+.recomendado p { margin: .3rem 0; }
+.direcao { font-size: 1.05rem; font-weight: 600; }
+.tratamento { background: var(--fundo); border-radius: 8px; padding: .4rem .6rem; }
+.aviso.perigo { border-left-color: var(--vermelho); background: var(--vermelho-fundo); }
+.opcoes { padding-left: 1.2rem; }
+.opcoes li { margin-bottom: .35rem; }
+.opcoes .estado { margin-left: .3rem; }
+
+.radar { display: block; width: 100%; max-width: 26rem; height: auto; margin: 0 auto; }
+.radar .anel { fill: none; stroke: var(--borda); stroke-width: 1; }
+.radar .eixo { stroke: var(--borda); stroke-width: 1; stroke-dasharray: 3 4; }
+.radar .rotulo-anel { fill: var(--texto-suave); font-size: 10px; }
+.radar .norte { fill: var(--texto); font-size: 13px; font-weight: 700; }
+.radar .zona { fill: var(--zona-perigo); stroke: var(--cat-perigo); stroke-width: 1; stroke-dasharray: 4 3; }
+.radar .zona.resolvida { fill: none; stroke: var(--borda); }
+.radar .base { fill: var(--texto); stroke: var(--superficie); stroke-width: 3; }
+.radar .rotulo-base { fill: var(--texto); font-size: 11px; font-weight: 700; }
+.radar .rotulo-ponto { fill: var(--texto); font-size: 10.5px; paint-order: stroke; stroke: var(--superficie); stroke-width: 3px; stroke-linejoin: round; }
+.forma { stroke: var(--superficie); stroke-width: 1.5; }
+.cat-agua .forma { fill: var(--cat-agua); }
+.cat-remedio .forma { fill: var(--cat-remedio); }
+.cat-alimento .forma { fill: var(--cat-alimento); }
+.cat-abrigo .forma { fill: var(--cat-abrigo); }
+.cat-perigo .forma { fill: var(--cat-perigo); }
+.marca.inativo { opacity: .4; }
+.legenda { list-style: none; padding: 0; margin: .5rem 0 0; display: flex; flex-wrap: wrap; gap: .25rem 1rem; font-size: .85rem; color: var(--texto-suave); }
+.legenda li { display: inline-flex; align-items: center; gap: .3rem; }
+.ponto-cat { display: inline-block; width: .65rem; height: .65rem; border-radius: 50%; vertical-align: middle; }
+.ponto-cat.cat-agua { background: var(--cat-agua); }
+.ponto-cat.cat-remedio { background: var(--cat-remedio); }
+.ponto-cat.cat-alimento { background: var(--cat-alimento); }
+.ponto-cat.cat-abrigo { background: var(--cat-abrigo); }
+.ponto-cat.cat-perigo { background: var(--cat-perigo); border-radius: 0; }
+select.select-mini { width: auto; min-height: 2.1rem; padding: .2rem .4rem; font-size: .88rem; margin: 0; }
+.acoes-linha { white-space: nowrap; }
+.acoes-linha button + button { margin-left: .25rem; }
+
+/* ----------------------------------------------------------- defesa */
+.senhas { display: grid; gap: .75rem; grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr)); margin-top: .5rem; }
+.senha-dia { background: var(--fundo); border-radius: 8px; padding: .6rem .75rem; }
+.senha-dia small { display: block; color: var(--texto-suave); margin-bottom: .2rem; }
+.palavra { font-size: 1.3rem; letter-spacing: .02em; }
+tr.incompleto td { color: var(--vermelho); }
+td.num-esq { white-space: nowrap; font-variant-numeric: tabular-nums; }
+.painel-nivel h4 { margin: .75rem 0 .25rem; }
+.painel-nivel ol { margin: .25rem 0 0; padding-left: 1.2rem; }
+.painel-nivel ol li { margin-bottom: .35rem; }
+.painel-nivel .progresso { margin: .25rem 0 .5rem; background: var(--superficie); }
+.painel-nivel .progresso span { background: var(--cor-nivel); }
+.painel-nivel a.botao { margin-top: .5rem; }
+
+/* --------------------------------------------------------- remédios */
+.aviso-linha { color: var(--laranja); }

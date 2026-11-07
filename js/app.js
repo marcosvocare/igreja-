@@ -8,6 +8,8 @@
   const S = window.Sobrevivencia;
   const CHAVE = 'sobrevivencia-urbana:v1';
   const DIAS_META = [3, 7, 14, 30];
+  // Extensões (ex.: js/app-colapso.js) registradas antes deste arquivo.
+  const EXTENSOES = Array.isArray(S.extensoes) ? S.extensoes : [];
 
   // ------------------------------------------------------------- utilitários
 
@@ -96,7 +98,7 @@
   // ------------------------------------------------------------------ estado
 
   function padrao() {
-    return {
+    const base = {
       versao: 1,
       casa: { adultos: 2, idosos: 0, gestantes: 0, criancas: 0, bebes: 0, caes: 0, gatos: 0 },
       extras: { remediosContinuos: false, mobilidadeReduzida: false, dependenteEnergia: false },
@@ -113,6 +115,8 @@
       nomeSms: '',
       rede: [],
     };
+    for (const ext of EXTENSOES) Object.assign(base, ext.padrao());
+    return base;
   }
 
   /** Mescla dados salvos/importados sobre o padrão, descartando o que for inválido. */
@@ -173,6 +177,7 @@
         habilidades: Array.isArray(m.habilidades) ? m.habilidades.filter((x) => habs.has(x)) : [],
         necessidades: Array.isArray(m.necessidades) ? m.necessidades.filter((x) => necs.has(x)) : [],
       }));
+    for (const ext of EXTENSOES) ext.mesclar(dados, r, { texto, lista, inteiro, numeroPositivo, novoId });
     return r;
   }
 
@@ -228,6 +233,9 @@
         a.setAttribute('aria-current', 'page');
         a.scrollIntoView({ block: 'nearest', inline: 'nearest' });
       } else a.removeAttribute('aria-current');
+    }
+    for (const ext of EXTENSOES) {
+      if (ext.navegar && ext.navegar(atual, sub)) return;
     }
     if (atual === 'situacao' && sub === 'resultado') {
       $('#resultado-situacao').scrollIntoView({ block: 'start' });
@@ -1166,6 +1174,7 @@
     $('#por-pessoa').value = String(estado.porPessoa);
     $('#form-sms').elements.nome.value = estado.nomeSms;
     $('#form-janelas').elements.horarios.value = estado.horarios;
+    for (const ext of EXTENSOES) if (ext.recarregar) ext.recarregar();
     atualizarTudo();
   }
 
@@ -1180,7 +1189,29 @@
     renderSms();
     renderJanelas();
     renderRede();
+    for (const ext of EXTENSOES) ext.render();
   }
+
+  /** O que as extensões podem usar do app. */
+  const api = {
+    S,
+    h,
+    $,
+    trocar,
+    fmt,
+    novoId,
+    inteiro,
+    numeroPositivo,
+    copiarTexto,
+    dataBR,
+    linkTel,
+    ancora,
+    salvar,
+    atualizarTudo: () => atualizarTudo(),
+    get estado() {
+      return estado;
+    },
+  };
 
   montarSinais();
   montarCenarios();
@@ -1191,6 +1222,7 @@
   montarComunicacao();
   montarRede();
   montarDados();
+  for (const ext of EXTENSOES) ext.montar(api);
   renderAgua();
   atualizarTudo();
   mostrarSecao();

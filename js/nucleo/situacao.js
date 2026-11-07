@@ -39,6 +39,7 @@
     { id: 'energia_longa', cenario: 'apagao', texto: 'Sem energia há mais de 24 horas', nivel: 2, acionar: [] },
     { id: 'sem_agua', cenario: 'falta_agua', texto: 'Sem água da rede', nivel: 2, acionar: [] },
     { id: 'desabastecimento', cenario: 'desabastecimento', texto: 'Mercados, farmácias ou postos desabastecidos', nivel: 2, acionar: [] },
+    { id: 'sem_servicos', cenario: 'colapso', texto: 'Bombeiros, polícia e SAMU não atendem', nivel: 2, acionar: [] },
     { id: 'doenca_casa', cenario: 'epidemia', texto: 'Alguém da casa com febre/doença contagiosa', nivel: 2, acionar: [] },
     { id: 'agua_subindo', cenario: 'enchente', texto: 'Água subindo na rua ou entrando em casa', nivel: 3, risco: 'dentro', acionar: ['bombeiros', 'defesaCivil'] },
     { id: 'deslizamento', cenario: 'deslizamento', texto: 'Rachaduras novas, portas emperrando, estalos ou muros/postes inclinando', nivel: 3, risco: 'dentro', acionar: ['defesaCivil', 'bombeiros'] },
@@ -182,6 +183,10 @@
 
     if (postura !== 'SOCORRO' && sinais.some((s) => s.id === 'ferido_grave')) {
       avisos.push('Há uma pessoa ferida ou passando mal: ligue 192 assim que estiverem em local seguro.');
+    }
+
+    if (sinais.some((s) => s.id === 'sem_servicos')) {
+      avisos.push('Sem serviços de emergência: acione as equipes da rede comunitária (vigilância, saúde, incêndio) e siga o protocolo de colapso.');
     }
 
     const acionarIds = [...new Set(sinais.flatMap((s) => s.acionar))];

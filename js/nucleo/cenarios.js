@@ -11,7 +11,41 @@
 })(typeof globalThis !== 'undefined' ? globalThis : this, function () {
   'use strict';
 
+  const COLAPSO = {
+    id: 'colapso',
+    titulo: 'Colapso: sem bombeiros, polícia e SAMU',
+    sinais: [
+      'Ligações para 190, 192 e 193 não completam ou ninguém vem',
+      'Saques e violência sem resposta das autoridades',
+      'Falta de água, energia e comida ao mesmo tempo, por dias',
+    ],
+    antes: [
+      'Organize a rede da igreja em equipes: vigilância, saúde, água, alimentação, comunicação e incêndio.',
+      'Mapeie fontes de água, remédios, alimentos e os pontos de perigo do bairro (aba Mapa).',
+      'Combine com a comunidade a frase da senha do dia e o código de apitos (aba Defesa).',
+      'Faça a avaliação de segurança da casa e da igreja e corrija as prioridades.',
+      'Junte remédios de uso contínuo para pelo menos 30 dias, com receita.',
+    ],
+    durante: [
+      'Reúna as pessoas: famílias vizinhas juntas ou no ponto de apoio da igreja ficam mais seguras que casas isoladas.',
+      'Vigia em duplas, com escala e descanso. Vigia observa e avisa, não enfrenta.',
+      'Não reaja a saques nem a assaltos: nenhum bem vale uma vida.',
+      'Saia só em grupo, de dia, por rotas que evitam os perigos do mapa, com hora de volta combinada.',
+      'Incêndio: só combata foco pequeno (do tamanho de uma lixeira), com a saída às suas costas. Se crescer, saia, feche a porta e afaste os vizinhos.',
+      'Ferimentos: pressione sangramentos com pano limpo, imobilize fraturas e leve, em grupo, ao profissional de saúde da rede ou ao hospital funcionando mais próximo.',
+      'Água: beba só água fervida ou clorada. Partilhe alimentos pela rede, de forma justa e organizada (aba Partilha).',
+      'Atualize o mapa a cada saída: o que está disponível, esgotado ou perigoso.',
+    ],
+    depois: [
+      'Registre quem ajudou, o que faltou e o que funcionou; atualize o mapa e o plano.',
+      'Cuide da saúde emocional: rodas de conversa, oração e atenção às crianças.',
+      'Quando os serviços voltarem, informe pessoas feridas ou desaparecidas e os danos.',
+    ],
+    acionar: ['Equipes da rede comunitária', 'Profissional de saúde da rede'],
+  };
+
   const CENARIOS = [
+    COLAPSO,
     {
       id: 'enchente',
       titulo: 'Enchente e alagamento',

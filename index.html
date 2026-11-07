@@ -26,6 +26,10 @@
     <nav class="abas" aria-label="Seções">
       <a href="#situacao">Situação</a>
       <a href="#cenarios">Protocolos</a>
+      <a href="#mapa">Mapa</a>
+      <a href="#defesa">Defesa</a>
+      <a href="#remedios">Remédios</a>
+      <a href="#partilha">Partilha</a>
       <a href="#suprimentos">Casa e suprimentos</a>
       <a href="#estoque">Estoque</a>
       <a href="#agua">Água</a>
@@ -61,6 +65,175 @@
       <h2>Protocolos por cenário</h2>
       <p class="ajuda">O que fazer antes, durante e depois. Siga sempre as orientações oficiais da sua cidade.</p>
       <div id="lista-cenarios"></div>
+    </section>
+
+    <!-- ========================================================== MAPA -->
+    <section id="mapa" class="secao">
+      <h2>Mapa de recursos</h2>
+      <p class="ajuda">Onde há água, remédios, comida e abrigo, e onde há perigo. Funciona sem internet: distâncias e direções são calculadas a partir da base (casa ou igreja). Atualize a situação dos pontos a cada saída.</p>
+      <div class="duas-colunas">
+        <div>
+          <form id="form-base" class="cartao" autocomplete="off">
+            <h3>Base</h3>
+            <div class="grade-numeros">
+              <label for="base-nome">Nome <input id="base-nome" maxlength="40" placeholder="Ex.: Igreja"></label>
+              <label for="base-coord">Coordenadas <input id="base-coord" inputmode="decimal" placeholder="-23.5505, -46.6333"></label>
+            </div>
+            <p class="ajuda">No Google Maps, toque e segure sobre o local e copie os números que aparecem.</p>
+            <button type="button" class="secundario" data-localizar="base-coord">Usar minha localização</button>
+            <p id="msg-base" class="ajuda" aria-live="polite"></p>
+          </form>
+          <form id="form-ponto" class="cartao" autocomplete="off">
+            <h3>Adicionar ponto</h3>
+            <div class="grade-numeros">
+              <label for="ponto-categoria">Categoria <select id="ponto-categoria"></select></label>
+              <label for="ponto-tipo">Tipo <select id="ponto-tipo"></select></label>
+            </div>
+            <label for="ponto-nome">Nome <input id="ponto-nome" required maxlength="60" placeholder="Ex.: Poço do Seu Zé"></label>
+            <label for="ponto-coord">Coordenadas <input id="ponto-coord" inputmode="decimal" placeholder="-23.5470, -46.6330"></label>
+            <button type="button" class="secundario" data-localizar="ponto-coord">Estou no local: usar minha localização</button>
+            <label for="ponto-ref">Referência <input id="ponto-ref" maxlength="100" placeholder="Rua, número, ponto de referência"></label>
+            <div class="grade-numeros">
+              <label for="ponto-status">Situação <select id="ponto-status"></select></label>
+              <label for="ponto-raio" id="rotulo-raio" hidden>Raio do perigo (m) <input id="ponto-raio" type="number" min="20" max="2000" step="10" value="150"></label>
+            </div>
+            <label for="ponto-obs">Observações <input id="ponto-obs" maxlength="120" placeholder="Horário, quem controla, quantidade…"></label>
+            <button type="submit">Adicionar ao mapa</button>
+            <p id="msg-ponto" class="ajuda" aria-live="polite"></p>
+          </form>
+        </div>
+        <div class="resultado">
+          <div class="cartao">
+            <h3>Onde buscar</h3>
+            <div class="botoes" id="botoes-busca" role="group" aria-label="Recurso procurado"></div>
+            <div id="resultado-busca" aria-live="polite"></div>
+          </div>
+          <div class="cartao">
+            <h3>Mapa ao redor da base</h3>
+            <div id="radar"></div>
+            <p class="ajuda">Norte para cima. Distâncias em linha reta; a pé, conte com o desvio das ruas.</p>
+          </div>
+          <div id="cobertura"></div>
+        </div>
+      </div>
+      <div id="lista-pontos"></div>
+    </section>
+
+    <!-- ======================================================== DEFESA -->
+    <section id="defesa" class="secao">
+      <h2>Defesa comunitária</h2>
+      <p class="ajuda">Proteção sem confronto: barreiras, vigilância, alerta, discrição e a comunidade unida.</p>
+      <div class="cartao">
+        <h3>Princípios</h3>
+        <ul id="principios-defesa"></ul>
+      </div>
+      <div class="duas-colunas">
+        <div class="cartao">
+          <h3>Avaliação de segurança</h3>
+          <p class="ajuda">Marque o que a casa (ou a igreja) já tem.</p>
+          <div id="checklist-defesa"></div>
+        </div>
+        <div class="resultado">
+          <div id="resultado-seguranca"></div>
+          <form id="form-senha" class="cartao" autocomplete="off">
+            <h3>Senha do dia</h3>
+            <p class="ajuda">Combine pessoalmente com a comunidade uma frase secreta. Quem a conhece vê as mesmas palavras no mesmo dia, sem precisar mandar mensagem. Na porta, quem está dentro diz a senha e quem chega responde a contrassenha.</p>
+            <label for="frase-secreta">Frase secreta <input id="frase-secreta" type="password" maxlength="80" autocomplete="off" spellcheck="false"></label>
+            <label class="linha"><input type="checkbox" id="mostrar-frase"> Mostrar a frase</label>
+            <div id="senhas" aria-live="polite"></div>
+          </form>
+          <div class="cartao">
+            <h3>Código de sinais</h3>
+            <div class="tabela-rolagem"><table id="tabela-sinais"></table></div>
+          </div>
+        </div>
+      </div>
+      <div class="cartao">
+        <h3>Escala de vigia</h3>
+        <p class="ajuda">Vigia em duplas, com descanso garantido. Quem vigia observa, avisa pelo código de sinais e se recolhe.</p>
+        <form id="form-escala" autocomplete="off">
+          <label for="voluntarios">Voluntários (um por linha) <textarea id="voluntarios" rows="5" placeholder="Ana&#10;Bia&#10;Caio"></textarea></label>
+          <div class="grade-numeros">
+            <label for="escala-inicio" class="largo">Início <input id="escala-inicio" type="datetime-local"></label>
+            <label for="escala-horas">Período (h) <input id="escala-horas" type="number" min="1" max="168" step="1"></label>
+            <label for="escala-turno">Turno (h) <input id="escala-turno" type="number" min="1" max="12" step="1"></label>
+            <label for="escala-por">Pessoas por turno <input id="escala-por" type="number" min="1" max="10" step="1"></label>
+            <label for="escala-descanso">Descanso mínimo (h) <input id="escala-descanso" type="number" min="0" max="48" step="1"></label>
+          </div>
+        </form>
+        <div id="resultado-escala" aria-live="polite"></div>
+      </div>
+    </section>
+
+    <!-- ====================================================== REMÉDIOS -->
+    <section id="remedios" class="secao">
+      <h2>Remédios críticos</h2>
+      <p class="ajuda">Quanto tempo dura o remédio de cada pessoa e o que precisa ser reposto primeiro. “Unidade” é o que você conta: comprimido, ml, aplicação.</p>
+      <div class="duas-colunas">
+        <form id="form-remedio" class="cartao" autocomplete="off">
+          <div class="grade-numeros">
+            <label for="rem-pessoa">Pessoa <input id="rem-pessoa" required maxlength="40" list="pessoas-remedios"></label>
+            <label for="rem-nome">Remédio e dose <input id="rem-nome" required maxlength="60" placeholder="Ex.: Losartana 50 mg"></label>
+            <label for="rem-doses">Vezes por dia <input id="rem-doses" type="number" min="0" max="48" step="0.5" value="1"></label>
+            <label for="rem-unidades">Unidades por vez <input id="rem-unidades" type="number" min="0" step="0.5" value="1"></label>
+            <label for="rem-qtd">Unidades em estoque <input id="rem-qtd" type="number" min="0" step="1" required></label>
+            <label for="rem-validade">Validade <input id="rem-validade" type="date"></label>
+          </div>
+          <datalist id="pessoas-remedios"></datalist>
+          <label class="linha"><input type="checkbox" id="rem-geladeira"> Precisa de geladeira</label>
+          <button type="submit">Adicionar remédio</button>
+        </form>
+        <div class="resultado">
+          <div id="resumo-remedios"></div>
+          <div class="cartao">
+            <h3>Cuidados</h3>
+            <ul id="orientacoes-remedios" class="ajuda"></ul>
+          </div>
+        </div>
+      </div>
+      <div id="lista-remedios"></div>
+    </section>
+
+    <!-- ====================================================== PARTILHA -->
+    <section id="partilha" class="secao">
+      <h2>Partilha justa</h2>
+      <p class="ajuda">Divide o estoque comum (igreja, vizinhança) pela necessidade de cada família. Se não há para todos, cada família recebe a mesma porcentagem do que precisa; famílias com bebês, gestantes, idosos ou doentes recebem um pouco mais, até o total que precisam.</p>
+      <div class="duas-colunas">
+        <div>
+          <form id="form-estoque-comum" class="cartao" autocomplete="off">
+            <h3>Estoque comum</h3>
+            <div class="grade-numeros">
+              <label for="comum-agua">Água (litros) <input id="comum-agua" type="number" min="0" step="1" placeholder="0"></label>
+              <label for="comum-kcal">Comida (kcal) <input id="comum-kcal" type="number" min="0" step="100" placeholder="0"></label>
+              <label for="comum-dias">Período (dias) <input id="comum-dias" type="number" min="1" max="60" step="1"></label>
+            </div>
+            <fieldset>
+              <legend>Somar alimentos em kg</legend>
+              <div class="grade-numeros">
+                <label for="somar-kg">Quilos <input id="somar-kg" type="number" min="0" step="0.5" placeholder="0"></label>
+                <label for="somar-tipo">Alimento
+                  <select id="somar-tipo">
+                    <option value="arroz">Arroz (3.600 kcal/kg)</option>
+                    <option value="feijao">Feijão (3.300 kcal/kg)</option>
+                    <option value="macarrao">Macarrão (3.700 kcal/kg)</option>
+                    <option value="farinha">Farinha ou fubá (3.600 kcal/kg)</option>
+                    <option value="outros">Outros secos (3.500 kcal/kg)</option>
+                  </select>
+                </label>
+              </div>
+              <button type="button" id="somar-kcal" class="secundario">Somar à comida</button>
+            </fieldset>
+          </form>
+          <form id="form-familia" class="cartao" autocomplete="off">
+            <h3>Famílias</h3>
+            <label for="fam-nome">Nome da família <input id="fam-nome" required maxlength="40" placeholder="Ex.: Família Souza"></label>
+            <div class="grade-numeros" id="campos-familia"></div>
+            <label class="linha"><input type="checkbox" id="fam-vulneravel"> Tem acamado, pessoa com deficiência ou doença grave</label>
+            <button type="submit">Adicionar família</button>
+          </form>
+        </div>
+        <div class="resultado" id="resultado-partilha"></div>
+      </div>
     </section>
 
     <!-- =================================================== SUPRIMENTOS -->
@@ -316,6 +489,11 @@
   <script src="js/nucleo/kit.js"></script>
   <script src="js/nucleo/cenarios.js"></script>
   <script src="js/nucleo/rede.js"></script>
+  <script src="js/nucleo/mapa.js"></script>
+  <script src="js/nucleo/remedios.js"></script>
+  <script src="js/nucleo/partilha.js"></script>
+  <script src="js/nucleo/defesa.js"></script>
+  <script src="js/app-colapso.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>

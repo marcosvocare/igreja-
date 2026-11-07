@@ -76,6 +76,10 @@ quem acionar.
 | Kit de 72 h | Mochila de emergência personalizada pela composição da família | `js/nucleo/kit.js` |
 | Comunicação | Árvore de chamadas, SMS padronizados, janelas de contato, cargas de power bank | `js/nucleo/comunicacao.js` |
 | Comunidade | Mapa de habilidades e necessidades; pareamento de quem precisa com quem pode ajudar | `js/nucleo/rede.js` |
+| Mapa de recursos | Fontes de água, remédios, alimentos, abrigos e zonas de perigo; melhor opção a partir da base | `js/nucleo/mapa.js` |
+| Remédios críticos | Dias de cobertura por pessoa, validade e reposição | `js/nucleo/remedios.js` |
+| Partilha justa | Divisão do estoque comum pela necessidade de cada família | `js/nucleo/partilha.js` |
+| Defesa comunitária | Escala de vigia, senha do dia, avaliação de segurança e código de sinais | `js/nucleo/defesa.js` |
 
 ### 4.1 Água
 
@@ -133,7 +137,74 @@ itens específicos para bebês, crianças, idosos, pessoas com mobilidade reduzi
 - **Privacidade (LGPD):** colete o mínimo de dados, com consentimento, e guarde-os com a
   coordenação. O aplicativo armazena tudo apenas no próprio aparelho.
 
-## 5. Rotina de manutenção
+## 5. Colapso: sem bombeiros, polícia e SAMU
+
+Quando os serviços de emergência não atendem e a desordem se espalha, a comunidade passa
+a ser o socorro. O objetivo continua o mesmo: **manter todos vivos, sem confronto**.
+
+### 5.1 Organização
+
+A rede da igreja se divide em equipes, cada uma com um responsável e um substituto:
+
+| Equipe | Faz |
+|---|---|
+| Vigilância | Escala de vigia em duplas, código de sinais, senha do dia |
+| Saúde | Primeiros socorros, controle de remédios críticos, visita a doentes |
+| Água | Mapeia e trata fontes, distribui água clorada |
+| Alimentação | Estoque comum, cozinha comunitária, partilha justa |
+| Comunicação | Árvore de chamadas, quadro de avisos, atualização do mapa |
+| Incêndio | Extintores, baldes de areia e água, combate a focos pequenos |
+
+### 5.2 Mapeamento de água, remédios e alimentos
+
+**Mecanismo:** *Mapa de recursos* (`js/nucleo/mapa.js`).
+
+- Cada ponto tem categoria, tipo, coordenadas, situação (disponível, escasso, não
+  verificado, esgotado, inseguro) e a hora em que foi confirmado.
+- Zonas de perigo (conflito, saque, alagamento, desabamento, contaminação) entram no
+  mesmo mapa, com raio.
+- A busca indica a melhor opção a partir da base, pesando distância, situação, quão
+  recente é a informação e se a rota **atravessa** (×3) ou **passa perto** (×1,5) de uma
+  zona de perigo. Informação com mais de 3 dias vale como desatualizada.
+- Água de qualquer fonte do mapa traz o tratamento obrigatório (ferver ou clorar).
+- Quem volta de uma saída atualiza a situação dos pontos que viu.
+
+**Remédios:** *Remédios críticos* (`js/nucleo/remedios.js`) mostra quantos dias o remédio
+de cada pessoa dura, considerando a validade, e o que falta para 30 dias. Nunca se
+interrompe ou troca remédio sem orientação de um profissional de saúde.
+
+**Alimentos e água em comum:** *Partilha justa* (`js/nucleo/partilha.js`) divide o estoque
+comum pela necessidade de cada família. Quando não há para todos, cada família recebe a
+mesma porcentagem do que precisa; bebês, gestantes, idosos e doentes recebem um pouco
+mais, até 100 %. A sobra de quem já foi atendido volta para os demais.
+
+### 5.3 Defesa comunitária
+
+**Mecanismo:** *Defesa comunitária* (`js/nucleo/defesa.js`). Defesa **passiva e legal**:
+
+- **Princípio:** nenhum bem vale uma vida. Não reagir a saque ou assalto; vigia observa,
+  avisa e se recolhe.
+- **Juntos é mais seguro:** famílias vizinhas reunidas ou no ponto de apoio da igreja.
+- **Barreiras e detecção:** portas e janelas reforçadas, luz que não depende da rede,
+  visibilidade das entradas, vizinhos combinados para observar.
+- **Escala de vigia:** duplas, turnos curtos e descanso mínimo garantido; o mecanismo
+  calcula quantos voluntários são necessários.
+- **Senha do dia:** todos que conhecem a frase secreta combinada pessoalmente calculam as
+  mesmas palavras no mesmo dia, sem transmiti-las. Serve para reconhecer quem chega.
+- **Código de sinais:** apito, lanterna e folha na janela (OK / AJUDA).
+- **Discrição:** estoque fora da vista; partilha pela rede, não na porta de casa.
+- **Saídas:** só em grupo, de dia, evitando as zonas de perigo do mapa, com hora de volta.
+- **Sem armadilhas e sem armas improvisadas:** ferem crianças, vizinhos e socorristas, são
+  crime e aumentam a violência contra a comunidade.
+
+### 5.4 Incêndio e ferimentos sem socorro
+
+- Fogo: só combater foco pequeno (do tamanho de uma lixeira), com a saída às costas. Se
+  crescer, sair, fechar a porta e afastar os vizinhos.
+- Ferimentos: pressionar sangramentos, imobilizar fraturas e levar, em grupo, ao
+  profissional de saúde da rede ou ao hospital funcionando mais próximo (aba Mapa).
+
+## 6. Rotina de manutenção
 
 | Frequência | Tarefa |
 |---|---|
@@ -142,7 +213,7 @@ itens específicos para bebês, crianças, idosos, pessoas com mobilidade reduzi
 | Anual | Simulado de evacuação com a família; teste da árvore de chamadas com a comunidade; revisar este plano |
 | Início da estação de chuvas | Limpar calhas e ralos; conferir rotas de saída e pontos altos do bairro; cadastrar o CEP no alerta da Defesa Civil (SMS **40199**) |
 
-## 6. Contatos de emergência (Brasil)
+## 7. Contatos de emergência (Brasil)
 
 | Serviço | Número |
 |---|---|
