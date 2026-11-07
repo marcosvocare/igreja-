@@ -1,0 +1,310 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sobrevivência Urbana</title>
+  <meta name="description" content="Plano de sobrevivência urbana: triagem de emergência, protocolos, suprimentos, estoque, água, kit 72 h, comunicação e rede de apoio comunitária. Funciona offline.">
+  <meta name="theme-color" content="#1f6f5c">
+  <link rel="icon" href="icone.svg" type="image/svg+xml">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="stylesheet" href="css/estilo.css">
+</head>
+<body>
+  <header class="topo">
+    <div class="topo-linha">
+      <h1>Sobrevivência Urbana</h1>
+      <a id="selo-nivel" class="selo" data-cor="verde" href="#situacao/resultado" title="Ver o resultado da triagem">Normal</a>
+    </div>
+    <p class="emergencia">
+      Perigo imediato:
+      <a href="tel:193">193 Bombeiros</a>
+      <a href="tel:192">192 SAMU</a>
+      <a href="tel:190">190 Polícia</a>
+      <a href="tel:199">199 Defesa Civil</a>
+    </p>
+    <nav class="abas" aria-label="Seções">
+      <a href="#situacao">Situação</a>
+      <a href="#cenarios">Protocolos</a>
+      <a href="#suprimentos">Casa e suprimentos</a>
+      <a href="#estoque">Estoque</a>
+      <a href="#agua">Água</a>
+      <a href="#kit">Kit 72 h</a>
+      <a href="#comunicacao">Comunicação</a>
+      <a href="#rede">Rede de apoio</a>
+      <a href="#dados">Dados</a>
+    </nav>
+  </header>
+
+  <main>
+    <!-- ======================================================= SITUAÇÃO -->
+    <section id="situacao" class="secao">
+      <h2>Triagem da situação</h2>
+      <p class="ajuda">Marque o que está acontecendo agora. O nível de alerta e a postura (ficar, se preparar ou sair) são recalculados na hora.</p>
+      <div class="duas-colunas">
+        <form id="form-sinais" class="cartao" autocomplete="off">
+          <div id="lista-sinais"></div>
+          <fieldset>
+            <legend>Contexto da casa</legend>
+            <label class="linha"><input type="checkbox" id="ctx-rota" checked> Há rota de saída segura</label>
+            <label class="linha"><input type="checkbox" id="ctx-energia"> Alguém depende de energia elétrica (oxigênio, aparelhos, insulina refrigerada)</label>
+            <p class="ajuda" id="ctx-autonomia"></p>
+          </fieldset>
+          <button type="button" id="limpar-sinais" class="secundario">Limpar sinais</button>
+        </form>
+        <div id="resultado-situacao" class="resultado" aria-live="polite"></div>
+      </div>
+    </section>
+
+    <!-- ====================================================== CENÁRIOS -->
+    <section id="cenarios" class="secao">
+      <h2>Protocolos por cenário</h2>
+      <p class="ajuda">O que fazer antes, durante e depois. Siga sempre as orientações oficiais da sua cidade.</p>
+      <div id="lista-cenarios"></div>
+    </section>
+
+    <!-- =================================================== SUPRIMENTOS -->
+    <section id="suprimentos" class="secao">
+      <h2>Casa e suprimentos</h2>
+      <p class="ajuda">Informe quem mora na casa. Esses dados alimentam a calculadora, o kit de 72 h e a autonomia do estoque.</p>
+      <div class="duas-colunas">
+        <form id="form-casa" class="cartao" autocomplete="off">
+          <fieldset>
+            <legend>Quem mora na casa</legend>
+            <div class="grade-numeros" id="campos-casa"></div>
+          </fieldset>
+          <fieldset>
+            <legend>Necessidades especiais</legend>
+            <label class="linha"><input type="checkbox" name="remediosContinuos"> Alguém usa remédio contínuo</label>
+            <label class="linha"><input type="checkbox" name="mobilidadeReduzida"> Alguém tem mobilidade reduzida</label>
+            <label class="linha"><input type="checkbox" name="dependenteEnergia"> Alguém depende de energia elétrica</label>
+          </fieldset>
+          <fieldset>
+            <legend>Meta de estoque</legend>
+            <label>Dias de autonomia
+              <select name="diasMeta">
+                <option value="3">3 dias (mínimo)</option>
+                <option value="7">7 dias</option>
+                <option value="14">14 dias</option>
+                <option value="30">30 dias</option>
+              </select>
+            </label>
+            <label class="linha"><input type="checkbox" name="climaQuente"> Clima quente (mais água para beber)</label>
+          </fieldset>
+        </form>
+        <div id="resultado-suprimentos" class="resultado"></div>
+      </div>
+    </section>
+
+    <!-- ======================================================= ESTOQUE -->
+    <section id="estoque" class="secao">
+      <h2>Estoque e autonomia</h2>
+      <p class="ajuda">Cadastre o que você tem. Vencidos não contam na autonomia. Use primeiro o que vence primeiro.</p>
+      <div class="duas-colunas">
+        <form id="form-estoque" class="cartao" autocomplete="off">
+          <label>Modelo rápido
+            <select id="preset-estoque"><option value="">— escolher —</option></select>
+          </label>
+          <label>Item <input name="nome" required maxlength="80" placeholder="Ex.: Arroz 5 kg"></label>
+          <div class="grade-numeros">
+            <label>Categoria
+              <select name="categoria"></select>
+            </label>
+            <label>Quantidade <input name="quantidade" type="number" min="1" step="1" value="1" required></label>
+            <label>Litros por unidade <input name="litros" type="number" min="0" step="0.1" placeholder="0"></label>
+            <label>kcal por unidade <input name="kcal" type="number" min="0" step="1" placeholder="0"></label>
+          </div>
+          <label>Validade <input name="validade" type="date"></label>
+          <button type="submit">Adicionar ao estoque</button>
+        </form>
+        <div class="resultado">
+          <div id="autonomia"></div>
+          <div class="cartao">
+            <h3>Racionamento</h3>
+            <label>Preciso que o estoque dure
+              <span class="inline"><input id="dias-racionar" type="number" min="1" step="1" value="7"> dias</span>
+            </label>
+            <div id="plano-racionamento"></div>
+          </div>
+        </div>
+      </div>
+      <div id="lista-estoque"></div>
+    </section>
+
+    <!-- ========================================================== ÁGUA -->
+    <section id="agua" class="secao">
+      <h2>Água segura</h2>
+      <div class="duas-colunas">
+        <form id="form-agua" class="cartao" autocomplete="off">
+          <h3>Dosagem de água sanitária</h3>
+          <div class="grade-numeros">
+            <label>Litros de água <input name="litros" type="number" min="0.1" step="0.1" value="1"></label>
+            <label>Cloro ativo do produto (%) <input name="concentracao" type="number" min="1" max="15" step="0.1" value="2.5"></label>
+          </div>
+          <label class="linha"><input type="checkbox" name="turva"> A água está turva</label>
+          <div id="resultado-agua" aria-live="polite"></div>
+          <h3>Fervura</h3>
+          <label>Altitude da cidade (m) <input name="altitude" type="number" min="0" max="9000" step="10" value="0"></label>
+          <p id="resultado-fervura"></p>
+        </form>
+        <div class="resultado">
+          <div id="metodos-agua"></div>
+          <div class="cartao">
+            <h3>Água escondida em casa</h3>
+            <ul id="fontes-agua"></ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================================================== KIT -->
+    <section id="kit" class="secao">
+      <h2>Kit de emergência de 72 horas</h2>
+      <p class="ajuda">Lista personalizada pela composição da casa. Marque o que já está na mochila — o progresso fica salvo neste aparelho.</p>
+      <div class="progresso" role="progressbar" aria-valuemin="0" aria-valuemax="100" id="barra-kit"><span></span></div>
+      <p id="texto-progresso-kit" class="ajuda"></p>
+      <div id="lista-kit" class="colunas-kit"></div>
+    </section>
+
+    <!-- =================================================== COMUNICAÇÃO -->
+    <section id="comunicacao" class="secao">
+      <h2>Plano de comunicação</h2>
+      <div class="duas-colunas">
+        <div>
+          <form id="form-pontos" class="cartao" autocomplete="off">
+            <h3>Pontos de encontro</h3>
+            <label>1. Perto de casa <input name="casa" maxlength="120" placeholder="Ex.: portão do vizinho da frente"></label>
+            <label>2. No bairro <input name="bairro" maxlength="120" placeholder="Ex.: a igreja"></label>
+            <label>3. Fora do bairro <input name="fora" maxlength="120" placeholder="Ex.: casa da tia, em outro bairro"></label>
+            <label>Contato fora da cidade <input name="contatoFora" maxlength="120" placeholder="Nome e telefone"></label>
+          </form>
+          <form id="form-contato" class="cartao" autocomplete="off">
+            <h3>Contatos (árvore de chamadas)</h3>
+            <p class="ajuda">O primeiro da lista é quem coordena e começa a avisar.</p>
+            <div class="grade-numeros">
+              <label>Nome <input name="nome" required maxlength="60"></label>
+              <label>Telefone <input name="telefone" type="tel" maxlength="20"></label>
+            </div>
+            <button type="submit">Adicionar contato</button>
+            <ol id="lista-contatos" class="lista-editavel"></ol>
+            <label>Cada pessoa avisa
+              <select id="por-pessoa"><option>2</option><option selected>3</option><option>4</option><option>5</option></select>
+            </label>
+            <div id="arvore"></div>
+          </form>
+        </div>
+        <div>
+          <form id="form-sms" class="cartao" autocomplete="off">
+            <h3>Mensagem rápida (SMS)</h3>
+            <p class="ajuda">Sem acentos a mensagem cabe em 160 caracteres e passa melhor com a rede congestionada.</p>
+            <label>Tipo
+              <select name="tipo">
+                <option value="ok">Estou bem</option>
+                <option value="ajuda">Preciso de ajuda</option>
+                <option value="indo">Estou indo para…</option>
+                <option value="cheguei">Cheguei em…</option>
+              </select>
+            </label>
+            <div class="grade-numeros">
+              <label>Seu nome <input name="nome" maxlength="30"></label>
+              <label>Local <input name="local" maxlength="60"></label>
+            </div>
+            <label>Observação / motivo <input name="obs" maxlength="80"></label>
+            <output id="previa-sms" class="previa"></output>
+            <a id="enviar-sms" class="botao" href="sms:">Abrir no app de mensagens</a>
+          </form>
+          <form id="form-janelas" class="cartao" autocomplete="off">
+            <h3>Janelas de contato e bateria</h3>
+            <label>Horários combinados (separados por vírgula)
+              <input name="horarios" value="08:00, 12:00, 18:00, 21:00">
+            </label>
+            <p id="proxima-janela"></p>
+            <div class="grade-numeros">
+              <label>Power bank (mAh) <input name="powerbank" type="number" min="0" step="500" value="10000"></label>
+              <label>Bateria do celular (mAh) <input name="celular" type="number" min="0" step="100" value="4500"></label>
+            </div>
+            <p id="cargas"></p>
+            <ul id="dicas-bateria" class="ajuda"></ul>
+          </form>
+          <div class="cartao">
+            <h3>Cartão de bolso</h3>
+            <p class="ajuda">Imprima, recorte e guarde na carteira de cada pessoa da casa. Celular descarrega; papel não.</p>
+            <button type="button" id="imprimir-cartao">Imprimir cartão</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================== REDE -->
+    <section id="rede" class="secao">
+      <h2>Rede de apoio comunitária</h2>
+      <p class="ajuda">Mapa de quem pode ajudar e de quem precisa de ajuda (igreja, vizinhança). Colete só o necessário e com consentimento — os dados ficam apenas neste aparelho.</p>
+      <div class="duas-colunas">
+        <form id="form-rede" class="cartao" autocomplete="off">
+          <div class="grade-numeros">
+            <label>Nome <input name="nome" required maxlength="60"></label>
+            <label>Bairro <input name="bairro" maxlength="60" list="bairros"></label>
+            <label>Telefone <input name="telefone" type="tel" maxlength="20"></label>
+          </div>
+          <datalist id="bairros"></datalist>
+          <fieldset>
+            <legend>Pode ajudar com</legend>
+            <div id="campos-habilidades" class="grade-checks"></div>
+          </fieldset>
+          <fieldset>
+            <legend>Precisa de apoio por</legend>
+            <div id="campos-necessidades" class="grade-checks"></div>
+          </fieldset>
+          <button type="submit">Adicionar pessoa</button>
+        </form>
+        <div class="resultado">
+          <div id="pareamento"></div>
+          <div id="lacunas"></div>
+        </div>
+      </div>
+      <div id="lista-rede"></div>
+    </section>
+
+    <!-- ========================================================= DADOS -->
+    <section id="dados" class="secao">
+      <h2>Dados e uso offline</h2>
+      <div class="cartao">
+        <p>Tudo o que você cadastra fica salvo <strong>apenas neste aparelho</strong>. Faça cópias de segurança e guarde em outro lugar (e-mail, pen drive, outro celular).</p>
+        <div class="botoes">
+          <button type="button" id="exportar">Baixar cópia de segurança</button>
+          <label class="botao secundario">Restaurar cópia
+            <input type="file" id="importar" accept="application/json,.json" hidden>
+          </label>
+          <button type="button" id="apagar" class="perigo">Apagar todos os dados</button>
+        </div>
+        <p id="mensagem-dados" class="ajuda" aria-live="polite"></p>
+      </div>
+      <div class="cartao">
+        <h3>Como usar sem internet</h3>
+        <ul>
+          <li>Salve a pasta do projeto no celular ou computador e abra o arquivo <code>index.html</code> no navegador.</li>
+          <li>Se o app estiver publicado na internet, abra uma vez com conexão: depois ele funciona offline e pode ser instalado na tela inicial.</li>
+          <li>Leia o plano completo em <code>docs/plano-sobrevivencia-urbana.md</code>.</li>
+        </ul>
+      </div>
+    </section>
+  </main>
+
+  <!-- Cartão de bolso (aparece só na impressão) -->
+  <div id="cartao-bolso" class="cartao-bolso" aria-hidden="true"></div>
+
+  <footer class="rodape">
+    <p>Este app é uma ferramenta de preparação e não substitui as orientações da Defesa Civil, dos Bombeiros e das autoridades de saúde.</p>
+  </footer>
+
+  <script src="js/nucleo/suprimentos.js"></script>
+  <script src="js/nucleo/agua.js"></script>
+  <script src="js/nucleo/estoque.js"></script>
+  <script src="js/nucleo/situacao.js"></script>
+  <script src="js/nucleo/comunicacao.js"></script>
+  <script src="js/nucleo/kit.js"></script>
+  <script src="js/nucleo/cenarios.js"></script>
+  <script src="js/nucleo/rede.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

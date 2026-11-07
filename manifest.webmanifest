@@ -1,0 +1,12 @@
+{
+  "name": "Sobrevivência Urbana",
+  "short_name": "Sobrevivência",
+  "description": "Plano de sobrevivência urbana para a família e a comunidade. Funciona offline.",
+  "lang": "pt-BR",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f6f5f1",
+  "theme_color": "#1f6f5c",
+  "icons": [{ "src": "icone.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }]
+}
