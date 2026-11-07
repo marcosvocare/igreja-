@@ -49,6 +49,35 @@
     return href ? h('a', { href }, texto) : texto;
   }
 
+  /** Âncora de endereço só com letras, números e hífens. */
+  function ancora(id) {
+    return String(id).replace(/_/g, '-');
+  }
+
+  /** Copia texto; se o navegador recusar, seleciona o elemento para cópia manual. */
+  function copiarTexto(texto, elementoFallback, aoCopiar, aoFalhar) {
+    const falhou = () => {
+      if (elementoFallback) {
+        if (typeof elementoFallback.select === 'function') {
+          elementoFallback.focus();
+          elementoFallback.select();
+        } else {
+          const intervalo = document.createRange();
+          intervalo.selectNodeContents(elementoFallback);
+          const selecao = window.getSelection();
+          selecao.removeAllRanges();
+          selecao.addRange(intervalo);
+        }
+      }
+      if (aoFalhar) aoFalhar();
+    };
+    try {
+      navigator.clipboard.writeText(texto).then(aoCopiar, falhou);
+    } catch (e) {
+      falhou();
+    }
+  }
+
   function dataBR(iso) {
     const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso || '');
     return m ? `${m[3]}/${m[2]}/${m[1]}` : '';
@@ -191,8 +220,8 @@
     } catch (e) {
       /* endereço malformado: volta para a triagem */
     }
-    const [secao, sub] = hash.split('/');
-    const atual = SECOES.includes(secao) ? secao : 'situacao';
+    const atual = SECOES.find((id) => hash === id || hash.startsWith(`${id}-`)) || 'situacao';
+    const sub = hash.startsWith(`${atual}-`) ? hash.slice(atual.length + 1) : '';
     for (const id of SECOES) document.getElementById(id).classList.toggle('ativa', id === atual);
     for (const a of document.querySelectorAll('.abas a')) {
       if (a.getAttribute('href') === `#${atual}`) {
@@ -205,7 +234,8 @@
       return;
     }
     if (atual === 'cenarios' && sub) {
-      const alvo = document.getElementById(`cen-${sub}`);
+      const cenario = S.cenarios.CENARIOS.find((c) => ancora(c.id) === sub);
+      const alvo = cenario && document.getElementById(`cen-${cenario.id}`);
       if (alvo) {
         alvo.open = true;
         alvo.classList.add('destaque');
@@ -308,7 +338,7 @@
             h(
               'div',
               { class: 'botoes' },
-              r.cenarios.map((id) => h('a', { class: 'botao secundario', href: `#cenarios/${id}` }, S.cenarios.buscarCenario(id).titulo)),
+              r.cenarios.map((id) => h('a', { class: 'botao secundario', href: `#cenarios-${ancora(id)}` }, S.cenarios.buscarCenario(id).titulo)),
             ),
           )
         : null,
@@ -702,6 +732,7 @@
       if (e.target.name in estado.pontos) {
         estado.pontos[e.target.name] = e.target.value.slice(0, 120);
         salvar();
+        renderPreviaCartao();
       }
     });
 
@@ -747,12 +778,22 @@
       renderSms();
     });
 
+    $('#copiar-sms').addEventListener('click', () => {
+      const botao = $('#copiar-sms');
+      const aviso = (texto) => {
+        botao.textContent = texto;
+        setTimeout(() => (botao.textContent = 'Copiar mensagem'), 2500);
+      };
+      copiarTexto(ultimoSms, $('#previa-sms').firstChild ? $('#previa-sms') : null, () => aviso('Mensagem copiada'), () => aviso('Texto selecionado: copie manualmente'));
+    });
+
     const janelas = $('#form-janelas');
     janelas.elements.horarios.value = estado.horarios;
     janelas.addEventListener('input', (e) => {
       if (e.target.name === 'horarios') {
         estado.horarios = e.target.value.slice(0, 200);
         salvar();
+        renderPreviaCartao();
       }
       renderJanelas();
     });
@@ -765,6 +806,7 @@
   }
 
   function renderContatos() {
+    renderPreviaCartao();
     const botao = (acao, id, texto, rotulo) => h('button', { type: 'button', class: 'mini secundario', dataset: { acao, id }, 'aria-label': rotulo }, texto);
     trocar(
       $('#lista-contatos'),
@@ -805,6 +847,8 @@
     );
   }
 
+  let ultimoSms = '';
+
   function renderSms() {
     const f = $('#form-sms').elements;
     const agora = new Date();
@@ -823,6 +867,7 @@
       h('small', { class: 'ajuda' }, `${r.caracteres}/160 caracteres · ${r.segmentos} SMS${faltando ? ' · preencha seu nome e o local' : ''}`),
     );
     $('#enviar-sms').setAttribute('href', `sms:?&body=${encodeURIComponent(r.texto)}`);
+    ultimoSms = r.texto;
   }
 
   function renderJanelas() {
@@ -846,12 +891,15 @@
   }
 
   function renderCartaoBolso() {
-    const p = estado.pontos;
     const pessoas = S.suprimentos.totalPessoas(estado.casa);
     const copias = Math.min(Math.max(pessoas, 1), 8);
+    trocar($('#cartao-bolso'), Array.from({ length: copias }, unidadeCartao));
+  }
+
+  function unidadeCartao() {
+    const p = estado.pontos;
     const linha = (rotulo, valor) => h('p', null, h('strong', null, `${rotulo}: `), valor || '________________________');
-    const unidade = () =>
-      h(
+    return h(
         'div',
         { class: 'unidade' },
         h('h4', null, 'PLANO DE EMERGÊNCIA'),
@@ -863,7 +911,10 @@
         linha('Horários de contato', estado.horarios),
         h('p', null, h('strong', null, '190'), ' Polícia · ', h('strong', null, '192'), ' SAMU · ', h('strong', null, '193'), ' Bombeiros · ', h('strong', null, '199'), ' Defesa Civil'),
       );
-    trocar($('#cartao-bolso'), Array.from({ length: copias }, unidade));
+  }
+
+  function renderPreviaCartao() {
+    trocar($('#previa-cartao'), unidadeCartao());
   }
 
   // -------------------------------------------------------------------- rede
@@ -1033,23 +1084,63 @@
       setTimeout(() => URL.revokeObjectURL(url), 1000);
       msg.textContent = 'Cópia de segurança baixada.';
     });
-    $('#importar').addEventListener('change', async (e) => {
-      const arquivo = e.target.files && e.target.files[0];
-      if (!arquivo) return;
+    const restaurar = (texto) => {
       try {
-        const dados = JSON.parse(await arquivo.text());
+        const dados = JSON.parse(texto);
         if (!dados || typeof dados !== 'object' || dados.versao !== 1) throw new Error('formato');
         estado = mesclar(dados);
         salvar();
         recarregarFormularios();
-        msg.textContent = 'Cópia restaurada com sucesso.';
+        msg.textContent = 'Cópia restaurada.';
+        return true;
       } catch (erro) {
-        msg.textContent = 'Não foi possível ler esse arquivo. Use uma cópia gerada por este app.';
+        msg.textContent = 'Não foi possível ler essa cópia. Use um arquivo ou texto gerado por este app, sem alterações.';
+        return false;
       }
+    };
+    $('#importar').addEventListener('change', async (e) => {
+      const arquivo = e.target.files && e.target.files[0];
+      if (arquivo) restaurar(await arquivo.text());
       e.target.value = '';
     });
-    $('#apagar').addEventListener('click', () => {
-      if (!window.confirm('Apagar todos os dados deste aparelho? Faça uma cópia de segurança antes.')) return;
+    $('#copiar-dados').addEventListener('click', () => {
+      const texto = JSON.stringify(estado);
+      const area = $('#texto-backup');
+      copiarTexto(
+        texto,
+        null,
+        () => (msg.textContent = 'Dados copiados. Cole em um e-mail ou bloco de notas e guarde fora deste aparelho.'),
+        () => {
+          area.value = texto;
+          $('#restaurar-texto').open = true;
+          area.focus();
+          area.select();
+          msg.textContent = 'O texto está selecionado abaixo: copie e guarde fora deste aparelho.';
+        },
+      );
+    });
+    $('#restaurar-texto-botao').addEventListener('click', () => {
+      if (restaurar($('#texto-backup').value.trim())) $('#texto-backup').value = '';
+    });
+
+    // Apagar pede um segundo toque (o navegador do app publicado não mostra confirm()).
+    let aguardandoConfirmacao = false;
+    let relogio = null;
+    const botaoApagar = $('#apagar');
+    const cancelarApagar = () => {
+      aguardandoConfirmacao = false;
+      clearTimeout(relogio);
+      botaoApagar.textContent = 'Apagar todos os dados';
+    };
+    botaoApagar.addEventListener('click', () => {
+      if (!aguardandoConfirmacao) {
+        aguardandoConfirmacao = true;
+        botaoApagar.textContent = 'Toque de novo para apagar tudo';
+        msg.textContent = 'Isso apaga estoque, contatos, kit e rede deste aparelho. Faça uma cópia antes.';
+        relogio = setTimeout(cancelarApagar, 6000);
+        return;
+      }
+      cancelarApagar();
       try {
         localStorage.removeItem(CHAVE);
       } catch (erro) {
@@ -1106,7 +1197,7 @@
   window.addEventListener('hashchange', mostrarSecao);
   // O selo do topo leva ao resultado da triagem, mesmo se o endereço já for esse.
   $('#selo-nivel').addEventListener('click', (e) => {
-    if (location.hash === '#situacao/resultado') {
+    if (location.hash === '#situacao-resultado') {
       e.preventDefault();
       mostrarSecao();
     }

@@ -14,7 +14,7 @@
   <header class="topo">
     <div class="topo-linha">
       <h1>Sobrevivência Urbana</h1>
-      <a id="selo-nivel" class="selo" data-cor="verde" href="#situacao/resultado" title="Ver o resultado da triagem">Normal</a>
+      <a id="selo-nivel" class="selo" data-cor="verde" href="#situacao-resultado" title="Ver o resultado da triagem">Normal</a>
     </div>
     <p class="emergencia">
       Perigo imediato:
@@ -211,7 +211,10 @@
             </div>
             <label>Observação / motivo <input name="obs" maxlength="80"></label>
             <output id="previa-sms" class="previa"></output>
-            <a id="enviar-sms" class="botao" href="sms:">Abrir no app de mensagens</a>
+            <div class="botoes">
+              <button type="button" id="copiar-sms">Copiar mensagem</button>
+              <a id="enviar-sms" class="botao secundario" href="sms:">Abrir no app de mensagens</a>
+            </div>
           </form>
           <form id="form-janelas" class="cartao" autocomplete="off">
             <h3>Janelas de contato e bateria</h3>
@@ -228,8 +231,9 @@
           </form>
           <div class="cartao">
             <h3>Cartão de bolso</h3>
-            <p class="ajuda">Imprima, recorte e guarde na carteira de cada pessoa da casa. Celular descarrega; papel não.</p>
-            <button type="button" id="imprimir-cartao">Imprimir cartão</button>
+            <p class="ajuda" id="ajuda-cartao">Imprima, recorte e guarde na carteira de cada pessoa da casa. Celular descarrega; papel não.</p>
+            <div id="previa-cartao" class="previa-cartao"></div>
+            <button type="button" id="imprimir-cartao">Imprimir cartões</button>
           </div>
         </div>
       </div>
@@ -272,14 +276,21 @@
         <p>Tudo o que você cadastra fica salvo <strong>apenas neste aparelho</strong>. Faça cópias de segurança e guarde em outro lugar (e-mail, pen drive, outro celular).</p>
         <div class="botoes">
           <button type="button" id="exportar">Baixar cópia de segurança</button>
-          <label class="botao secundario">Restaurar cópia
+          <button type="button" id="copiar-dados" class="secundario">Copiar dados como texto</button>
+          <label class="botao secundario" id="rotulo-importar">Restaurar de arquivo
             <input type="file" id="importar" accept="application/json,.json" hidden>
           </label>
           <button type="button" id="apagar" class="perigo">Apagar todos os dados</button>
         </div>
         <p id="mensagem-dados" class="ajuda" aria-live="polite"></p>
+        <details id="restaurar-texto">
+          <summary>Restaurar colando o texto</summary>
+          <label for="texto-backup">Cole aqui o texto copiado antes</label>
+          <textarea id="texto-backup" rows="5" spellcheck="false"></textarea>
+          <button type="button" id="restaurar-texto-botao">Restaurar</button>
+        </details>
       </div>
-      <div class="cartao">
+      <div class="cartao" id="como-usar">
         <h3>Como usar sem internet</h3>
         <ul>
           <li>Salve a pasta do projeto no celular ou computador e abra o arquivo <code>index.html</code> no navegador.</li>
