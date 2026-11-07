@@ -76,6 +76,7 @@ quem acionar.
 | Kit de 72 h | Mochila de emergência personalizada pela composição da família | `js/nucleo/kit.js` |
 | Comunicação | Árvore de chamadas, SMS padronizados, janelas de contato, cargas de power bank | `js/nucleo/comunicacao.js` |
 | Comunidade | Mapa de habilidades e necessidades; pareamento de quem precisa com quem pode ajudar | `js/nucleo/rede.js` |
+| Rádio da família | Rede Meshtastic (celular + rádio LoRa): alcance, saltos, repetidor, plano de canais e mensagens | `js/nucleo/radio.js` |
 | Mapa de recursos | Fontes de água, remédios, alimentos, abrigos e zonas de perigo; melhor opção a partir da base | `js/nucleo/mapa.js` |
 | Remédios críticos | Dias de cobertura por pessoa, validade e reposição | `js/nucleo/remedios.js` |
 | Partilha justa | Divisão do estoque comum pela necessidade de cada família | `js/nucleo/partilha.js` |
@@ -118,6 +119,15 @@ itens específicos para bebês, crianças, idosos, pessoas com mobilidade reduzi
 - **Janelas de contato:** em crise longa, ligar o celular só nos horários combinados
   (ex.: 8h, 12h, 18h e 21h) para poupar bateria.
 - **Cartão de bolso:** contatos e pontos de encontro **impressos** na carteira de cada um.
+- **Rádio quando o celular cai:** cada pessoa leva um rádio LoRa com Meshtastic, ligado ao
+  celular por Bluetooth. As mensagens pulam de rádio em rádio, sem operadora, sem internet
+  e sem licença (faixa livre; prefira aparelhos homologados pela Anatel). Um repetidor no
+  ponto mais alto (a torre ou o telhado da igreja, com energia solar) cobre o bairro.
+  O canal principal fica no padrão, para que outros rádios da cidade também retransmitam;
+  a família usa um canal secundário com chave própria, compartilhada pessoalmente pelo
+  QR code. **Mecanismo:** *Rádio da família* (`js/nucleo/radio.js`) estima quem alcança
+  quem, em quantos saltos, quem fica isolado e onde pôr o repetidor, e gera o plano de
+  canais, os nomes dos aparelhos e mensagens que cabem no limite de uma mensagem LoRa.
 
 ### 4.5 Pontos de encontro
 

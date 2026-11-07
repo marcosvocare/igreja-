@@ -33,7 +33,7 @@
   }
 
   function metros(m) {
-    return m >= 1000 ? `${A.fmt(m / 1000, 1)} km` : `${Math.round(m / 10) * 10} m`;
+    return m >= 995 ? `${A.fmt(m / 1000, 1)} km` : `${Math.round(m / 10) * 10} m`;
   }
 
   /** "ao norte", "ao sul", "a leste", "a nordeste"… */
@@ -425,63 +425,38 @@
     const perigos = pts
       .filter((q) => q.p.categoria === 'perigo')
       .map((q) => svg('circle', { cx: c + q.x * esc, cy: c - q.y * esc, r: Math.max(4, q.p.raio * esc), class: q.p.status === 'resolvido' ? 'zona resolvida' : 'zona' }));
-    // Posiciona cada nome no primeiro lugar livre (direita, esquerda, acima, abaixo).
-    const sobrepoe = (a, b) => a[0] < b[2] && b[0] < a[2] && a[1] < b[3] && b[1] < a[3];
-    const pos = pts.map((q) => ({ q, x: c + q.x * esc, y: c - q.y * esc }));
-    const caixasMarcas = pos.map((m) => [m.x - 7, m.y - 7, m.x + 7, m.y + 7]);
+    const pos = pts.map((q) => ({
+      q,
+      x: c + q.x * esc,
+      y: c - q.y * esc,
+      texto: q.p.nome.length > 16 ? `${q.p.nome.slice(0, 15)}…` : q.p.nome,
+    }));
     // Nome da base: abaixo, acima, à direita ou à esquerda — o primeiro sem marcador por cima.
     const nomeBase = est.base.nome || 'Base';
     const wb = nomeBase.length * 6.4 + 4;
-    const opcoesBase = [
-      { tx: c, ty: c + 21, ancora: 'middle', caixa: [c - wb / 2, c + 10, c + wb / 2, c + 24] },
-      { tx: c, ty: c - 13, ancora: 'middle', caixa: [c - wb / 2, c - 24, c + wb / 2, c - 10] },
-      { tx: c + 11, ty: c + 4, ancora: 'start', caixa: [c + 10, c - 7, c + 10 + wb, c + 7] },
-      { tx: c - 11, ty: c + 4, ancora: 'end', caixa: [c - 10 - wb, c - 7, c - 10, c + 7] },
-    ];
-    const rotuloBase = opcoesBase.find((o) => !caixasMarcas.some((b) => sobrepoe(o.caixa, b))) || opcoesBase[0];
-    const caixas = [rotuloBase.caixa, [c - 8, c - 8, c + 8, c + 8], ...caixasMarcas];
-    const rotulos = new Map();
-    for (const m of [...pos].sort((a, b) => Math.hypot(a.q.x, a.q.y) - Math.hypot(b.q.x, b.q.y))) {
-      const nome = m.q.p.nome.length > 16 ? `${m.q.p.nome.slice(0, 15)}…` : m.q.p.nome;
-      const w = nome.length * 5.8 + 4;
-      const { x, y } = m;
-      const opcoes = [
-        { tx: x + 10, ty: y + 4, ancora: 'start', caixa: [x + 9, y - 6, x + 9 + w, y + 6] },
-        { tx: x - 10, ty: y + 4, ancora: 'end', caixa: [x - 9 - w, y - 6, x - 9, y + 6] },
-        { tx: x + 7, ty: y - 10, ancora: 'start', caixa: [x + 6, y - 19, x + 6 + w, y - 8] },
-        { tx: x + 7, ty: y + 17, ancora: 'start', caixa: [x + 6, y + 8, x + 6 + w, y + 19] },
-        { tx: x - 7, ty: y - 10, ancora: 'end', caixa: [x - 6 - w, y - 19, x - 6, y - 8] },
-        { tx: x - 7, ty: y + 17, ancora: 'end', caixa: [x - 6 - w, y + 8, x - 6, y + 19] },
-        { tx: x, ty: y - 11, ancora: 'middle', caixa: [x - w / 2, y - 21, x + w / 2, y - 9] },
-        { tx: x, ty: y + 19, ancora: 'middle', caixa: [x - w / 2, y + 9, x + w / 2, y + 21] },
-      ].filter((o) => o.caixa[0] >= 0 && o.caixa[2] <= L && o.caixa[1] >= 16 && o.caixa[3] <= L);
-      const propria = [x - 7, y - 7, x + 7, y + 7];
-      const conflitos = (o) => caixas.filter((b) => !(b[0] === propria[0] && b[1] === propria[1]) && sobrepoe(o.caixa, b)).length;
-      // A primeira posição livre; se nenhuma estiver livre, a que encobre menos coisas.
-      let escolhida = null;
-      let menor = Infinity;
-      for (const o of opcoes) {
-        const n = conflitos(o);
-        if (n < menor) {
-          menor = n;
-          escolhida = o;
-        }
-        if (n === 0) break;
-      }
-      escolhida = escolhida || { tx: x + 10, ty: y + 4, ancora: 'start', caixa: [x, y, x, y] };
-      caixas.push(escolhida.caixa);
-      rotulos.set(m, { nome, ...escolhida });
-    }
-    const marcas = pos.map((m) => {
+    const rotuloBase = S.rotulos.primeiroLivre(
+      [
+        { tx: c, ty: c + 21, ancora: 'middle', caixa: [c - wb / 2, c + 10, c + wb / 2, c + 24] },
+        { tx: c, ty: c - 13, ancora: 'middle', caixa: [c - wb / 2, c - 24, c + wb / 2, c - 10] },
+        { tx: c + 11, ty: c + 4, ancora: 'start', caixa: [c + 10, c - 7, c + 10 + wb, c + 7] },
+        { tx: c - 11, ty: c + 4, ancora: 'end', caixa: [c - 10 - wb, c - 7, c - 10, c + 7] },
+      ],
+      pos.map((m) => [m.x - 7, m.y - 7, m.x + 7, m.y + 7]),
+    );
+    // Nomes dos pontos: os mais perto da base escolhem a posição primeiro.
+    const ordem = pos.map((_, i) => i).sort((a, b) => Math.hypot(pos[a].q.x, pos[a].q.y) - Math.hypot(pos[b].q.x, pos[b].q.y));
+    const caixasAneis = [0.5, 1].map((f) => [c + 2, c - R * f + 2, c + 6 + metros(alcance * f).length * 5.5, c - R * f + 15]);
+    const rotulos = S.rotulos.posicionarRotulos(pos, { largura: L, altura: L, ocupadas: [rotuloBase.caixa, [c - 8, c - 8, c + 8, c + 8], ...caixasAneis], ordem });
+    const marcas = pos.map((m, i) => {
       const p = m.q.p;
       const inativo = p.status === 'esgotado' || p.status === 'resolvido' || (p.status === 'inseguro' && p.categoria !== 'perigo');
-      const r = rotulos.get(m);
+      const r = rotulos[i];
       return svg(
         'g',
         { class: `marca cat-${p.categoria}${inativo ? ' inativo' : ''}` },
         svg('title', null, `${p.nome} — ${rotuloStatus(p.status)}`),
         marcador(FORMAS[p.categoria], m.x, m.y, 'forma'),
-        svg('text', { x: r.tx, y: r.ty, 'text-anchor': r.ancora, class: 'rotulo-ponto' }, r.nome),
+        svg('text', { x: r.tx, y: r.ty, 'text-anchor': r.ancora, class: 'rotulo-ponto' }, m.texto),
       );
     });
 

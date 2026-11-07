@@ -23,6 +23,7 @@ com **mecanismos práticos** para executá-lo e um **app que funciona sem intern
 | **Água segura** | Gotas de água sanitária por volume e concentração (dobra se turva), tempo de fervura por altitude, métodos (fervura, cloração, SODIS, filtragem) e fontes de água escondidas em casa. | `agua.js` |
 | **Kit de 72 horas** | Mochila de emergência personalizada para bebês, crianças, idosos, gestantes, mobilidade reduzida, dependentes de energia e pets, com progresso salvo. | `kit.js` |
 | **Plano de comunicação** | Árvore de chamadas (cada um avisa até N pessoas), SMS padronizados sem acento (160 caracteres em vez de 70), próxima janela de contato, cargas de power bank e cartão de bolso para imprimir. | `comunicacao.js` |
+| **Rádio da família** | Rede Meshtastic (celular + rádio LoRa, sem operadora e sem internet): estima quem alcança quem e em quantos saltos, aponta quem fica isolado e sugere onde pôr um repetidor (com um toque para adicioná-lo); gera o plano de canais, nomes curtos e papéis dos aparelhos, códigos rápidos e mensagens que cabem no limite do rádio. | `radio.js` |
 | **Mapa de recursos** | Fontes de água, remédios, alimentos, abrigos e zonas de perigo, com coordenadas (do Google Maps ou do GPS do aparelho). Indica a melhor opção a partir da base, com distância, direção, tempo a pé, tratamento da água e aviso quando a rota atravessa ou passa perto de um perigo. Desenha o mapa ao redor da base sem internet. | `mapa.js` |
 | **Remédios críticos** | Dias que o remédio de cada pessoa dura (considerando a validade), quem está em risco e quanto falta para 30 dias. | `remedios.js` |
 | **Partilha justa** | Divide a água e a comida do estoque comum pela necessidade de cada família, com prioridade para bebês, gestantes, idosos e doentes. | `partilha.js` |
@@ -53,6 +54,7 @@ docs/plano-sobrevivencia-urbana.md   plano completo
 js/nucleo/*.js                       mecanismos (lógica pura, testada)
 js/app.js                            interface
 js/app-colapso.js                    abas Mapa, Defesa, Remédios e Partilha
+js/app-radio.js                      aba Rádio
 index.html, css/estilo.css           app offline
 sw.js, manifest.webmanifest          uso offline quando publicado
 tests/*.test.js                      testes dos mecanismos

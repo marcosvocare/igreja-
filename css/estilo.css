@@ -393,3 +393,21 @@ td.num-esq { white-space: nowrap; font-variant-numeric: tabular-nums; }
 
 /* --------------------------------------------------------- remédios */
 .aviso-linha { color: var(--laranja); }
+
+/* ------------------------------------------------------------ rádio */
+.codigos { display: grid; gap: .4rem; grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr)); margin-bottom: .75rem; }
+button.codigo { justify-content: flex-start; text-align: left; font-weight: 400; min-height: 2.4rem; padding: .35rem .6rem; }
+button.codigo strong { font-size: 1.05rem; min-width: 1.2rem; }
+.rede-radio .enlace { stroke: var(--verde); stroke-width: 2; }
+.rede-radio .enlace.fraco { stroke: var(--amarelo); stroke-dasharray: 5 4; }
+.rede-radio .sugerido { fill: none; stroke: var(--primaria); stroke-width: 2; stroke-dasharray: 3 3; }
+.rede-radio .forma-no { stroke: var(--superficie); stroke-width: 2; }
+.rede-radio .conectado .forma-no { fill: var(--verde); }
+.rede-radio .alem .forma-no { fill: var(--amarelo); }
+.rede-radio .isolado .forma-no { fill: var(--vermelho); }
+.rede-radio .base-radio .forma-no { stroke: var(--texto); stroke-width: 2.5; }
+.canais { padding-left: 1.6rem; }
+.canais li { margin-bottom: .5rem; }
+.canais li::marker { font-weight: 700; }
+.sugestao { border-color: var(--primaria); }
+code { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: .9em; background: var(--fundo); padding: .05rem .3rem; border-radius: 4px; }
