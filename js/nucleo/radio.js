@@ -291,9 +291,9 @@
   ];
 
   const GUIA = [
-    'Compre um rádio LoRa compatível com Meshtastic para cada pessoa e um para o repetidor. Prefira aparelhos com selo da Anatel, bateria e antena para a faixa de 915 MHz.',
+    'Compre um rádio LoRa compatível com Meshtastic para cada pessoa e um para o repetidor. Escolha modelos com bateria e antena para a faixa de 915 MHz.',
     'Instale o app Meshtastic no celular de cada pessoa (Android ou iPhone) e pareie com o rádio por Bluetooth.',
-    'Em Região (LoRa), escolha a do Brasil. Aqui a faixa livre fica entre 902 e 907,5 MHz e entre 915 e 928 MHz; na dúvida, confirme com a comunidade Meshtastic Brasil.',
+    'Em Região (LoRa), escolha a do Brasil (faixas de 902 a 907,5 MHz e de 915 a 928 MHz), a mesma para todos os rádios da rede.',
     'Dê a cada rádio o nome longo e o nome curto do plano abaixo e o papel indicado (CLIENT para pessoas, ROUTER só para o repetidor no alto).',
     'Mantenha o canal principal no padrão. Crie o canal da família como secundário, gere a chave no app e compartilhe pelo QR code, pessoalmente.',
     'Ajuste o limite de saltos para o valor do plano.',

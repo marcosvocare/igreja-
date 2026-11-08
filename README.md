@@ -9,15 +9,16 @@ com **mecanismos práticos** para executá-lo e um **app que funciona sem intern
 - ⚙️ **Mecanismos:** `js/nucleo/` — cada pilar do plano virou uma ferramenta testada.
 - 📱 **App offline:** `index.html` — abre direto no navegador, sem servidor e sem internet.
 
-> Ferramenta de preparação. Não substitui as orientações da Defesa Civil, do Corpo de
-> Bombeiros e das autoridades de saúde. Perigo imediato: **193**, **192**, **190**, **199**.
+> Pensado para um cenário sem serviços do Estado: o socorro vem das equipes da própria
+> comunidade (saúde, incêndio, resgate, vigilância, água e coordenação). Perigo imediato:
+> código **2** no rádio da família ou **3 toques de apito** repetidos.
 
 ## Mecanismos
 
 | Mecanismo | O que faz | Arquivo |
 |---|---|---|
-| **Triagem da situação** | A partir dos sinais observados (chuva, falta de energia, água subindo, tiroteio…) e da autonomia da casa, calcula o nível de alerta (0–3) e decide a postura: rotina, monitorar, racionar, preparar a saída, abrigar no local, evacuar ou pedir socorro. Indica quem acionar e o protocolo relacionado. | `situacao.js` |
-| **Protocolos por cenário** | Antes / durante / depois para colapso dos serviços (sem bombeiros, polícia e SAMU), enchente, deslizamento, apagão, falta d'água, incêndio, onda de calor, tiroteio, vazamento de gás, desabastecimento, epidemia e vendaval. | `cenarios.js` |
+| **Triagem da situação** | A partir dos sinais observados (chuva, falta de energia, água subindo, saques, tiroteio…) e da autonomia da casa, calcula o nível de alerta (0–3) e decide a postura: rotina, monitorar, racionar, preparar a saída, abrigar no local, evacuar ou pedir socorro. Indica qual equipe da comunidade acionar, com o contato dela, e o protocolo relacionado. | `situacao.js` |
+| **Protocolos por cenário** | Antes / durante / depois para colapso e desordem, enchente, deslizamento, apagão, falta d'água, incêndio, onda de calor, tiroteio, vazamento de gás, desabastecimento, epidemia e vendaval. | `cenarios.js` |
 | **Calculadora de suprimentos** | Água (beber, higiene, preparo dos alimentos, animais), calorias, lista de compras por kg, fraldas, fórmula e ração, conforme a composição da casa e os dias de meta. Avisa quando falta comida que dispensa fogão. | `suprimentos.js` |
 | **Estoque e autonomia** | Validades na ordem "o primeiro que vence é o primeiro que sai", dias de autonomia (água × comida, apontando o gargalo), quanto falta para a meta e plano de racionamento. | `estoque.js` |
 | **Água segura** | Gotas de água sanitária por volume e concentração (dobra se turva), tempo de fervura por altitude, métodos (fervura, cloração, SODIS, filtragem) e fontes de água escondidas em casa. | `agua.js` |

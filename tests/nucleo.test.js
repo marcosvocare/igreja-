@@ -145,7 +145,7 @@ test('situação: sem sinais é rotina normal', () => {
 });
 
 test('situação: sinais de atenção levam a monitorar', () => {
-  const r = situacao.avaliarSituacao(['chuva_forte', 'alerta_defesa_civil']);
+  const r = situacao.avaliarSituacao(['chuva_forte', 'alerta_comunidade']);
   assert.equal(r.nivel, 1);
   assert.equal(r.cor, 'amarelo');
   assert.equal(r.postura, 'MONITORAR');
@@ -163,17 +163,18 @@ test('situação: dependente de energia sem luz há mais de 24 h → preparar sa
   assert.equal(r.postura, 'PREPARAR_SAIDA');
 });
 
-test('situação: água entrando em casa → evacuar e acionar bombeiros/Defesa Civil', () => {
+test('situação: água entrando em casa → evacuar e acionar resgate e coordenação', () => {
   const r = situacao.avaliarSituacao(['agua_subindo']);
   assert.equal(r.nivel, 3);
   assert.equal(r.postura, 'EVACUAR');
-  assert.deepEqual(r.acionar.map((c) => c.numero).sort(), ['193', '199']);
+  assert.deepEqual(r.acionar.map((c) => c.id), ['resgate', 'coordenacao']);
+  assert.equal(r.acionar[0].nome, 'Equipe de resgate');
 });
 
 test('situação: tiroteio → abrigar no local', () => {
   const r = situacao.avaliarSituacao(['tiroteio']);
   assert.equal(r.postura, 'ABRIGAR');
-  assert.deepEqual(r.acionar.map((c) => c.numero), ['190']);
+  assert.deepEqual(r.acionar.map((c) => c.id), ['vigilancia']);
 });
 
 test('situação: risco dentro prevalece sobre risco fora, com aviso', () => {
@@ -182,13 +183,13 @@ test('situação: risco dentro prevalece sobre risco fora, com aviso', () => {
   assert.equal(r.avisos.length, 2);
 });
 
-test('situação: pessoa ferida sozinha → pedir socorro (SAMU)', () => {
+test('situação: pessoa ferida sozinha → pedir socorro à equipe de saúde', () => {
   const r = situacao.avaliarSituacao(['ferido_grave']);
   assert.equal(r.postura, 'SOCORRO');
-  assert.deepEqual(r.acionar.map((c) => c.numero), ['192']);
+  assert.deepEqual(r.acionar.map((c) => c.id), ['saude']);
   const comFogo = situacao.avaliarSituacao(['ferido_grave', 'fogo']);
   assert.equal(comFogo.postura, 'EVACUAR');
-  assert.ok(comFogo.avisos.some((a) => a.includes('192')));
+  assert.ok(comFogo.avisos.some((a) => a.includes('equipe de saúde')));
 });
 
 test('situação: rejeita sinal desconhecido', () => {

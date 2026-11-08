@@ -241,8 +241,10 @@ button.mini { padding: .15rem .55rem; min-height: 2rem; font-size: .85rem; }
 .painel-nivel .postura { font-size: 1.6rem; font-weight: 800; margin: .1rem 0 .5rem; }
 .painel-nivel ul { margin: .25rem 0 0; padding-left: 1.2rem; }
 .aviso { border-left: 4px solid var(--laranja); padding: .4rem .7rem; background: var(--laranja-fundo); border-radius: 0 8px 8px 0; margin: .5rem 0; }
-.ligar { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: .75rem; }
-.ligar a { background: var(--vermelho); border-color: var(--vermelho); color: var(--sobre-alerta); }
+.acionar-lista { margin-top: .75rem; padding-top: .6rem; border-top: 1px solid var(--cor-nivel); }
+.acionar-lista p { margin: .25rem 0; }
+.grade-equipes { display: grid; gap: 0 1rem; grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr)); }
+.emergencia span::before { content: "· "; color: var(--texto-suave); }
 
 /* ------------------------------------------------------------ cenários */
 details.cenario { background: var(--superficie); border: 1px solid var(--borda); border-radius: var(--raio); margin-bottom: .6rem; }

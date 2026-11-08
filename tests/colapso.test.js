@@ -202,11 +202,41 @@ test('defesa: avaliação de segurança prioriza os itens de maior peso', () => 
 
 // ------------------------------------------------------- triagem e protocolo
 
-test('triagem: serviços de emergência fora do ar ativam o protocolo de colapso', () => {
-  const r = situacao.avaliarSituacao(['sem_servicos'], { diasAutonomia: 10 });
+test('triagem: saques no bairro acionam vigilância e coordenação e levam ao protocolo de colapso', () => {
+  const r = situacao.avaliarSituacao(['saques'], { diasAutonomia: 10 });
   assert.equal(r.nivel, 2);
   assert.equal(r.postura, 'RACIONAR');
-  assert.ok(r.avisos.some((a) => a.includes('rede comunitária')));
+  assert.deepEqual(r.acionar.map((e) => e.id), ['vigilancia', 'coordenacao']);
   assert.deepEqual(r.cenarios, ['colapso']);
   assert.equal(cenarios.CENARIOS[0].id, 'colapso');
+});
+
+test('sem Estado: toda equipe acionada existe', () => {
+  const equipes = Object.keys(situacao.EQUIPES);
+  for (const s of situacao.SINAIS) for (const id of s.acionar) assert.ok(equipes.includes(id), `${s.id} → ${id}`);
+  for (const c of cenarios.CENARIOS) {
+    assert.ok(c.acionar.length > 0, c.id);
+    for (const id of c.acionar) assert.ok(equipes.includes(id), `${c.id} → ${id}`);
+  }
+});
+
+test('sem Estado: nenhum mecanismo manda pedir ajuda a órgãos do governo', () => {
+  const modulos = ['situacao', 'cenarios', 'kit', 'agua', 'suprimentos', 'estoque', 'comunicacao', 'rede', 'mapa', 'remedios', 'partilha', 'defesa', 'radio'];
+  const proibido = /\b(190|192|193|199|40199)\b|defesa civil|samu|corpo de bombeiros|pol[ií]cia|autoridades?|prefeitura|concession[áa]ria|anatel|\bsus\b|\bubs\b|\bupa\b|governo|oficial/i;
+  for (const nome of modulos) {
+    const m = require(`../js/nucleo/${nome}.js`);
+    const textos = [];
+    const coletar = (v) => {
+      if (typeof v === 'string') textos.push(v);
+      else if (Array.isArray(v)) v.forEach(coletar);
+      else if (v && typeof v === 'object') Object.values(v).forEach(coletar);
+    };
+    coletar(m);
+    coletar(nome === 'kit' ? m.gerarKit({ adultos: 1, idosos: 1, gestantes: 1, criancas: 1, bebes: 1, caes: 1 }, { remediosContinuos: true, mobilidadeReduzida: true, dependenteEnergia: true }) : null);
+    coletar(nome === 'situacao' ? Object.values(m.POSTURAS) : null);
+    for (const t of textos) assert.ok(!proibido.test(t), `${nome}: "${t}"`);
+  }
+  // Avisos gerados pela triagem também
+  const r = situacao.avaliarSituacao(['fogo', 'tiroteio', 'ferido_grave'], { rotaSegura: false });
+  for (const a of r.avisos) assert.ok(!proibido.test(a), a);
 });

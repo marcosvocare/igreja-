@@ -4,9 +4,9 @@ Plano de preparação para famílias e para a comunidade (igreja, vizinhança) e
 emergências na cidade: enchentes, deslizamentos, apagões, falta d'água, incêndios,
 violência urbana, desabastecimento e crises sanitárias.
 
-> Este plano **não substitui** as orientações da Defesa Civil, do Corpo de Bombeiros e
-> das autoridades de saúde. Em caso de perigo imediato, ligue **193** (Bombeiros),
-> **192** (SAMU), **190** (Polícia Militar) ou **199** (Defesa Civil).
+> **Não existem mais serviços do Estado.** Não há bombeiros, polícia, SAMU nem defesa civil
+> para chamar: o socorro vem das **equipes da própria comunidade** (seção 7). Em perigo
+> imediato, mande o **código 2** no rádio da família ou dê **3 toques de apito, repetidos**.
 
 Cada pilar deste plano tem um **mecanismo** correspondente — uma ferramenta concreta,
 implementada em `js/nucleo/` e disponível no aplicativo offline (`index.html`).
@@ -43,7 +43,7 @@ implementada em `js/nucleo/` e disponível no aplicativo offline (`index.html`).
 | Nível | Nome | Exemplos de sinais | Postura |
 |---|---|---|---|
 | 0 | **Normal** (verde) | Nenhum sinal | Manter a rotina de manutenção |
-| 1 | **Atenção** (amarelo) | Alerta da Defesa Civil, chuva forte contínua, queda curta de energia | Monitorar e preparar: carregar celulares, conferir kit, encher reservatórios |
+| 1 | **Atenção** (amarelo) | Alerta da vigilância, chuva forte contínua, queda curta de energia | Monitorar e preparar: carregar celulares, conferir kit, encher reservatórios |
 | 2 | **Alerta** (laranja) | Sem energia > 24 h, sem água da rede, desabastecimento | Racionar, ativar a rede de apoio, preparar a saída se a autonomia for baixa |
 | 3 | **Emergência** (vermelho) | Água entrando em casa, sinais de deslizamento, fogo, gás, tiroteio, ordem de evacuação | **Evacuar** ou **abrigar no local**, conforme o risco |
 
@@ -55,7 +55,7 @@ quem acionar.
 ### Ficar ou sair?
 
 - **Evacuar** quando o risco está *dentro* do imóvel ou do terreno: água subindo, sinais
-  de deslizamento, fogo, cheiro forte de gás, ordem das autoridades.
+  de deslizamento, fogo, cheiro forte de gás, ordem da coordenação da comunidade.
 - **Abrigar no local** quando o risco está *do lado de fora*: tiroteio, nuvem de fumaça ou
   produto químico.
 - Se há risco dentro **e** fora, o risco imediato dentro do imóvel prevalece: sair pelo
@@ -121,7 +121,7 @@ itens específicos para bebês, crianças, idosos, pessoas com mobilidade reduzi
 - **Cartão de bolso:** contatos e pontos de encontro **impressos** na carteira de cada um.
 - **Rádio quando o celular cai:** cada pessoa leva um rádio LoRa com Meshtastic, ligado ao
   celular por Bluetooth. As mensagens pulam de rádio em rádio, sem operadora, sem internet
-  e sem licença (faixa livre; prefira aparelhos homologados pela Anatel). Um repetidor no
+  e sem depender de ninguém de fora. Um repetidor no
   ponto mais alto (a torre ou o telhado da igreja, com energia solar) cobre o bairro.
   O canal principal fica no padrão, para que outros rádios da cidade também retransmitam;
   a família usa um canal secundário com chave própria, compartilhada pessoalmente pelo
@@ -144,13 +144,12 @@ itens específicos para bebês, crianças, idosos, pessoas com mobilidade reduzi
   de energia ou não tem transporte.
 - **Pareamento:** cada pessoa vulnerável tem alguém designado, de preferência no mesmo
   bairro, para verificar como ela está e ajudá-la a sair se necessário.
-- **Privacidade (LGPD):** colete o mínimo de dados, com consentimento, e guarde-os com a
+- **Privacidade:** colete o mínimo de dados, com consentimento, e guarde-os com a
   coordenação. O aplicativo armazena tudo apenas no próprio aparelho.
 
-## 5. Colapso: sem bombeiros, polícia e SAMU
+## 5. Colapso e desordem
 
-Quando os serviços de emergência não atendem e a desordem se espalha, a comunidade passa
-a ser o socorro. O objetivo continua o mesmo: **manter todos vivos, sem confronto**.
+Sem serviços do Estado e com a desordem espalhada, a comunidade é o socorro. O objetivo continua o mesmo: **manter todos vivos, sem confronto**.
 
 ### 5.1 Organização
 
@@ -164,6 +163,8 @@ A rede da igreja se divide em equipes, cada uma com um responsável e um substit
 | Alimentação | Estoque comum, cozinha comunitária, partilha justa |
 | Comunicação | Árvore de chamadas, quadro de avisos, atualização do mapa |
 | Incêndio | Extintores, baldes de areia e água, combate a focos pequenos |
+| Resgate | Enchentes, deslizamentos, retirada de pessoas presas ou isoladas |
+| Coordenação | Decide evacuações, organiza abrigo, partilha e mediação entre vizinhos |
 
 ### 5.2 Mapeamento de água, remédios e alimentos
 
@@ -221,17 +222,23 @@ mais, até 100 %. A sobra de quem já foi atendido volta para os demais.
 | Mensal | Conferir validades do estoque; carregar power banks; testar lanternas e rádio |
 | A cada 6 meses | Trocar a água armazenada; revisar o kit (roupas das crianças, remédios); atualizar contatos |
 | Anual | Simulado de evacuação com a família; teste da árvore de chamadas com a comunidade; revisar este plano |
-| Início da estação de chuvas | Limpar calhas e ralos; conferir rotas de saída e pontos altos do bairro; cadastrar o CEP no alerta da Defesa Civil (SMS **40199**) |
+| Início da estação de chuvas | Limpar calhas e ralos; conferir rotas de saída e pontos altos do bairro; treinar com a equipe de resgate os sinais de deslizamento e o código de apitos |
 
-## 7. Contatos de emergência (Brasil)
+## 7. Socorro da comunidade
 
-| Serviço | Número |
+Não há números de emergência do governo. Cada equipe tem um responsável e um substituto,
+com nome curto do rádio e local onde encontrá-los (aba **Rede de apoio → Equipes de
+socorro**). Os contatos aparecem na triagem e no cartão de bolso.
+
+| Equipe | Acionar quando |
 |---|---|
-| Polícia Militar | 190 |
-| SAMU | 192 |
-| Corpo de Bombeiros | 193 |
-| Defesa Civil | 199 |
-| Alertas da Defesa Civil por SMS | envie seu CEP para 40199 |
+| Coordenação da comunidade | Evacuação, abrigo, partilha, saques e desordem |
+| Equipe de saúde | Ferimentos, doenças, insolação, remédios |
+| Brigada de incêndio | Fogo, fumaça, cheiro de gás, fios caídos |
+| Equipe de resgate | Enchente, deslizamento, pessoas presas ou soterradas |
+| Vigilância | Tiroteio, movimentação suspeita, alertas |
+| Equipe de água | Fontes, tratamento e distribuição de água |
 
-Acrescente os números locais: concessionárias de energia, água e gás, posto de saúde,
-hospital de referência, coordenação da igreja e o contato fora da cidade.
+**Como pedir socorro:** código **2** no canal da família do rádio (com a posição ligada);
+sem rádio, **3 toques de apito repetidos** ou **3 piscadas de lanterna** à noite; na janela,
+folha escrita **AJUDA**.

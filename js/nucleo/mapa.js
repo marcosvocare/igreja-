@@ -33,8 +33,8 @@
       rotulo: 'Remédios e saúde',
       tipos: {
         farmacia: 'Farmácia',
-        posto: 'Posto de saúde (UBS)',
-        hospital: 'Hospital ou UPA',
+        posto: 'Posto de saúde ou clínica',
+        hospital: 'Hospital',
         profissional: 'Profissional de saúde da rede',
         estoque_membro: 'Estoque de membro da rede',
       },

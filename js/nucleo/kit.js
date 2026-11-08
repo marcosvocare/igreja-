@@ -41,7 +41,7 @@
     };
 
     secao('docs', 'Documentos e dinheiro', [
-      ['copias', 'Cópias de RG, CPF, certidões e cartão do SUS em saco plástico fechado'],
+      ['copias', 'Cópias de documentos de identidade e certidões em saco plástico fechado'],
       ['digital', 'Fotos dos documentos salvas no celular e na nuvem'],
       ['dinheiro', 'Dinheiro em espécie em notas pequenas (maquininhas e Pix podem parar)'],
       ['contatos', 'Lista de contatos e pontos de encontro impressa (cartão de bolso)'],
@@ -116,7 +116,7 @@
     if (gestantes) {
       secao('gestantes', `Gestantes (${gestantes})`, [
         ['cartao', 'Caderneta da gestante e exames recentes'],
-        ['maternidade', 'Endereço e telefone da maternidade de referência'],
+        ['parto', 'Contato do profissional de saúde da rede que acompanha a gestação'],
       ]);
     }
 

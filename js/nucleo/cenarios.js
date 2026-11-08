@@ -1,8 +1,8 @@
 /**
  * Mecanismo: Protocolos por cenário (antes / durante / depois).
  *
- * Baseado em orientações gerais da Defesa Civil, Corpo de Bombeiros e
- * Ministério da Saúde. Sempre siga as instruções oficiais locais.
+ * Cenário sem serviços do Estado: quem socorre são as equipes da comunidade.
+ * `acionar` traz os ids das equipes (situacao.EQUIPES).
  */
 (function (raiz, fabrica) {
   const modulo = fabrica();
@@ -13,10 +13,10 @@
 
   const COLAPSO = {
     id: 'colapso',
-    titulo: 'Colapso: sem bombeiros, polícia e SAMU',
+    titulo: 'Colapso e desordem',
     sinais: [
-      'Ligações para 190, 192 e 193 não completam ou ninguém vem',
-      'Saques e violência sem resposta das autoridades',
+      'Saques e violência no bairro',
+      'Grupos armados ou bloqueios nas ruas',
       'Falta de água, energia e comida ao mesmo tempo, por dias',
     ],
     antes: [
@@ -32,16 +32,16 @@
       'Não reaja a saques nem a assaltos: nenhum bem vale uma vida.',
       'Saia só em grupo, de dia, por rotas que evitam os perigos do mapa, com hora de volta combinada.',
       'Incêndio: só combata foco pequeno (do tamanho de uma lixeira), com a saída às suas costas. Se crescer, saia, feche a porta e afaste os vizinhos.',
-      'Ferimentos: pressione sangramentos com pano limpo, imobilize fraturas e leve, em grupo, ao profissional de saúde da rede ou ao hospital funcionando mais próximo.',
+      'Ferimentos: pressione sangramentos com pano limpo, imobilize fraturas e leve, em grupo, à equipe de saúde da comunidade.',
       'Água: beba só água fervida ou clorada. Partilhe alimentos pela rede, de forma justa e organizada (aba Partilha).',
       'Atualize o mapa a cada saída: o que está disponível, esgotado ou perigoso.',
     ],
     depois: [
       'Registre quem ajudou, o que faltou e o que funcionou; atualize o mapa e o plano.',
       'Cuide da saúde emocional: rodas de conversa, oração e atenção às crianças.',
-      'Quando os serviços voltarem, informe pessoas feridas ou desaparecidas e os danos.',
+      'Mantenha uma lista de pessoas feridas ou desaparecidas e avise as famílias.',
     ],
-    acionar: ['Equipes da rede comunitária', 'Profissional de saúde da rede'],
+    acionar: ['coordenacao', 'vigilancia'],
   };
 
   const CENARIOS = [
@@ -49,7 +49,7 @@
     {
       id: 'enchente',
       titulo: 'Enchente e alagamento',
-      sinais: ['Chuva forte por horas', 'Bueiros transbordando', 'Rio ou córrego subindo rápido', 'Alerta da Defesa Civil'],
+      sinais: ['Chuva forte por horas', 'Bueiros transbordando', 'Rio ou córrego subindo rápido', 'Alerta da vigilância ou dos vizinhos'],
       antes: [
         'Saiba se sua rua alaga e qual é o ponto alto mais próximo.',
         'Guarde documentos, remédios e eletrônicos em sacos plásticos, no alto.',
@@ -63,13 +63,13 @@
         'Fique longe de bueiros, valas e fios elétricos.',
       ],
       depois: [
-        'Só volte com liberação da Defesa Civil; verifique rachaduras antes de entrar.',
+        'Só volte quando a água baixar e a equipe de resgate verificar a casa; procure rachaduras antes de entrar.',
         'Use botas e luvas na limpeza: a água de enchente pode transmitir leptospirose.',
         'Descarte alimentos que tiveram contato com a água (latas intactas podem ser lavadas e desinfetadas).',
         'Lave e desinfete a casa e a caixa d\'água com água sanitária, seguindo o rótulo.',
-        'Febre, dor no corpo e na panturrilha até 30 dias depois: procure o posto de saúde e conte que teve contato com enchente.',
+        'Febre, dor no corpo e na panturrilha até 30 dias depois: procure a equipe de saúde e conte que teve contato com enchente.',
       ],
-      acionar: ['193', '199'],
+      acionar: ['resgate', 'coordenacao'],
     },
     {
       id: 'deslizamento',
@@ -82,7 +82,7 @@
         'Estalos ou barulho de terra se movendo',
       ],
       antes: [
-        'Se mora em encosta, peça vistoria à Defesa Civil (199).',
+        'Se mora em encosta, peça à equipe de resgate (ou a alguém da rede que entenda de construção) para avaliar o terreno.',
         'Não corte o barranco, não jogue lixo nem água servida na encosta.',
         'Combine com os vizinhos um sinal de alerta (apito, sirene, grupo de mensagens).',
       ],
@@ -92,15 +92,15 @@
         'Em chuva forte e contínua em área de risco, saia preventivamente para o abrigo combinado.',
       ],
       depois: [
-        'Não volte até a Defesa Civil liberar: novos deslizamentos são comuns.',
-        'Não tente resgatar soterrados sem equipe — chame 193 e indique o local exato.',
+        'Não volte até a equipe de resgate avaliar: novos deslizamentos são comuns.',
+        'Não tente resgatar soterrados sozinho: chame a equipe de resgate e indique o local exato.',
       ],
-      acionar: ['199', '193'],
+      acionar: ['resgate', 'coordenacao'],
     },
     {
       id: 'apagao',
       titulo: 'Apagão prolongado',
-      sinais: ['Falta de energia em todo o bairro', 'Previsão de religamento longa ou inexistente'],
+      sinais: ['Falta de energia em todo o bairro', 'Sem previsão de volta da energia'],
       antes: [
         'Tenha lanternas, pilhas, rádio e power banks carregados.',
         'Saiba abrir manualmente o portão eletrônico e a porta da garagem.',
@@ -118,12 +118,12 @@
         'Verifique remédios refrigerados (insulina e outros) conforme a bula.',
         'Religue os aparelhos aos poucos.',
       ],
-      acionar: ['Concessionária de energia'],
+      acionar: ['coordenacao', 'saude'],
     },
     {
       id: 'falta_agua',
       titulo: 'Falta d\'água prolongada',
-      sinais: ['Torneiras secas', 'Aviso de rodízio ou manutenção da companhia', 'Seca prolongada'],
+      sinais: ['Torneiras secas', 'Caixas d\'água vazias no bairro', 'Seca prolongada'],
       antes: [
         'Mantenha reserva de 4 L por pessoa por dia, por pelo menos 3 dias (meta: 7 a 14).',
         'Troque a água armazenada a cada 6 meses.',
@@ -138,7 +138,7 @@
         'Deixe a torneira correr alguns minutos quando a água voltar (pode vir turva).',
         'Reponha a reserva assim que possível.',
       ],
-      acionar: ['Companhia de saneamento'],
+      acionar: ['agua', 'coordenacao'],
     },
     {
       id: 'incendio',
@@ -150,7 +150,8 @@
         'Defina um ponto de encontro do lado de fora.',
       ],
       durante: [
-        'Saia imediatamente e ligue 193 de fora. Não use elevador.',
+        'Saia imediatamente e dê o alarme (apito longo) para a brigada de incêndio e os vizinhos. Não use elevador.',
+        'Foco pequeno: extintor, areia ou abafar com pano molhado. Nunca jogue água em óleo quente nem em fiação ligada.',
         'Antes de abrir uma porta, toque nela com as costas da mão: se estiver quente, use outra saída.',
         'Fumaça: ande abaixado, perto do chão, cobrindo nariz e boca com pano.',
         'Feche as portas atrás de você para atrasar o fogo.',
@@ -158,15 +159,15 @@
         'Se ficar preso: vede as frestas com panos molhados, vá para a janela e sinalize.',
       ],
       depois: [
-        'Não volte para buscar nada. Só entre com liberação dos bombeiros.',
-        'Quem inalou fumaça deve ser avaliado por um médico, mesmo sem sintomas.',
+        'Não volte para buscar nada. Só entre quando a brigada confirmar que o fogo acabou e a estrutura está firme.',
+        'Quem inalou fumaça deve ser avaliado pela equipe de saúde, mesmo sem sintomas.',
       ],
-      acionar: ['193', '192'],
+      acionar: ['incendio', 'saude'],
     },
     {
       id: 'calor',
       titulo: 'Onda de calor',
-      sinais: ['Temperaturas muito acima do normal por vários dias', 'Alerta meteorológico'],
+      sinais: ['Temperaturas muito acima do normal por vários dias', 'Noites quentes sem alívio'],
       antes: [
         'Identifique lugares frescos próximos (igreja, biblioteca, shopping) para passar as horas mais quentes.',
         'Combine visitas a idosos que moram sozinhos.',
@@ -176,10 +177,10 @@
         'Evite o sol e esforço físico entre 10h e 16h.',
         'Use roupas leves e claras; mantenha a casa ventilada e com cortinas fechadas durante o dia.',
         'Nunca deixe crianças, idosos ou animais dentro de carro fechado.',
-        'Pele quente e seca, confusão, desmaio: é insolação. Ligue 192, leve para a sombra e resfrie com panos molhados.',
+        'Pele quente e seca, confusão, desmaio: é insolação. Chame a equipe de saúde, leve para a sombra e resfrie com panos molhados.',
       ],
       depois: ['Verifique como estão os vizinhos idosos e doentes.'],
-      acionar: ['192'],
+      acionar: ['saude'],
     },
     {
       id: 'tiroteio',
@@ -194,13 +195,13 @@
         'Em casa: vá para o cômodo protegido, deite no chão, longe de portas e janelas.',
         'Silencie o celular; não vá à janela e não filme.',
         'Avise a família por mensagem de texto que está abrigado.',
-        'Ligue 190 quando for seguro falar.',
+        'Quando for seguro, avise a vigilância pelo rádio (código 3) para alertar os outros.',
       ],
       depois: [
         'Espere a confirmação de que acabou antes de sair.',
         'Busque apoio emocional — crianças em especial precisam conversar sobre o que viveram.',
       ],
-      acionar: ['190', '192'],
+      acionar: ['vigilancia', 'saude'],
     },
     {
       id: 'gas',
@@ -213,10 +214,10 @@
       durante: [
         'Não acenda luzes, não acione interruptores, não use fósforo nem isqueiro.',
         'Feche o registro do gás e abra portas e janelas.',
-        'Saia do local e ligue 193 ou para a companhia de gás de fora do imóvel.',
+        'Saia do local, afaste as pessoas e chame a brigada de incêndio de fora do imóvel.',
       ],
-      depois: ['Só religue o gás após verificação técnica.'],
-      acionar: ['193', 'Companhia de gás'],
+      depois: ['Só religue o gás depois que alguém da rede que entenda de instalação conferir a mangueira e o registro.'],
+      acionar: ['incendio'],
     },
     {
       id: 'desabastecimento',
@@ -233,39 +234,39 @@
         'Economize combustível: só deslocamentos essenciais e caronas.',
       ],
       depois: ['Reponha o estoque aos poucos, sem pressionar o comércio.'],
-      acionar: [],
+      acionar: ['coordenacao'],
     },
     {
       id: 'epidemia',
       titulo: 'Epidemia e emergência sanitária',
-      sinais: ['Aumento de casos no bairro', 'Comunicado das autoridades de saúde'],
+      sinais: ['Aumento de casos no bairro', 'Vários doentes com os mesmos sintomas'],
       antes: [
-        'Mantenha a vacinação em dia.',
+        'Mantenha a vacinação em dia enquanto houver vacina.',
         'Tenha termômetro, máscaras, álcool em gel e soro de reidratação oral.',
       ],
       durante: [
         'Lave as mãos com frequência e use máscara quando recomendado.',
         'Isole o doente em um cômodo, com um único cuidador, se possível.',
-        'Siga as orientações das autoridades de saúde; desconfie de boatos.',
-        'Sinais de alerta (falta de ar, desidratação, confusão): procure atendimento ou ligue 192.',
+        'Siga a orientação da equipe de saúde da comunidade; desconfie de boatos.',
+        'Sinais de alerta (falta de ar, desidratação, confusão): chame a equipe de saúde.',
       ],
       depois: ['Limpe e desinfete superfícies e reponha os itens de saúde.'],
-      acionar: ['192', 'Posto de saúde'],
+      acionar: ['saude'],
     },
     {
       id: 'vendaval',
       titulo: 'Vendaval e tempestade',
       sinais: ['Ventos fortes', 'Granizo', 'Raios'],
       antes: [
-        'Pode árvores com orientação da prefeitura e prenda objetos soltos no quintal e na laje.',
+        'Pode os galhos que ameaçam a casa e prenda objetos soltos no quintal e na laje.',
       ],
       durante: [
         'Fique dentro de casa, longe de janelas; desligue aparelhos da tomada.',
         'Na rua: afaste-se de árvores, postes, placas e fios. Não se abrigue sob árvores.',
-        'Fio caído: não toque nem chegue perto; avise 193 e a concessionária de energia.',
+        'Fio caído: não toque nem chegue perto; sinalize o local e avise a brigada e os vizinhos.',
       ],
       depois: ['Cuidado com fios caídos e estruturas danificadas; registre danos com fotos.'],
-      acionar: ['193', '199', 'Concessionária de energia'],
+      acionar: ['incendio', 'resgate'],
     },
   ];
 

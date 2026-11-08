@@ -114,6 +114,7 @@
       horarios: '08:00, 12:00, 18:00, 21:00',
       nomeSms: '',
       rede: [],
+      equipes: Object.fromEntries(Object.keys(S.situacao.EQUIPES).map((k) => [k, ''])),
     };
     for (const ext of EXTENSOES) Object.assign(base, ext.padrao());
     return base;
@@ -141,6 +142,9 @@
     r.rotaSegura = dados.rotaSegura !== false;
     if (typeof dados.horarios === 'string') r.horarios = dados.horarios.slice(0, 200);
     r.nomeSms = texto(dados.nomeSms, 30);
+    if (dados.equipes && typeof dados.equipes === 'object') {
+      for (const k of Object.keys(r.equipes)) r.equipes[k] = texto(dados.equipes[k], 80);
+    }
 
     const idsSinais = new Set(S.situacao.SINAIS.map((s) => s.id));
     r.sinais = Array.isArray(dados.sinais) ? dados.sinais.filter((id) => idsSinais.has(id)) : [];
@@ -241,6 +245,13 @@
       $('#resultado-situacao').scrollIntoView({ block: 'start' });
       return;
     }
+    if (sub && atual !== 'cenarios') {
+      const alvo = document.getElementById(hash);
+      if (alvo) {
+        alvo.scrollIntoView({ block: 'start' });
+        return;
+      }
+    }
     if (atual === 'cenarios' && sub) {
       const cenario = S.cenarios.CENARIOS.find((c) => ancora(c.id) === sub);
       const alvo = cenario && document.getElementById(`cen-${cenario.id}`);
@@ -333,7 +344,21 @@
         h('div', { class: 'postura' }, r.tituloPostura),
         r.motivos.length ? h('ul', null, r.motivos.map((m) => h('li', null, m))) : null,
         r.acionar.length
-          ? h('div', { class: 'ligar' }, r.acionar.map((c) => h('a', { class: 'botao', href: `tel:${c.numero}` }, `Ligar ${c.numero} · ${c.nome}`)))
+          ? h(
+              'div',
+              { class: 'acionar-lista' },
+              h('div', { class: 'rotulo-nivel' }, 'Acionar'),
+              r.acionar.map((c) =>
+                h(
+                  'p',
+                  null,
+                  h('strong', null, c.nome),
+                  ': ',
+                  estado.equipes[c.id] ? estado.equipes[c.id] : h('a', { href: '#rede-equipes' }, 'defina o contato desta equipe'),
+                ),
+              ),
+              h('p', { class: 'ajuda' }, 'Pelo rádio: código 2 com a sua posição. Sem rádio: apito, 3 toques repetidos.'),
+            )
           : null,
       ),
       r.avisos.map((a) => h('p', { class: 'aviso' }, a)),
@@ -374,7 +399,10 @@
               null,
               lista('Depois', c.depois),
               c.acionar.length
-                ? [h('h4', null, 'Acionar'), h('p', null, c.acionar.map((a, i) => [i ? ' · ' : '', /^\d+$/.test(a) ? h('a', { href: `tel:${a}` }, a) : a]))]
+                ? [
+                    h('h4', null, 'Acionar'),
+                    h('p', null, c.acionar.map((id, i) => [i ? ' · ' : '', h('a', { href: '#rede-equipes' }, (S.situacao.EQUIPES[id] || { nome: id }).nome)])),
+                  ]
                 : null,
             ),
           ),
@@ -917,7 +945,11 @@
         linha('Contato fora da cidade', p.contatoFora),
         estado.contatos.slice(0, 5).map((c) => h('p', null, `${c.nome}: ${c.telefone || '—'}`)),
         linha('Horários de contato', estado.horarios),
-        h('p', null, h('strong', null, '190'), ' Polícia · ', h('strong', null, '192'), ' SAMU · ', h('strong', null, '193'), ' Bombeiros · ', h('strong', null, '199'), ' Defesa Civil'),
+        Object.entries(S.situacao.EQUIPES)
+          .filter(([k]) => estado.equipes[k])
+          .slice(0, 4)
+          .map(([k, eq]) => h('p', null, h('strong', null, `${eq.nome}: `), estado.equipes[k])),
+        linha('Socorro', `rádio${estado.radio ? ` (canal ${estado.radio.canalFamilia})` : ''}: código 2 · apito: 3 toques`),
       );
   }
 
@@ -964,6 +996,29 @@
       estado.rede = estado.rede.filter((m) => m.id !== b.dataset.id);
       salvar();
       renderRede();
+    });
+  }
+
+  function montarEquipes() {
+    trocar(
+      $('#campos-equipes'),
+      Object.entries(S.situacao.EQUIPES).map(([k, eq]) =>
+        h(
+          'label',
+          { for: `equipe-${k}` },
+          h('strong', null, eq.nome),
+          h('small', { class: 'ajuda' }, ` — ${eq.faz}`),
+          h('input', { id: `equipe-${k}`, dataset: { equipe: k }, maxlength: 80, placeholder: 'Ex.: Irmã Lúcia · rádio LUCI · casa ao lado da igreja', value: estado.equipes[k] }),
+        ),
+      ),
+    );
+    $('#campos-equipes').addEventListener('input', (e) => {
+      const k = e.target.dataset.equipe;
+      if (!k) return;
+      estado.equipes[k] = e.target.value.slice(0, 80);
+      salvar();
+      renderSituacao();
+      renderPreviaCartao();
     });
   }
 
@@ -1174,6 +1229,7 @@
     $('#por-pessoa').value = String(estado.porPessoa);
     $('#form-sms').elements.nome.value = estado.nomeSms;
     $('#form-janelas').elements.horarios.value = estado.horarios;
+    for (const i of document.querySelectorAll('[data-equipe]')) i.value = estado.equipes[i.dataset.equipe];
     for (const ext of EXTENSOES) if (ext.recarregar) ext.recarregar();
     atualizarTudo();
   }
@@ -1221,6 +1277,7 @@
   montarKit();
   montarComunicacao();
   montarRede();
+  montarEquipes();
   montarDados();
   for (const ext of EXTENSOES) ext.montar(api);
   renderAgua();

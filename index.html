@@ -17,11 +17,10 @@
       <a id="selo-nivel" class="selo" data-cor="verde" href="#situacao-resultado" title="Ver o resultado da triagem">Normal</a>
     </div>
     <p class="emergencia">
-      Perigo imediato:
-      <a href="tel:193">193 Bombeiros</a>
-      <a href="tel:192">192 SAMU</a>
-      <a href="tel:190">190 Polícia</a>
-      <a href="tel:199">199 Defesa Civil</a>
+      Pedir socorro:
+      <a href="#rede-equipes">equipes da comunidade</a>
+      <span>rádio da família: código 2</span>
+      <span>apito: 3 toques repetidos</span>
     </p>
     <nav class="abas" aria-label="Seções">
       <a href="#situacao">Situação</a>
@@ -468,6 +467,11 @@
     <section id="rede" class="secao">
       <h2>Rede de apoio comunitária</h2>
       <p class="ajuda">Mapa de quem pode ajudar e de quem precisa de ajuda (igreja, vizinhança). Colete só o necessário e com consentimento — os dados ficam apenas neste aparelho.</p>
+      <form id="rede-equipes" class="cartao" autocomplete="off">
+        <h3>Equipes de socorro da comunidade</h3>
+        <p class="ajuda">Sem serviços do Estado, o socorro vem da própria comunidade. Defina quem responde por cada equipe e como encontrá-la: nome, nome curto do rádio, telefone ou onde fica. Esses contatos aparecem na triagem e no cartão de bolso.</p>
+        <div id="campos-equipes" class="grade-equipes"></div>
+      </form>
       <div class="duas-colunas">
         <form id="form-rede" class="cartao" autocomplete="off">
           <div class="grade-numeros">
@@ -530,7 +534,7 @@
   <div id="cartao-bolso" class="cartao-bolso" aria-hidden="true"></div>
 
   <footer class="rodape">
-    <p>Este app é uma ferramenta de preparação e não substitui as orientações da Defesa Civil, dos Bombeiros e das autoridades de saúde.</p>
+    <p>Ferramenta de preparação e organização da comunidade. Os valores são estimativas: na dúvida, consulte a equipe de saúde da comunidade.</p>
   </footer>
 
   <script src="js/nucleo/suprimentos.js"></script>
