@@ -144,6 +144,7 @@
     );
     preencherTipos();
     A.$('#ponto-categoria').addEventListener('change', preencherTipos);
+    A.trocar(A.$('#ponto-direcao'), M.DIRECOES.map((d) => A.h('option', { value: d }, d)));
 
     const fPonto = A.$('#form-ponto');
     fPonto.addEventListener('submit', (e) => {
@@ -151,11 +152,22 @@
       const nome = A.$('#ponto-nome').value.trim();
       if (!nome) return;
       const textoC = A.$('#ponto-coord').value.trim();
-      const c = M.lerCoordenadas(textoC);
+      let c = M.lerCoordenadas(textoC);
       const msg = A.$('#msg-ponto');
       if (textoC && !c) {
         msg.textContent = 'Coordenadas não reconhecidas. Corrija ou deixe em branco (o ponto entra sem distância).';
         return;
+      }
+      // Sem coordenadas: distância (metros ou passos) e direção a partir da base, sem internet.
+      const distancia = Number(A.$('#ponto-distancia').value);
+      if (!c && distancia > 0) {
+        try {
+          const m = A.$('#ponto-unidade').value === 'passos' ? M.metrosDePassos(distancia) : distancia;
+          c = M.pontoPorRumo(est().base, m, A.$('#ponto-direcao').value);
+        } catch (erro) {
+          msg.textContent = erro.message;
+          return;
+        }
       }
       est().pontos.push({
         id: A.novoId(),
@@ -170,7 +182,7 @@
         raio: A.inteiro(A.$('#ponto-raio').value, 20, 2000, 150),
         verificadoEm: new Date().toISOString(),
       });
-      for (const id of ['#ponto-nome', '#ponto-coord', '#ponto-ref', '#ponto-obs']) A.$(id).value = '';
+      for (const id of ['#ponto-nome', '#ponto-coord', '#ponto-ref', '#ponto-obs', '#ponto-distancia']) A.$(id).value = '';
       msg.textContent = c ? `“${nome}” adicionado ao mapa.` : `“${nome}” adicionado sem coordenadas: não aparece no mapa nem nas distâncias.`;
       A.salvar();
       renderMapa();

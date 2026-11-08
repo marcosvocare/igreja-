@@ -202,10 +202,12 @@ test('defesa: avaliação de segurança prioriza os itens de maior peso', () => 
 
 // ------------------------------------------------------- triagem e protocolo
 
-test('triagem: saques no bairro acionam vigilância e coordenação e levam ao protocolo de colapso', () => {
+test('triagem: saques no bairro pedem reunir as famílias, acionam vigilância e levam ao protocolo de colapso', () => {
   const r = situacao.avaliarSituacao(['saques'], { diasAutonomia: 10 });
   assert.equal(r.nivel, 2);
-  assert.equal(r.postura, 'RACIONAR');
+  assert.equal(r.postura, 'REUNIR');
+  assert.equal(r.tituloPostura, 'Reunir as famílias');
+  assert.ok(situacao.avaliarSituacao(['saques'], { diasAutonomia: 1 }).avisos.some((a) => a.includes('1 dia')));
   assert.deepEqual(r.acionar.map((e) => e.id), ['vigilancia', 'coordenacao']);
   assert.deepEqual(r.cenarios, ['colapso']);
   assert.equal(cenarios.CENARIOS[0].id, 'colapso');

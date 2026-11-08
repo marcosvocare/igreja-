@@ -34,7 +34,7 @@
   // ------------------------------------------------------------------ estado
 
   function padrao() {
-    return { radio: { nos: [], ambiente: 'urbano', canalFamilia: 'Familia', canalComunidade: 'Igreja', rascunho: '' } };
+    return { radio: { nos: [], ambiente: 'urbano', canalFamilia: 'Familia', canalComunidade: 'Igreja', rascunho: '', testes: [] } };
   }
 
   function mesclar(dados, r, u) {
@@ -43,6 +43,10 @@
     if (typeof d.canalFamilia === 'string') r.radio.canalFamilia = d.canalFamilia.slice(0, 20);
     if (typeof d.canalComunidade === 'string') r.radio.canalComunidade = d.canalComunidade.slice(0, 20);
     r.radio.rascunho = u.texto(d.rascunho, 400);
+    r.radio.testes = u
+      .lista(d.testes)
+      .filter((t) => typeof t.a === 'string' && typeof t.b === 'string' && (t.resultado === 'ok' || t.resultado === 'falhou'))
+      .map((t) => ({ id: u.texto(t.id, 40) || u.novoId(), a: t.a, b: t.b, resultado: t.resultado, data: u.dataValida(t.data) }));
     r.radio.nos = u
       .lista(d.nos)
       .filter((n) => typeof n.nome === 'string' && n.nome.trim())
@@ -170,6 +174,29 @@
       render();
     });
 
+    // Testes de alcance feitos no bairro
+    A.$('#form-teste-radio').addEventListener('click', (e) => {
+      const b = e.target.closest('button[data-resultado]');
+      if (!b) return;
+      const a = A.$('#teste-a').value;
+      const c = A.$('#teste-b').value;
+      if (!a || !c || a === c) {
+        A.$('#msg-teste').textContent = 'Escolha dois rádios diferentes.';
+        return;
+      }
+      A.estado.radio.testes.push({ id: A.novoId(), a, b: c, resultado: b.dataset.resultado, data: new Date().toISOString() });
+      A.$('#msg-teste').textContent = 'Teste registrado: o desenho e o plano já usam o resultado.';
+      A.salvar();
+      render();
+    });
+    A.$('#lista-testes').addEventListener('click', (e) => {
+      const b = e.target.closest('button[data-remover-teste]');
+      if (!b) return;
+      A.estado.radio.testes = A.estado.radio.testes.filter((t) => t.id !== b.dataset.removerTeste);
+      A.salvar();
+      render();
+    });
+
     // Mensagens
     A.$('#radio-codigos').addEventListener('click', (e) => {
       const b = e.target.closest('button[data-codigo]');
@@ -210,7 +237,7 @@
 
   function analise() {
     const r = A.estado.radio;
-    return R.analisarMalha(r.nos, { ambiente: r.ambiente, limiteSaltos: 3 });
+    return R.analisarMalha(r.nos, { ambiente: r.ambiente, limiteSaltos: 3, testes: r.testes });
   }
 
   function renderOrigens() {
@@ -289,7 +316,7 @@
         ),
       ),
       an.semLocalizacao.length ? A.h('p', { class: 'ajuda' }, `Sem localização (fora da conta): ${an.semLocalizacao.map(nomeDe).join(', ')}.`) : null,
-      A.h('div', { class: 'cartao' }, A.h('h3', null, 'Desenho da rede'), desenho(an), A.h('p', { class: 'ajuda' }, 'Norte para cima. Linha cheia: enlace estimado; tracejada: no limite do alcance.')),
+      A.h('div', { class: 'cartao' }, A.h('h3', null, 'Desenho da rede'), desenho(an), A.h('p', { class: 'ajuda' }, 'Norte para cima. Linha grossa: testado e funcionou; cheia: estimado; tracejada: no limite do alcance.')),
     );
   }
 
@@ -334,7 +361,7 @@
       an.enlaces.map((e) => {
         const a = porId.get(e.a);
         const b = porId.get(e.b);
-        return svg('line', { x1: a.x, y1: a.y, x2: b.x, y2: b.y, class: e.fraco ? 'enlace fraco' : 'enlace' });
+        return svg('line', { x1: a.x, y1: a.y, x2: b.x, y2: b.y, class: e.testado ? 'enlace testado' : e.fraco ? 'enlace fraco' : 'enlace' });
       }),
       sugeridos.map((s) => {
         const q = xy(s);
@@ -447,9 +474,43 @@
     );
   }
 
+  function renderTestes() {
+    const r = A.estado.radio;
+    const opcoes = r.nos.map((n) => A.h('option', { value: n.id }, n.nome));
+    for (const id of ['#teste-a', '#teste-b']) {
+      const sel = A.$(id);
+      const atual = sel.value;
+      A.trocar(sel, opcoes.map((o) => o.cloneNode(true)));
+      if (r.nos.some((n) => n.id === atual)) sel.value = atual;
+    }
+    if (r.nos.length > 1 && A.$('#teste-a').value === A.$('#teste-b').value) A.$('#teste-b').selectedIndex = 1;
+    const nome = (id) => (r.nos.find((n) => n.id === id) || { nome: '(removido)' }).nome;
+    A.trocar(
+      A.$('#lista-testes'),
+      r.testes.length
+        ? A.h(
+            'ul',
+            { class: 'recados' },
+            [...r.testes].reverse().map((t) =>
+              A.h(
+                'li',
+                null,
+                A.h('span', { class: `estado ${t.resultado === 'ok' ? 'ok' : 'vencido'}` }, t.resultado === 'ok' ? 'Funcionou' : 'Não funcionou'),
+                ` ${nome(t.a)} ↔ ${nome(t.b)}`,
+                t.data ? A.h('small', { class: 'ajuda' }, ` · ${A.haQuanto(t.data)}`) : null,
+                ' ',
+                A.h('button', { type: 'button', class: 'mini secundario', dataset: { removerTeste: t.id }, 'aria-label': `Apagar teste ${nome(t.a)} e ${nome(t.b)}` }, '✕'),
+              ),
+            ),
+          )
+        : A.h('p', { class: 'ajuda' }, 'Nenhum teste registrado: o mapa usa a estimativa.'),
+    );
+  }
+
   function render() {
     const an = analise();
     renderOrigens();
+    renderTestes();
     renderCobertura(an);
     renderLista(an);
     renderPlano(an);

@@ -114,6 +114,51 @@
       .filter((r) => r.faltam > 0);
   }
 
+  function normalizar(texto) {
+    return String(texto || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+  }
+
+  /** Horários "08:00, 20:00" → minutos do dia. */
+  function lerHorarios(texto) {
+    return String(texto || '')
+      .split(/[,;\s]+/)
+      .map((h) => /^(\d{1,2})(?::|h)(\d{2})?$/.exec(h.trim()))
+      .filter((m) => m && Number(m[1]) < 24 && Number(m[2] || 0) < 60)
+      .map((m) => Number(m[1]) * 60 + Number(m[2] || 0))
+      .sort((a, b) => a - b);
+  }
+
+  /**
+   * Próximas doses nas próximas `horas` horas, da mais próxima para a mais distante.
+   * Cada remédio pode ter `horarios` ("08:00, 20:00").
+   */
+  function proximasDoses(itens, agora = new Date(), horas = 24) {
+    const doses = [];
+    const inicioDia = new Date(agora.getFullYear(), agora.getMonth(), agora.getDate()).getTime();
+    for (const item of itens || []) {
+      for (const min of lerHorarios(item.horarios)) {
+        for (const dia of [0, 1]) {
+          const quando = new Date(inicioDia + dia * 86400000 + min * 60000);
+          const minutosAte = Math.round((quando - agora) / 60000);
+          if (minutosAte >= 0 && minutosAte <= horas * 60) doses.push({ pessoa: item.pessoa, nome: item.nome, quando, minutosAte });
+        }
+      }
+    }
+    return doses.sort((a, b) => a.minutosAte - b.minutosAte);
+  }
+
+  /**
+   * Pontos do mapa onde o remédio pode estar: farmácias, postos e estoques cujo
+   * nome, observação ou referência citam o remédio (pela primeira palavra do nome).
+   */
+  function ondeBuscar(nomeRemedio, pontos) {
+    const chave = normalizar(String(nomeRemedio || '').trim().split(/\s+/)[0]);
+    if (chave.length < 3) return [];
+    return (pontos || []).filter(
+      (p) => p.categoria === 'remedio' && p.status !== 'esgotado' && p.status !== 'inseguro' && normalizar([p.nome, p.obs, p.referencia].join(' ')).includes(chave),
+    );
+  }
+
   const ORIENTACOES = [
     'Nunca interrompa, reduza ou troque um remédio por conta própria. Fale antes com um profissional de saúde da rede.',
     'Guarde a receita (ou foto dela) e a caixa junto com o remédio.',
@@ -123,5 +168,5 @@
     'Guarde em lugar fresco, seco e longe do sol e das crianças.',
   ];
 
-  return { consumoDiario, diasRestantes, situacaoRemedios, planoReposicao, ORIENTACOES };
+  return { consumoDiario, diasRestantes, situacaoRemedios, planoReposicao, lerHorarios, proximasDoses, ondeBuscar, ORIENTACOES };
 });

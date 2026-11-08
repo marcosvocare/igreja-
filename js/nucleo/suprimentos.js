@@ -46,6 +46,53 @@
     { item: 'Frutas secas, doce em lata, pasta de amendoim', fatia: 0.05, kcalPorKg: 3500, aguaPreparoPorKg: 0, pronto: true },
   ];
 
+  /** Porte dos cães: água (L) e ração (kg) por dia. */
+  const PORTES_CAES = {
+    pequeno: { rotulo: 'Pequeno (até 10 kg)', agua: 0.5, racaoKg: 0.15 },
+    medio: { rotulo: 'Médio (10 a 25 kg)', agua: 1, racaoKg: 0.3 },
+    grande: { rotulo: 'Grande (mais de 25 kg)', agua: 2, racaoKg: 0.5 },
+  };
+
+  /** Dietas: alimentos que saem da lista (a parte deles é redistribuída) e aviso. */
+  const DIETAS = {
+    semGluten: {
+      rotulo: 'Sem glúten (doença celíaca)',
+      remove: ['Macarrão', 'Aveia em flocos'],
+      aviso: 'Sem glúten: arroz, feijão, mandioca, milho e tapioca são seguros; nos industrializados, confira "não contém glúten" no rótulo.',
+    },
+    semLactose: {
+      rotulo: 'Sem lactose',
+      remove: ['Leite em pó'],
+      aviso: 'Sem lactose: se quiser leite, compre leite em pó sem lactose ou bebida vegetal.',
+    },
+    diabetes: {
+      rotulo: 'Diabetes',
+      remove: ['Açúcar, rapadura ou mel'],
+      aviso: 'Diabetes: guarde açúcar ou balas só para hipoglicemia (uma porção sempre à mão) e prefira feijão, aveia e castanhas.',
+    },
+    semAmendoim: {
+      rotulo: 'Alergia a amendoim ou castanhas',
+      remove: ['Frutas secas, doce em lata, pasta de amendoim'],
+      aviso: 'Alergia: leia todos os rótulos, inclusive "pode conter traços".',
+    },
+  };
+
+  /** Lista de alimentos ajustada às dietas da casa, com as partes somando 100 %. */
+  function alimentosParaDieta(dietas = {}) {
+    const fora = new Set();
+    for (const [k, d] of Object.entries(DIETAS)) if (dietas[k]) d.remove.forEach((x) => fora.add(x));
+    const lista = ALIMENTOS.filter((a) => !fora.has(a.item)).map((a) => ({ ...a }));
+    const soma = lista.reduce((s, a) => s + a.fatia, 0);
+    for (const a of lista) {
+      a.fatia /= soma;
+      if (a.item === 'Biscoitos, barras de cereal, castanhas') {
+        if (dietas.semGluten) a.item = dietas.semAmendoim ? 'Biscoitos sem glúten e tapioca (sem amendoim nem castanhas)' : 'Biscoitos sem glúten, tapioca e castanhas';
+        else if (dietas.semAmendoim) a.item = 'Biscoitos e barras de cereal sem amendoim nem castanhas';
+      }
+    }
+    return lista;
+  }
+
   const FATOR_CALOR = 1.25; // água de beber em clima quente
   const FRALDAS_POR_DIA = 6;
   const FORMULA_KG_POR_DIA = 0.15;
@@ -90,7 +137,7 @@
    * Necessidade diária da casa (sem água de preparo dos alimentos).
    * @returns {{aguaBeber:number, aguaHigiene:number, aguaPets:number, kcal:number}}
    */
-  function necessidadeDiaria(casa, { climaQuente = false } = {}) {
+  function necessidadeDiaria(casa, { climaQuente = false, porteCaes = 'medio' } = {}) {
     const c = normalizarCasa(casa);
     let aguaBeber = 0;
     let aguaHigiene = 0;
@@ -101,33 +148,39 @@
       kcal += c[chave] * p.kcal;
     }
     let aguaPets = 0;
-    for (const [chave, p] of Object.entries(PETS)) aguaPets += c[chave] * p.agua;
+    for (const [chave, p] of Object.entries(PETS)) {
+      const agua = chave === 'caes' ? (PORTES_CAES[porteCaes] || PORTES_CAES.medio).agua : p.agua;
+      aguaPets += c[chave] * agua;
+    }
     return { aguaBeber, aguaHigiene, aguaPets, kcal };
   }
 
   /**
    * Calcula o estoque necessário para `dias` dias.
    * @param {object} casa composição da casa
-   * @param {{dias:number, climaQuente?:boolean}} opcoes
+   * @param {{dias:number, climaQuente?:boolean, dietas?:object, porteCaes?:string}} opcoes
+   *   dietas: {semGluten, semLactose, diabetes, semAmendoim}; porteCaes: pequeno, medio ou grande
    */
-  function calcularSuprimentos(casa, { dias = 3, climaQuente = false } = {}) {
+  function calcularSuprimentos(casa, { dias = 3, climaQuente = false, dietas = {}, porteCaes = 'medio' } = {}) {
     const d = Number(dias);
     if (!Number.isInteger(d) || d < 1 || d > 365) {
       throw new RangeError('"dias" deve ser um inteiro entre 1 e 365.');
     }
     const c = normalizarCasa(casa);
     const pessoas = totalPessoas(c);
-    const diaria = necessidadeDiaria(c, { climaQuente });
+    const diaria = necessidadeDiaria(c, { climaQuente, porteCaes });
     const kcalTotal = diaria.kcal * d;
+    const lista = alimentosParaDieta(dietas);
+    const porte = PORTES_CAES[porteCaes] || PORTES_CAES.medio;
 
-    const alimentos = ALIMENTOS.map((a) => {
+    const alimentos = lista.map((a) => {
       const kg = kcalTotal > 0 ? arredCima((kcalTotal * a.fatia) / a.kcalPorKg, 1) : 0;
       return { item: a.item, kg, pronto: a.pronto, aguaPreparo: kg * a.aguaPreparoPorKg };
     }).filter((a) => a.kg > 0);
 
     const aguaPreparo = alimentos.reduce((s, a) => s + a.aguaPreparo, 0);
     // Quantos dias a comida que dispensa fogão e água cobre sozinha (ex.: sem gás).
-    const fatiaPronta = ALIMENTOS.filter((a) => a.pronto).reduce((s, a) => s + a.fatia, 0);
+    const fatiaPronta = lista.filter((a) => a.pronto).reduce((s, a) => s + a.fatia, 0);
     const diasComidaPronta = diaria.kcal > 0 ? arred(d * fatiaPronta, 1) : 0;
     const agua = {
       beber: arred(diaria.aguaBeber * d),
@@ -148,10 +201,13 @@
       });
     }
     if (c.caes > 0) {
-      especiais.push({ item: 'Ração para cães', quantidade: arredCima(c.caes * PETS.caes.racaoKg * d, 1), unidade: 'kg' });
+      especiais.push({ item: 'Ração para cães', quantidade: arredCima(c.caes * porte.racaoKg * d, 1), unidade: 'kg' });
     }
     if (c.gatos > 0) {
       especiais.push({ item: 'Ração para gatos', quantidade: arredCima(c.gatos * PETS.gatos.racaoKg * d, 1), unidade: 'kg' });
+    }
+    if (dietas.diabetes && pessoas > 0) {
+      especiais.push({ item: 'Açúcar ou balas para hipoglicemia', quantidade: 0.5, unidade: 'kg' });
     }
     if (pessoas > 0) {
       especiais.push({ item: 'Rolos de papel higiênico', quantidade: Math.ceil((pessoas * d) / 4), unidade: 'un' });
@@ -171,8 +227,9 @@
       diasComidaPronta,
       alimentos: alimentos.map(({ item, kg, pronto }) => ({ item, kg, pronto })),
       especiais,
+      avisosDieta: Object.entries(DIETAS).filter(([k]) => dietas[k]).map(([, x]) => x.aviso),
     };
   }
 
-  return { PERFIS, PETS, ALIMENTOS, normalizarCasa, totalPessoas, necessidadeDiaria, calcularSuprimentos };
+  return { PERFIS, PETS, PORTES_CAES, DIETAS, ALIMENTOS, alimentosParaDieta, normalizarCasa, totalPessoas, necessidadeDiaria, calcularSuprimentos };
 });

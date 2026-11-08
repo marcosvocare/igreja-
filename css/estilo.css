@@ -480,3 +480,4 @@ body.bloqueado > header, body.bloqueado > main, body.bloqueado > footer { displa
 .nao-faca ul { margin: .2rem 0 0; }
 .recados { list-style: none; padding: 0; margin: 0; }
 .recados li { padding: .5rem 0; border-bottom: 1px solid var(--borda); }
+.rede-radio .enlace.testado { stroke-width: 4; }

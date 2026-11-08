@@ -32,6 +32,7 @@
         quantidade: num(x.quantidade, 0, 100000, 0),
         validade: typeof x.validade === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(x.validade) ? x.validade : '',
         refrigerado: x.refrigerado === true,
+        horarios: u.texto(x.horarios, 60),
       }));
   }
 
@@ -55,8 +56,9 @@
         quantidade: num('#rem-qtd', 100000),
         validade: /^\d{4}-\d{2}-\d{2}$/.test(A.$('#rem-validade').value) ? A.$('#rem-validade').value : '',
         refrigerado: A.$('#rem-geladeira').checked,
+        horarios: A.$('#rem-horarios').value.trim().slice(0, 60),
       });
-      for (const id of ['#rem-nome', '#rem-qtd', '#rem-validade']) A.$(id).value = '';
+      for (const id of ['#rem-nome', '#rem-qtd', '#rem-validade', '#rem-horarios']) A.$(id).value = '';
       A.$('#rem-geladeira').checked = false;
       A.$('#rem-nome').focus();
       A.salvar();
@@ -96,6 +98,13 @@
         A.h('div', { class: 'postura' }, r.criticos ? `${r.criticos} crítico(s)` : r.atencao ? `${r.atencao} em atenção` : 'Tudo em dia'),
         r.pessoasEmRisco.length ? A.h('p', null, `Pessoas em risco: ${r.pessoasEmRisco.join(', ')}.`) : null,
         r.menorCobertura !== null ? A.h('p', null, `O primeiro a acabar dura ${r.menorCobertura} dia(s).`) : null,
+        (() => {
+          const doses = S.remedios.proximasDoses(itens, new Date(), 12).slice(0, 4);
+          const p2 = (n) => String(n).padStart(2, '0');
+          return doses.length
+            ? A.h('p', null, A.h('strong', null, 'Próximas doses: '), doses.map((d) => `${p2(d.quando.getHours())}:${p2(d.quando.getMinutes())} ${d.pessoa} (${d.nome})`).join(' · '))
+            : null;
+        })(),
         A.h('a', { class: 'botao secundario', href: '#mapa-remedio' }, 'Onde buscar remédios'),
       ),
       repor.length
@@ -131,6 +140,10 @@
                   A.h('br'),
                   A.h('small', { class: 'ajuda' }, `${i.pessoa}${i.consumoDiario ? ` · ${A.fmt(i.consumoDiario)} un/dia` : ''}${i.refrigerado ? ' · geladeira' : ''}`),
                   i.avisos.map((a) => [A.h('br'), A.h('small', { class: 'aviso-linha' }, a)]),
+                  (() => {
+                    const onde = S.remedios.ondeBuscar(i.nome, (A.estado.mapa && A.estado.mapa.pontos) || []);
+                    return onde.length ? [A.h('br'), A.h('small', null, 'No mapa: ', A.h('a', { href: '#mapa-remedio' }, onde.map((p) => p.nome).join(', ')))] : null;
+                  })(),
                 ),
                 A.h(
                   'td',

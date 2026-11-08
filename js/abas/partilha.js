@@ -13,7 +13,7 @@
   // ------------------------------------------------------------------ estado
 
   function padrao() {
-    return { partilha: { agua: 0, kcal: 0, dias: 3, familias: [] } };
+    return { partilha: { agua: 0, kcal: 0, dias: 3, familias: [], itens: [] } };
   }
 
   function mesclar(dados, r, u) {
@@ -34,6 +34,10 @@
         for (const k of PERFIS_FAMILIA) casa[k] = u.inteiro(objeto(f.casa)[k], 0, 30, 0);
         return { id: u.texto(f.id, 40) || u.novoId(), nome: f.nome.slice(0, 40), casa, vulneravel: f.vulneravel === true, atualizadoEm: u.dataValida(f.atualizadoEm) };
       });
+    r.partilha.itens = u
+      .lista(pt.itens)
+      .filter((i) => typeof i.nome === 'string' && i.nome.trim() && S.partilha.CRITERIOS[i.criterio])
+      .map((i) => ({ id: u.texto(i.id, 40) || u.novoId(), nome: i.nome.slice(0, 40), total: num(i.total, 0, 1e7, 0), criterio: i.criterio, porDia: num(i.porDia, 0, 1000, 0) }));
   }
 
   // ================================================================ PARTILHA
@@ -98,7 +102,73 @@
       A.salvar();
       renderPartilha();
     });
+    // Outros itens (fraldas, latas, sabonete…)
+    A.trocar(A.$('#item-criterio'), Object.entries(S.partilha.CRITERIOS).map(([k, c]) => A.h('option', { value: k }, c.rotulo)));
+    A.$('#form-item-partilha').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const nome = A.$('#item-nome').value.trim();
+      if (!nome) return;
+      A.estado.partilha.itens.push({
+        id: A.novoId(),
+        nome: nome.slice(0, 40),
+        total: Math.max(0, Number(A.$('#item-total').value) || 0),
+        criterio: A.$('#item-criterio').value,
+        porDia: Math.max(0, Number(A.$('#item-pordia').value) || 0),
+      });
+      for (const id of ['#item-nome', '#item-total']) A.$(id).value = '';
+      A.salvar();
+      renderItens();
+    });
+    A.$('#itens-partilha').addEventListener('click', (e) => {
+      const b = e.target.closest('button[data-remover-item]');
+      if (!b) return;
+      A.estado.partilha.itens = A.estado.partilha.itens.filter((i) => i.id !== b.dataset.removerItem);
+      A.salvar();
+      renderItens();
+    });
     recarregarPartilha();
+  }
+
+  function renderItens() {
+    const pt = A.estado.partilha;
+    const destino = A.$('#itens-partilha');
+    if (!pt.itens.length) {
+      A.trocar(destino, A.h('p', { class: 'ajuda' }, 'Cadastre itens como fraldas (por bebê, 6 por dia), latas (por pessoa, 1 por dia) ou sabonete (por família).'));
+      return;
+    }
+    if (!pt.familias.length) {
+      A.trocar(destino, A.h('p', { class: 'ajuda' }, 'Cadastre as famílias para ver a divisão dos itens.'));
+      return;
+    }
+    const familias = pt.familias.map((f) => ({ ...f, vulneravel: prioridade(f).length > 0 }));
+    A.trocar(
+      destino,
+      A.h(
+        'div',
+        { class: 'tabela-rolagem' },
+        A.h(
+          'table',
+          null,
+          A.h('thead', null, A.h('tr', null, A.h('th', null, 'Item'), pt.familias.map((f) => A.h('th', { class: 'num' }, f.nome)), A.h('th', { class: 'num' }, 'Sobra'), A.h('th', null, ''))),
+          A.h(
+            'tbody',
+            null,
+            pt.itens.map((item) => {
+              const r = S.partilha.distribuirItem(item, familias, { dias: pt.dias });
+              return A.h(
+                'tr',
+                null,
+                A.h('td', null, A.h('strong', null, item.nome), A.h('br'), A.h('small', { class: 'ajuda' }, `${A.fmt(item.total, 0)} no total · ${A.fmt(item.porDia, 2)} ${S.partilha.CRITERIOS[item.criterio].rotulo} por dia`)),
+                r.porFamilia.map((f) => A.h('td', { class: 'num' }, A.fmt(f.alocado, 0), A.h('br'), A.h('small', { class: 'ajuda' }, `${f.percentual}%`))),
+                A.h('td', { class: 'num' }, A.fmt(r.resto, 0)), // o que sobra no estoque comum
+                A.h('td', null, A.h('button', { type: 'button', class: 'mini secundario', dataset: { removerItem: item.id }, 'aria-label': `Remover ${item.nome}` }, '✕')),
+              );
+            }),
+          ),
+        ),
+        A.h('p', { class: 'ajuda' }, `Divisão para ${pt.dias} dia(s), pela mesma regra da água e da comida.`),
+      ),
+    );
   }
 
   function recarregarPartilha() {
@@ -182,7 +252,10 @@
       A = api;
       montarPartilha();
     },
-    render: renderPartilha,
+    render() {
+      renderPartilha();
+      renderItens();
+    },
     recarregar: recarregarPartilha,
   });
 })();

@@ -143,6 +143,14 @@
             <label for="ponto-nome">Nome <input id="ponto-nome" required maxlength="60" placeholder="Ex.: Poço do Seu Zé"></label>
             <label for="ponto-coord">Coordenadas <input id="ponto-coord" inputmode="decimal" placeholder="-23.5470, -46.6330"></label>
             <button type="button" class="secundario" data-localizar="ponto-coord">Estou no local: usar minha localização</button>
+            <fieldset>
+              <legend>Ou, sem internet: distância e direção a partir da base</legend>
+              <div class="grade-numeros">
+                <label for="ponto-distancia">Distância <input id="ponto-distancia" type="number" min="1" max="100000" step="1" inputmode="numeric"></label>
+                <label for="ponto-unidade">Em <select id="ponto-unidade"><option value="metros">metros</option><option value="passos">passos (1 passo ≈ 0,75 m)</option></select></label>
+                <label for="ponto-direcao">Direção <select id="ponto-direcao"></select></label>
+              </div>
+            </fieldset>
             <label for="ponto-ref">Referência <input id="ponto-ref" maxlength="100" placeholder="Rua, número, ponto de referência"></label>
             <div class="grade-numeros">
               <label for="ponto-status">Situação <select id="ponto-status"></select></label>
@@ -230,6 +238,7 @@
             <label for="rem-unidades">Unidades por vez <input id="rem-unidades" type="number" min="0" step="0.5" value="1"></label>
             <label for="rem-qtd">Unidades em estoque <input id="rem-qtd" type="number" min="0" step="1" required></label>
             <label for="rem-validade">Validade <input id="rem-validade" type="date"></label>
+            <label for="rem-horarios">Horários das doses <input id="rem-horarios" maxlength="60" placeholder="08:00, 20:00"></label>
           </div>
           <datalist id="pessoas-remedios"></datalist>
           <label class="linha"><input type="checkbox" id="rem-geladeira"> Precisa de geladeira</label>
@@ -286,6 +295,19 @@
         </div>
         <div class="resultado" id="resultado-partilha"></div>
       </div>
+      <div class="cartao">
+        <h3>Outros itens</h3>
+        <form id="form-item-partilha" autocomplete="off">
+          <div class="grade-numeros">
+            <label for="item-nome">Item <input id="item-nome" required maxlength="40" placeholder="Ex.: Fraldas"></label>
+            <label for="item-total">Quantidade no estoque <input id="item-total" type="number" min="0" step="1"></label>
+            <label for="item-criterio">Conta <select id="item-criterio"></select></label>
+            <label for="item-pordia">Quanto cada um usa por dia <input id="item-pordia" type="number" min="0" step="0.1" value="1"></label>
+          </div>
+          <button type="submit">Adicionar item</button>
+        </form>
+        <div id="itens-partilha"></div>
+      </div>
     </section>
 
     <!-- =================================================== SUPRIMENTOS -->
@@ -303,6 +325,11 @@
             <label class="linha"><input type="checkbox" name="remediosContinuos"> Alguém usa remédio contínuo</label>
             <label class="linha"><input type="checkbox" name="mobilidadeReduzida"> Alguém tem mobilidade reduzida</label>
             <label class="linha"><input type="checkbox" name="dependenteEnergia"> Alguém depende de energia elétrica</label>
+          </fieldset>
+          <fieldset>
+            <legend>Dietas da casa</legend>
+            <div id="campos-dietas"></div>
+            <label for="porte-caes">Porte dos cães <select id="porte-caes" name="porteCaes"></select></label>
           </fieldset>
           <fieldset>
             <legend>Meta de estoque</legend>
@@ -496,6 +523,20 @@
         <div class="resultado" id="radio-cobertura" aria-live="polite"></div>
       </div>
       <div id="radio-lista"></div>
+      <form id="form-teste-radio" class="cartao" autocomplete="off">
+        <h3>Testes de alcance no bairro</h3>
+        <p class="ajuda">Vá com dois rádios até os lugares de verdade e mande uma mensagem. O resultado do teste vale mais que a estimativa.</p>
+        <div class="grade-numeros">
+          <label for="teste-a">Rádio <select id="teste-a"></select></label>
+          <label for="teste-b">Com <select id="teste-b"></select></label>
+        </div>
+        <div class="botoes">
+          <button type="button" data-resultado="ok">Funcionou</button>
+          <button type="button" data-resultado="falhou" class="secundario">Não funcionou</button>
+        </div>
+        <p id="msg-teste" class="ajuda" aria-live="polite"></p>
+        <div id="lista-testes"></div>
+      </form>
       <div class="duas-colunas">
         <div id="radio-plano"></div>
         <div>

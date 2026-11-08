@@ -129,7 +129,8 @@
     }
 
     if (caes || gatos) {
-      const racao = Math.ceil((caes * 0.3 + gatos * 0.07) * DIAS_KIT * 10) / 10;
+      const racaoCao = { pequeno: 0.15, medio: 0.3, grande: 0.5 }[extras.porteCaes] || 0.3;
+      const racao = Math.ceil((caes * racaoCao + gatos * 0.07) * DIAS_KIT * 10) / 10;
       secao('pets', `Animais (${caes + gatos})`, [
         ['racao', `Ração: ${racao} kg e água para 3 dias, com potes`],
         ['guia', 'Coleira com identificação e guia'],

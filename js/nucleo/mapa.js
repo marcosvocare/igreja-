@@ -163,6 +163,37 @@
     return DIRECOES[Math.round(graus / 45) % 8];
   }
 
+  const PASSO_M = 0.75; // passo de um adulto andando normal
+
+  /** Metros a partir de passos contados. */
+  function metrosDePassos(passos) {
+    const p = Number(passos);
+    if (!(p > 0)) throw new RangeError('Informe quantos passos.');
+    return p * PASSO_M;
+  }
+
+  /**
+   * Ponto a uma distância e direção da base, sem internet (ex.: "300 m a nordeste da igreja").
+   * @param {{lat:number, lon:number}} base
+   * @param {number} metros
+   * @param {string|number} direcao nome (norte, nordeste…) ou rumo em graus
+   */
+  function pontoPorRumo(base, metros, direcao) {
+    if (!temCoordenadas(base)) throw new RangeError('Defina a base no mapa primeiro.');
+    const d = Number(metros);
+    if (!(d > 0 && d <= 100000)) throw new RangeError('Distância de 1 m a 100 km.');
+    const graus = typeof direcao === 'number' ? direcao : DIRECOES.indexOf(String(direcao).toLowerCase()) * 45;
+    if (!Number.isFinite(graus) || graus < 0) throw new RangeError('Direção inválida.');
+    const delta = d / RAIO_TERRA;
+    const teta = graus * RAD;
+    const lat1 = base.lat * RAD;
+    const lon1 = base.lon * RAD;
+    const lat2 = Math.asin(Math.sin(lat1) * Math.cos(delta) + Math.cos(lat1) * Math.sin(delta) * Math.cos(teta));
+    const lon2 = lon1 + Math.atan2(Math.sin(teta) * Math.sin(delta) * Math.cos(lat1), Math.cos(delta) - Math.sin(lat1) * Math.sin(lat2));
+    const r6 = (x) => Math.round(x * 1e6) / 1e6;
+    return { lat: r6(lat2 / RAD), lon: r6(lon2 / RAD) };
+  }
+
   /** Posição em metros relativa à base (x para leste, y para norte). Boa para distâncias urbanas. */
   function projetar(base, p) {
     return {
@@ -303,6 +334,10 @@
     distanciaMetros,
     rumoGraus,
     direcao,
+    DIRECOES,
+    PASSO_M,
+    metrosDePassos,
+    pontoPorRumo,
     projetar,
     perigosNaRota,
     frescor,

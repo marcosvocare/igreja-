@@ -26,7 +26,7 @@
   let secoesKit = [];
 
   function renderKit() {
-    secoesKit = S.kit.gerarKit(A.estado.casa, A.estado.extras);
+    secoesKit = S.kit.gerarKit(A.estado.casa, { ...A.estado.extras, porteCaes: A.estado.porteCaes });
     trocar(
       $('#lista-kit'),
       secoesKit.map((s) =>

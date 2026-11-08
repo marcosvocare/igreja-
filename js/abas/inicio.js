@@ -10,7 +10,7 @@
 
   function progressoKit() {
     const e = A.estado;
-    return S.kit.progresso(S.kit.gerarKit(e.casa, e.extras), e.kitMarcados).percentual;
+    return S.kit.progresso(S.kit.gerarKit(e.casa, { ...e.extras, porteCaes: e.porteCaes }), e.kitMarcados).percentual;
   }
 
   function situacao() {

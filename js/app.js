@@ -135,6 +135,8 @@
       extras: { remediosContinuos: false, mobilidadeReduzida: false, dependenteEnergia: false },
       diasMeta: 7,
       climaQuente: false,
+      dietas: { semGluten: false, semLactose: false, diabetes: false, semAmendoim: false },
+      porteCaes: 'medio',
       sinais: [],
       rotaSegura: true,
       estoque: [],
@@ -175,6 +177,10 @@
     if (DIAS_META.includes(dados.diasMeta)) r.diasMeta = dados.diasMeta;
     r.porPessoa = inteiro(dados.porPessoa, 2, 5, 3);
     r.climaQuente = dados.climaQuente === true;
+    if (dados.dietas && typeof dados.dietas === 'object') {
+      for (const k of Object.keys(r.dietas)) r.dietas[k] = dados.dietas[k] === true;
+    }
+    r.porteCaes = S.suprimentos.PORTES_CAES[dados.porteCaes] ? dados.porteCaes : 'medio';
     r.rotaSegura = dados.rotaSegura !== false;
     if (typeof dados.horarios === 'string') r.horarios = dados.horarios.slice(0, 200);
     r.nomeSms = texto(dados.nomeSms, 30);
@@ -481,7 +487,7 @@
   // ------------------------------------------------------ cálculos derivados
 
   function calculoSuprimentos() {
-    return S.suprimentos.calcularSuprimentos(estado.casa, { dias: estado.diasMeta, climaQuente: estado.climaQuente });
+    return S.suprimentos.calcularSuprimentos(estado.casa, { dias: estado.diasMeta, climaQuente: estado.climaQuente, dietas: estado.dietas, porteCaes: estado.porteCaes });
   }
 
   function necessidade() {

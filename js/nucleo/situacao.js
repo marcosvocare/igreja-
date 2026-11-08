@@ -111,6 +111,16 @@
         'Mantenha a pessoa aquecida e acompanhada até o socorro chegar.',
       ],
     },
+    REUNIR: {
+      titulo: 'Reunir as famílias',
+      acoes: [
+        'Juntem-se: famílias vizinhas numa casa mais segura ou no ponto de apoio da igreja. Grupo unido corre menos risco que casas isoladas.',
+        'Vão em grupo, de dia, por ruas longe do perigo, levando o kit de 72 h, os remédios e os documentos.',
+        'Ative a vigia em duplas e use a senha do dia e o código de apitos.',
+        'Guarde o estoque fora da vista e não reaja a saques: nenhum bem vale uma vida.',
+        'Avise a coordenação quem está onde (aba Pessoas e recados).',
+      ],
+    },
     EVACUAR: {
       titulo: 'Evacuar agora',
       acoes: [
@@ -162,6 +172,12 @@
     } else if (nivel === 3) {
       postura = 'SOCORRO';
       motivos.push(...sinais.filter((s) => s.nivel === 3).map((s) => `${s.texto}.`));
+    } else if (nivel === 2 && sinais.some((s) => s.id === 'saques')) {
+      postura = 'REUNIR';
+      motivos.push('Saques ou violência no bairro: juntos é mais seguro.');
+      if (diasAutonomia !== null && diasAutonomia !== undefined && Number(diasAutonomia) < 3) {
+        avisos.push(`O estoque dá só ${diasAutonomia} dia(s): levem a comida e a água para o ponto de reunião e combinem a partilha.`);
+      }
     } else if (nivel === 2) {
       const autonomiaBaixa = diasAutonomia !== null && diasAutonomia !== undefined && Number(diasAutonomia) < 3;
       const energiaCritica = dependenteEnergia && sinais.some((s) => s.id === 'energia_longa');

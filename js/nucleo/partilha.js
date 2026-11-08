@@ -81,6 +81,35 @@
     };
   }
 
+  /** Quem conta para cada item: por pessoa, por um grupo da casa ou por família. */
+  const CRITERIOS = {
+    pessoa: { rotulo: 'por pessoa', contar: (c) => ['adultos', 'idosos', 'gestantes', 'criancas', 'bebes'].reduce((s, k) => s + (Number(c[k]) || 0), 0) },
+    adulto: { rotulo: 'por adulto (inclui idosos e gestantes)', contar: (c) => (Number(c.adultos) || 0) + (Number(c.idosos) || 0) + (Number(c.gestantes) || 0) },
+    crianca: { rotulo: 'por criança', contar: (c) => Number(c.criancas) || 0 },
+    bebe: { rotulo: 'por bebê', contar: (c) => Number(c.bebes) || 0 },
+    idoso: { rotulo: 'por idoso', contar: (c) => Number(c.idosos) || 0 },
+    gestante: { rotulo: 'por gestante', contar: (c) => Number(c.gestantes) || 0 },
+    familia: { rotulo: 'por família', contar: () => 1 },
+  };
+
+  /**
+   * Divide um item do estoque comum (fraldas, latas, sabonete…) entre as famílias.
+   * @param {{total:number, criterio:string, porDia:number}} item porDia: quanto cada um usa por dia
+   * @param {Array<{nome:string, casa:object, vulneravel?:boolean}>} familias
+   */
+  function distribuirItem(item, familias, { dias = 1 } = {}) {
+    const crit = CRITERIOS[item && item.criterio];
+    if (!crit) throw new RangeError('Critério de partilha inválido.');
+    const porDia = naoNegativo(item.porDia);
+    const demandas = (familias || []).map((f) => ({ nome: f.nome, vulneravel: f.vulneravel, necessidade: crit.contar(f.casa || {}) * porDia }));
+    const r = distribuir(naoNegativo(item.total), demandas, { dias });
+    // Itens contados em unidades: arredonda para baixo e devolve o resto para a sobra.
+    for (const f of r.porFamilia) f.alocado = Math.floor(f.alocado);
+    r.distribuido = r.porFamilia.reduce((s, f) => s + f.alocado, 0);
+    r.resto = Math.max(0, naoNegativo(item.total) - r.distribuido);
+    return r;
+  }
+
   /** Quantos dias o estoque comum dura atendendo 100 % da necessidade de todos. */
   function diasDeEstoque(total, necessidadeDiariaTotal) {
     const t = naoNegativo(total);
@@ -88,5 +117,5 @@
     return n > 0 ? Math.floor((t / n) * 10) / 10 : null;
   }
 
-  return { distribuir, diasDeEstoque };
+  return { distribuir, diasDeEstoque, CRITERIOS, distribuirItem };
 });

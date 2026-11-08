@@ -72,9 +72,10 @@
   /**
    * Analisa a rede de rádios.
    * @param {Array<{id:string, nome:string, lat:number, lon:number, instalacao:string}>} nos
-   * @param {{ambiente?:string, limiteSaltos?:number, baseId?:string}} [opcoes]
+   * @param {{ambiente?:string, limiteSaltos?:number, baseId?:string, testes?:Array<{a:string, b:string, resultado:'ok'|'falhou'}>}} [opcoes]
+   *   testes: testes de alcance feitos no local; valem mais que a estimativa
    */
-  function analisarMalha(nos, { ambiente = 'urbano', limiteSaltos = LIMITE_SALTOS_PADRAO, baseId } = {}) {
+  function analisarMalha(nos, { ambiente = 'urbano', limiteSaltos = LIMITE_SALTOS_PADRAO, baseId, testes = [] } = {}) {
     ambienteValido(ambiente);
     const limite = Number(limiteSaltos);
     if (!Number.isInteger(limite) || limite < 1 || limite > LIMITE_SALTOS_MAXIMO) {
@@ -83,6 +84,11 @@
     const todos = (nos || []).filter((n) => n && n.id);
     const validos = todos.filter(temCoordenadas);
     const semLocalizacao = todos.filter((n) => !temCoordenadas(n)).map((n) => n.id);
+
+    // Testes reais (o mais recente de cada par vale).
+    const par = (x, y) => [x, y].sort().join('|');
+    const testados = new Map();
+    for (const t of testes || []) if (t && t.a && t.b && (t.resultado === 'ok' || t.resultado === 'falhou')) testados.set(par(t.a, t.b), t.resultado);
 
     // Enlaces possíveis entre cada par de rádios.
     const vizinhos = new Map(validos.map((n) => [n.id, []]));
@@ -93,8 +99,11 @@
         const b = validos[j];
         const distancia = distanciaMetros(a, b);
         const alcance = alcanceEnlace(a, b, ambiente);
-        if (distancia <= alcance) {
-          enlaces.push({ a: a.id, b: b.id, distancia, alcance, fraco: distancia > alcance * ENLACE_FRACO });
+        const teste = testados.get(par(a.id, b.id));
+        if (teste === 'falhou') continue; // testado e não funcionou: não há enlace
+        if (teste === 'ok' || distancia <= alcance) {
+          const testado = teste === 'ok';
+          enlaces.push({ a: a.id, b: b.id, distancia, alcance, testado, fraco: !testado && distancia > alcance * ENLACE_FRACO });
           vizinhos.get(a.id).push(b.id);
           vizinhos.get(b.id).push(a.id);
         }

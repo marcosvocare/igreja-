@@ -16,6 +16,13 @@
       h('label', null, def.rotulo, h('input', { type: 'number', name: chave, min: 0, max: 50, step: 1, value: A.estado.casa[chave], inputmode: 'numeric' })),
     );
     trocar($('#campos-casa'), campos);
+    trocar(
+      $('#campos-dietas'),
+      Object.entries(S.suprimentos.DIETAS).map(([k, d]) => h('label', { class: 'linha' }, h('input', { type: 'checkbox', dataset: { dieta: k } }), h('span', null, d.rotulo))),
+    );
+    trocar($('#porte-caes'), Object.entries(S.suprimentos.PORTES_CAES).map(([k, p]) => h('option', { value: k }, p.rotulo)));
+    for (const i of document.querySelectorAll('[data-dieta]')) i.checked = A.estado.dietas[i.dataset.dieta];
+    $('#porte-caes').value = A.estado.porteCaes;
 
     const form = $('#form-casa');
     for (const k of Object.keys(A.estado.extras)) form.elements[k].checked = A.estado.extras[k];
@@ -33,6 +40,10 @@
         A.estado.diasMeta = inteiro(alvo.value, 1, 30, 7);
       } else if (alvo.name === 'climaQuente') {
         A.estado.climaQuente = alvo.checked;
+      } else if (alvo.dataset.dieta) {
+        A.estado.dietas[alvo.dataset.dieta] = alvo.checked;
+      } else if (alvo.name === 'porteCaes') {
+        A.estado.porteCaes = S.suprimentos.PORTES_CAES[alvo.value] ? alvo.value : 'medio';
       }
       salvar();
       atualizarTudo();
@@ -71,6 +82,7 @@
           ]),
         ),
       ),
+      r.avisosDieta.map((a) => h('p', { class: 'aviso' }, a)),
       r.diasComidaPronta < Math.min(3, r.dias)
         ? h('p', { class: 'aviso' }, `A comida que dispensa fogão cobre só ~${fmt(r.diasComidaPronta)} dia(s). Reforce enlatados, biscoitos e castanhas para pelo menos 3 dias sem gás.`)
         : null,
@@ -112,6 +124,8 @@
       for (const k of Object.keys(A.estado.extras)) casa.elements[k].checked = A.estado.extras[k];
       casa.elements.diasMeta.value = String(A.estado.diasMeta);
       casa.elements.climaQuente.checked = A.estado.climaQuente;
+      for (const i of document.querySelectorAll('[data-dieta]')) i.checked = A.estado.dietas[i.dataset.dieta];
+      $('#porte-caes').value = A.estado.porteCaes;
     },
   });
 })();

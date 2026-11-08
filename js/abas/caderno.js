@@ -146,7 +146,7 @@
 
   function parteKit() {
     const e = A.estado;
-    return S.kit.gerarKit(e.casa, e.extras).map((s) => [h('h4', null, s.titulo), h('ul', { class: 'checklist' }, s.itens.map((i) => h('li', null, `${e.kitMarcados[i.id] ? '☑' : '☐'} ${i.texto}`)))]);
+    return S.kit.gerarKit(e.casa, { ...e.extras, porteCaes: e.porteCaes }).map((s) => [h('h4', null, s.titulo), h('ul', { class: 'checklist' }, s.itens.map((i) => h('li', null, `${e.kitMarcados[i.id] ? '☑' : '☐'} ${i.texto}`)))]);
   }
 
   function parteAgua() {
