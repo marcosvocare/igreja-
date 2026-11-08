@@ -1,0 +1,17 @@
+{
+  "name": "sobrevivencia-urbana",
+  "version": "1.0.0",
+  "description": "Plano de sobrevivência urbana e mecanismos de preparação para famílias e comunidade (igreja), com app offline.",
+  "private": true,
+  "scripts": {
+    "test": "node --test tests/*.test.js",
+    "test:e2e": "node --test --test-concurrency=1 tests/e2e/*.e2e.js",
+    "build:unica": "node scripts/gerar-pagina-unica.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "devDependencies": {
+    "playwright": "1.63.0"
+  }
+}
