@@ -1,0 +1,24 @@
+name: Testes
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  testes:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Instalar dependências
+        run: npm ci
+      - name: Instalar o navegador dos testes
+        run: npx playwright install --with-deps chromium
+      - name: Testes dos mecanismos
+        run: npm test
+      - name: Testes no navegador
+        run: npm run test:e2e
+      - name: Gerar a página única
+        run: npm run build:unica
