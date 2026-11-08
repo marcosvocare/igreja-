@@ -22,6 +22,9 @@
     kit: { rotulo: 'Lista do kit de 72 h', montar: parteKit },
     agua: { rotulo: 'Tratamento da água', montar: parteAgua },
     socorros: { rotulo: 'Primeiros socorros', montar: parteSocorros },
+    saneamento: { rotulo: 'Higiene e saneamento', montar: parteSaneamento },
+    pessoas: { rotulo: 'Pessoas e recados', montar: partePessoas },
+    abrigo: { rotulo: 'Abrigo: regras e tarefas', montar: parteAbrigo },
     protocolos: { rotulo: 'Protocolos por cenário', montar: parteProtocolos },
   };
   const PADRAO = Object.keys(PARTES);
@@ -163,6 +166,33 @@
   function parteSocorros() {
     if (!S.socorros) return vazio('Guia de primeiros socorros indisponível.');
     return S.socorros.GUIAS.map((g) => [h('h4', null, g.titulo), h('ol', null, g.passos.map((p) => h('li', null, p))), g.nao && g.nao.length ? h('p', null, h('strong', null, 'Não faça: '), g.nao.join(' · ')) : null]);
+  }
+
+  function parteSaneamento() {
+    return S.saneamento.GUIAS.map((g) => [h('h4', null, g.titulo), lista(g.passos)]);
+  }
+
+  function partePessoas() {
+    const e = A.estado;
+    const lista1 = S.pessoas.ordenar(e.pessoas || []);
+    return [
+      lista1.length
+        ? tabela(['Pessoa', 'Situação', 'Onde', 'Observação'], lista1.map((p) => [`${p.nome}${p.familia ? ` (${p.familia})` : ''}`, S.pessoas.SITUACOES[p.situacao].rotulo, p.onde || '—', p.obs || '—']))
+        : vazio('Ninguém cadastrado.'),
+      (e.recados || []).length ? [h('h4', null, 'Recados'), lista(S.pessoas.recadosPara(e.recados, '').map((r) => `Para ${r.para}${r.de ? ` (de ${r.de})` : ''}: ${r.texto}`))] : null,
+    ];
+  }
+
+  function parteAbrigo() {
+    const ab = A.estado.abrigo;
+    const familias = [...new Set(ab.abrigados.filter((a) => !a.saida).map((a) => String(a.familia || '').trim()).filter(Boolean))];
+    const tarefas = ab.tarefas.split('\n').map((t) => t.trim()).filter(Boolean);
+    const escala = S.abrigo.escalaTarefas(familias, tarefas, ab.dias);
+    return [
+      h('h4', null, 'Regras de convivência'),
+      lista(S.abrigo.REGRAS),
+      escala.length ? [h('h4', null, 'Tarefas por família'), tabela(['Dia', ...tarefas], escala.map((d) => [`Dia ${d.dia}`, ...d.tarefas.map((x) => x.familia)]))] : null,
+    ];
   }
 
   function parteProtocolos() {

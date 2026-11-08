@@ -221,7 +221,8 @@ test('sem Estado: toda equipe acionada existe', () => {
 });
 
 test('sem Estado: nenhum mecanismo manda pedir ajuda a órgãos do governo', () => {
-  const modulos = ['situacao', 'cenarios', 'kit', 'agua', 'suprimentos', 'estoque', 'comunicacao', 'rede', 'mapa', 'remedios', 'partilha', 'defesa', 'radio'];
+  const modulos = ['situacao', 'cenarios', 'kit', 'agua', 'suprimentos', 'estoque', 'comunicacao', 'rede', 'mapa', 'remedios', 'partilha', 'defesa', 'radio',
+    'socorros', 'saneamento', 'energia', 'abrigo', 'pessoas', 'cozinha', 'cuidado', 'configuracao', 'sincronizacao'];
   const proibido = /\b(190|192|193|199|40199)\b|defesa civil|samu|corpo de bombeiros|pol[ií]cia|autoridades?|prefeitura|concession[áa]ria|anatel|\bsus\b|\bubs\b|\bupa\b|governo|oficial/i;
   for (const nome of modulos) {
     const m = require(`../js/nucleo/${nome}.js`);

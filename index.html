@@ -66,13 +66,20 @@
     <nav class="abas" aria-label="Abas da seção">
       <a href="#situacao" data-grupo="agora">Situação</a>
       <a href="#cenarios" data-grupo="agora">Protocolos</a>
+      <a href="#socorros" data-grupo="agora">Primeiros socorros</a>
       <a href="#mapa" data-grupo="recursos">Mapa</a>
       <a href="#agua" data-grupo="recursos">Água</a>
+      <a href="#saneamento" data-grupo="recursos">Higiene</a>
       <a href="#estoque" data-grupo="recursos">Estoque</a>
       <a href="#suprimentos" data-grupo="recursos">Casa e suprimentos</a>
+      <a href="#cozinha" data-grupo="recursos">Cozinha</a>
+      <a href="#energia" data-grupo="recursos">Energia</a>
       <a href="#remedios" data-grupo="recursos">Remédios</a>
       <a href="#rede" data-grupo="comunidade">Rede de apoio</a>
       <a href="#partilha" data-grupo="comunidade">Partilha</a>
+      <a href="#abrigo" data-grupo="comunidade">Abrigo</a>
+      <a href="#pessoas" data-grupo="comunidade">Pessoas e recados</a>
+      <a href="#cuidado" data-grupo="comunidade">Cuidado</a>
       <a href="#defesa" data-grupo="comunidade">Defesa</a>
       <a href="#comunicacao" data-grupo="comunicacao">Contatos e mensagens</a>
       <a href="#radio" data-grupo="comunicacao">Rádio</a>
@@ -543,6 +550,208 @@
       <div id="lista-rede"></div>
     </section>
 
+    <!-- ===================================================== SOCORROS -->
+    <section id="socorros" class="secao">
+      <h2>Primeiros socorros</h2>
+      <p class="ajuda">Sem socorro de fora, os primeiros minutos ficam com quem está perto. Chame a equipe de saúde da comunidade e siga os passos. Pratique antes com a equipe.</p>
+      <div class="duas-colunas">
+        <div>
+          <label for="busca-socorro">Procurar <input id="busca-socorro" type="search" placeholder="Ex.: sangue, queimadura, engasgo, febre"></label>
+          <div id="lista-socorros"></div>
+        </div>
+        <div class="cartao">
+          <h3>Kit de primeiros socorros</h3>
+          <ul id="kit-socorros"></ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================== HIGIENE -->
+    <section id="saneamento" class="secao">
+      <h2>Higiene e saneamento</h2>
+      <p class="ajuda">Sem água encanada, banheiro e mãos limpas evitam diarreia, cólera e leptospirose, que matam mais que a fome.</p>
+      <div class="duas-colunas">
+        <form id="form-saneamento" class="cartao" autocomplete="off">
+          <h3>Quanto é preciso</h3>
+          <div class="grade-numeros">
+            <label for="san-pessoas">Pessoas <input id="san-pessoas" type="number" min="1" max="100000" step="1" inputmode="numeric"></label>
+            <label for="san-dias">Dias <input id="san-dias" type="number" min="1" max="365" step="1"></label>
+          </div>
+          <div id="resultado-saneamento"></div>
+        </form>
+        <div id="guias-saneamento"></div>
+      </div>
+    </section>
+
+    <!-- ===================================================== COZINHA -->
+    <section id="cozinha" class="secao">
+      <h2>Cozinha sem geladeira e com pouco gás</h2>
+      <form id="form-gas" class="duas-colunas" autocomplete="off">
+        <div class="cartao">
+          <h3>Quanto dura o gás</h3>
+          <div class="grade-numeros">
+            <label for="gas-kg">Gás no botijão (kg) <input id="gas-kg" type="number" min="0.5" max="500" step="0.5"></label>
+            <label for="gas-horas">Horas de fogo por dia <input id="gas-horas" type="number" min="0.1" max="24" step="0.25"></label>
+          </div>
+          <label class="linha"><input type="checkbox" id="gas-pressao"> Uso panela de pressão</label>
+          <label class="linha"><input type="checkbox" id="gas-caixa"> Termino o cozimento em caixa térmica</label>
+          <div id="resultado-gas"></div>
+          <h3>Economizar gás</h3>
+          <ul id="economia-gas"></ul>
+        </div>
+        <div>
+          <div class="cartao">
+            <h3>Conservar sem geladeira</h3>
+            <ul id="conservar-comida"></ul>
+          </div>
+          <div class="cartao">
+            <h3>Horta de colheita rápida</h3>
+            <label for="horta-plantio">Plantio em <input id="horta-plantio" type="date"></label>
+            <div id="tabela-horta" class="tabela-rolagem"></div>
+          </div>
+        </div>
+      </form>
+    </section>
+
+    <!-- ===================================================== ENERGIA -->
+    <section id="energia" class="secao">
+      <h2>Energia sem a rede elétrica</h2>
+      <p class="ajuda">Quanto os aparelhos essenciais gastam por dia e o painel solar, a bateria e os power banks para mantê-los.</p>
+      <form id="form-energia" class="duas-colunas" autocomplete="off">
+        <div class="cartao">
+          <h3>Aparelhos por dia</h3>
+          <div id="aparelhos-energia" class="grade-numeros"></div>
+          <fieldset>
+            <legend>Outro aparelho (ex.: concentrador de oxigênio)</legend>
+            <div class="grade-numeros">
+              <label for="en-extra-w">Potência (W) <input id="en-extra-w" type="number" min="0" max="5000" step="1"></label>
+              <label for="en-extra-h">Horas por dia <input id="en-extra-h" type="number" min="0" max="24" step="0.5"></label>
+            </div>
+          </fieldset>
+        </div>
+        <div>
+          <div class="cartao">
+            <div class="grade-numeros">
+              <label for="en-sol">Sol na sua região
+                <select id="en-sol">
+                  <option value="3.5">Pouco (inverno no Sul)</option>
+                  <option value="4.5">Médio</option>
+                  <option value="5.5">Muito (Nordeste, Centro-Oeste)</option>
+                </select>
+              </label>
+              <label for="en-dias">Dias sem sol <input id="en-dias" type="number" min="1" max="10" step="1"></label>
+              <label for="en-tipo">Bateria
+                <select id="en-tipo"><option value="litio">Lítio</option><option value="chumbo">Chumbo (de carro)</option></select>
+              </label>
+              <label for="en-mah">Power bank (mAh) <input id="en-mah" type="number" min="1000" max="100000" step="1000"></label>
+              <label for="en-bancos">Quantos power banks <input id="en-bancos" type="number" min="0" max="50" step="1"></label>
+            </div>
+            <div id="resultado-energia" aria-live="polite"></div>
+          </div>
+          <div class="cartao">
+            <h3>Cuidados</h3>
+            <ul id="dicas-energia"></ul>
+          </div>
+        </div>
+      </form>
+    </section>
+
+    <!-- ====================================================== ABRIGO -->
+    <section id="abrigo" class="secao">
+      <h2>Abrigo na igreja</h2>
+      <p class="ajuda">Quantas pessoas o espaço recebe com dignidade, quem está no abrigo e quem cuida de cada tarefa.</p>
+      <div class="duas-colunas">
+        <div>
+          <form id="form-capacidade" class="cartao" autocomplete="off">
+            <h3>Capacidade</h3>
+            <div class="grade-numeros">
+              <label for="ab-area">Área coberta (m²) <input id="ab-area" type="number" min="0" step="1"></label>
+              <label for="ab-banheiros">Banheiros <input id="ab-banheiros" type="number" min="0" step="1"></label>
+              <label for="ab-agua">Água por dia (L) <input id="ab-agua" type="number" min="0" step="10"></label>
+            </div>
+            <div id="resultado-capacidade"></div>
+          </form>
+          <form id="form-abrigado" class="cartao" autocomplete="off">
+            <h3>Quem chegou</h3>
+            <div class="grade-numeros">
+              <label for="ab-nome">Nome <input id="ab-nome" required maxlength="60"></label>
+              <label for="ab-familia">Família <input id="ab-familia" maxlength="40"></label>
+            </div>
+            <label for="ab-necessidades">Necessidades (remédio, mobilidade, dieta…) <input id="ab-necessidades" maxlength="120"></label>
+            <button type="submit">Registrar chegada</button>
+            <div id="lista-abrigados"></div>
+          </form>
+        </div>
+        <div>
+          <form id="form-tarefas" class="cartao" autocomplete="off">
+            <h3>Escala de tarefas por família</h3>
+            <label for="ab-tarefas">Tarefas (uma por linha) <textarea id="ab-tarefas" rows="5"></textarea></label>
+            <label for="ab-dias">Dias <input id="ab-dias" type="number" min="1" max="60" step="1"></label>
+            <div id="escala-tarefas"></div>
+          </form>
+          <div class="cartao">
+            <h3>Regras de convivência</h3>
+            <ul id="regras-abrigo"></ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================== PESSOAS -->
+    <section id="pessoas" class="secao">
+      <h2>Pessoas e recados</h2>
+      <p class="ajuda">Quem está onde, para reencontrar famílias e saber quem procurar; e recados para quem passar pelo ponto de encontro.</p>
+      <div class="duas-colunas">
+        <div>
+          <form id="form-pessoa" class="cartao" autocomplete="off">
+            <div class="grade-numeros">
+              <label for="pessoa-nome">Nome <input id="pessoa-nome" required maxlength="60"></label>
+              <label for="pessoa-familia">Família <input id="pessoa-familia" maxlength="40"></label>
+              <label for="pessoa-situacao">Situação <select id="pessoa-situacao"></select></label>
+              <label for="pessoa-onde">Onde está / visto por último <input id="pessoa-onde" maxlength="80"></label>
+            </div>
+            <label for="pessoa-obs">Observação <input id="pessoa-obs" maxlength="160"></label>
+            <button type="submit">Adicionar pessoa</button>
+          </form>
+          <div class="cartao">
+            <div id="resumo-pessoas"></div>
+            <label for="busca-pessoa">Procurar <input id="busca-pessoa" type="search" placeholder="Nome, família ou lugar"></label>
+            <div id="lista-pessoas"></div>
+          </div>
+        </div>
+        <div>
+          <form id="form-recado" class="cartao" autocomplete="off">
+            <h3>Quadro de recados</h3>
+            <div class="grade-numeros">
+              <label for="recado-de">De <input id="recado-de" maxlength="60"></label>
+              <label for="recado-para">Para <input id="recado-para" maxlength="60" placeholder="Todos"></label>
+            </div>
+            <label for="recado-texto">Recado <textarea id="recado-texto" rows="3" maxlength="300"></textarea></label>
+            <button type="submit">Deixar recado</button>
+          </form>
+          <div class="cartao">
+            <label for="filtro-recado">Recados para <input id="filtro-recado" type="search" placeholder="Nome (vazio: todos)"></label>
+            <div id="lista-recados"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================== CUIDADO -->
+    <section id="cuidado" class="secao">
+      <h2>Cuidado emocional e espiritual</h2>
+      <p class="ajuda">Medo, perda e cansaço também ferem. Ninguém atravessa isso sozinho.</p>
+      <div class="duas-colunas">
+        <div id="guias-cuidado"></div>
+        <div class="cartao">
+          <h3>Como a pessoa está?</h3>
+          <p class="ajuda">Marque o que vem acontecendo com alguém (ou com você). Nada daqui fica gravado.</p>
+          <div id="perguntas-cuidado"></div>
+          <div id="resultado-cuidado" aria-live="polite"></div>
+        </div>
+      </div>
+    </section>
+
     <!-- ======================================================== INÍCIO -->
     <section id="inicio" class="secao">
       <h2>Começar</h2>
@@ -674,6 +883,13 @@
   <script src="js/nucleo/configuracao.js"></script>
   <script src="js/nucleo/cofre.js"></script>
   <script src="js/nucleo/sincronizacao.js"></script>
+  <script src="js/nucleo/socorros.js"></script>
+  <script src="js/nucleo/saneamento.js"></script>
+  <script src="js/nucleo/energia.js"></script>
+  <script src="js/nucleo/abrigo.js"></script>
+  <script src="js/nucleo/pessoas.js"></script>
+  <script src="js/nucleo/cozinha.js"></script>
+  <script src="js/nucleo/cuidado.js"></script>
   <script src="js/abas/situacao.js"></script>
   <script src="js/abas/mapa.js"></script>
   <script src="js/abas/defesa.js"></script>
@@ -686,6 +902,13 @@
   <script src="js/abas/comunicacao.js"></script>
   <script src="js/abas/radio.js"></script>
   <script src="js/abas/rede.js"></script>
+  <script src="js/abas/socorros.js"></script>
+  <script src="js/abas/saneamento.js"></script>
+  <script src="js/abas/cozinha.js"></script>
+  <script src="js/abas/energia.js"></script>
+  <script src="js/abas/abrigo.js"></script>
+  <script src="js/abas/pessoas.js"></script>
+  <script src="js/abas/cuidado.js"></script>
   <script src="js/abas/inicio.js"></script>
   <script src="js/abas/caderno.js"></script>
   <script src="js/abas/dados.js"></script>
