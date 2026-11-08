@@ -66,6 +66,7 @@ corpo = corpo.replace(
         <ul>
           <li>Esta é a versão publicada do app. Ela precisa de internet e de login no claude.ai, e os dados ficam salvos só neste navegador.</li>
           <li>Para usar sem internet, abra <a href="https://marcosvocare.github.io/igreja-/" target="_blank" rel="noopener">marcosvocare.github.io/igreja-</a> com internet e instale o app (“Instalar o app” ou “Adicionar à tela inicial”).</li>
+          <li>No computador: baixe o <a href="https://marcosvocare.github.io/igreja-/sobrevivencia-urbana.zip" target="_blank" rel="noopener">pacote para instalar</a> (Windows, Mac ou Linux), extraia na área de trabalho e dê dois cliques no instalador.</li>
           <li>Use “Copiar dados como texto” ou “Baixar cópia de segurança” para levar seus dados de uma versão para a outra.</li>
         </ul>
       </div>`,

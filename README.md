@@ -49,7 +49,13 @@ O site é publicado pelo GitHub Pages a partir do branch `gh-pages`, que a autom
 `.github/workflows/site.yml` copia do `main` a cada atualização. Com internet, o app
 instalado pega a versão nova sozinho.
 
-**Sem publicar:** baixe a pasta do projeto no aparelho e abra `index.html` no navegador.
+**No computador (Windows, Mac ou Linux):** baixe o pacote
+**https://marcosvocare.github.io/igreja-/sobrevivencia-urbana.zip**, extraia na área de
+trabalho e dê dois cliques no instalador (`INSTALAR-WINDOWS.bat`, `INSTALAR-MAC.command`
+ou `INSTALAR-LINUX.sh`). Ele copia o app para o computador e cria o ícone
+"Sobrevivência Urbana" na área de trabalho, que abre numa janela própria do Edge ou do
+Chrome, sem internet. O pacote também traz o QR code para instalar no celular, o plano
+para imprimir e um LEIA-ME. É gerado por `npm run pacote` (`scripts/gerar-pacote.js`).
 
 **Versão publicada no claude.ai:** a mesma interface num arquivo único
 (`npm run build:unica`). Ela precisa de internet e de login; use a cópia por texto para
