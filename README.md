@@ -60,7 +60,7 @@ no navegador (`<script>` comum, compatível com `file://`) e no Node.
 ```bash
 npm test             # testes dos mecanismos (Node 18+)
 npm ci && npx playwright install chromium
-npm run test:e2e     # testes no navegador, inclusive uso sem internet
+npm run test:e2e     # testes no navegador, inclusive uso sem internet e a versão de arquivo único
 npm run build:unica  # gera dist/sobrevivencia-urbana.html (versão de arquivo único)
 ```
 

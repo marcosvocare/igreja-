@@ -697,7 +697,8 @@
     const estreita = window.innerWidth < LARGURA_COMPUTADOR;
     const reduzir = modoTela === 'computador' && estreita;
     document.documentElement.classList.toggle('modo-computador', reduzir);
-    document.body.style.zoom = reduzir ? String(window.innerWidth / LARGURA_COMPUTADOR) : '';
+    if (reduzir) document.documentElement.style.setProperty('--zoom-tela', String(window.innerWidth / LARGURA_COMPUTADOR));
+    else document.documentElement.style.removeProperty('--zoom-tela');
     const botao = $('#botao-tela');
     botao.hidden = !estreita; // numa tela larga os dois modos são iguais
     botao.textContent = modoTela === 'computador' ? 'Computador' : 'Celular';

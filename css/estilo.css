@@ -189,8 +189,8 @@ main { max-width: 1100px; margin: 0 auto; padding: 1rem; }
 @media (min-width: 820px) { .duas-colunas { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } }
 
 /* Modo computador numa tela estreita: a página é montada com largura de computador
-   e reduzida (zoom, definido no script) para caber na tela, sem rolagem lateral. */
-html.modo-computador body { width: 1180px; }
+   e reduzida (zoom: --zoom-tela, definido no script) para caber na tela, sem rolagem lateral. */
+html.modo-computador body { width: 1180px; zoom: var(--zoom-tela, 1); }
 html.modo-computador .duas-colunas { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
 html.modo-computador .colunas-kit { columns: 3; }
 

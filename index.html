@@ -28,7 +28,8 @@
       try { tela = localStorage.getItem('sobrevivencia-urbana:tela') || 'computador'; } catch (e) {}
       if (tela === 'computador' && window.innerWidth < 1180) {
         document.documentElement.classList.add('modo-computador');
-        document.body.style.zoom = String(window.innerWidth / 1180);
+        // Na raiz do documento, que já existe aqui (o corpo da página pode ainda não existir).
+        document.documentElement.style.setProperty('--zoom-tela', String(window.innerWidth / 1180));
       }
     })();
   </script>

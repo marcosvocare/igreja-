@@ -1,5 +1,5 @@
 /* Service worker: guarda o app em cache para funcionar sem internet. */
-const CACHE = 'sobrevivencia-urbana-v9';
+const CACHE = 'sobrevivencia-urbana-v10';
 const ARQUIVOS = [
   './',
   'index.html',
