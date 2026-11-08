@@ -65,7 +65,7 @@ corpo = corpo.replace(
         <h3>Sobre esta versão</h3>
         <ul>
           <li>Esta é a versão publicada do app. Ela precisa de internet e de login no claude.ai, e os dados ficam salvos só neste navegador.</li>
-          <li>Para usar sem internet, instale a versão do GitHub Pages ou abra o arquivo <code>index.html</code> do repositório no aparelho.</li>
+          <li>Para usar sem internet, abra <a href="https://marcosvocare.github.io/igreja-/" target="_blank" rel="noopener">marcosvocare.github.io/igreja-</a> com internet e instale o app (“Instalar o app” ou “Adicionar à tela inicial”).</li>
           <li>Use “Copiar dados como texto” ou “Baixar cópia de segurança” para levar seus dados de uma versão para a outra.</li>
         </ul>
       </div>`,

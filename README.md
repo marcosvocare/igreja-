@@ -37,15 +37,17 @@ cada parte do plano transformada em uma ferramenta que funciona **sem internet**
 
 ## Instalar e usar sem internet
 
-**Pelo GitHub Pages (recomendado):**
+**Pelo site (recomendado): https://marcosvocare.github.io/igreja-/**
 
-1. No GitHub, em **Settings → Pages**, escolha **Deploy from a branch**, branch **main**,
-   pasta **/ (root)**, e salve.
-2. Abra o endereço que aparecer (algo como `https://<usuário>.github.io/igreja-/`) uma
-   vez **com internet**.
-3. Instale: no Android (Chrome), botão **Instalar o app** na aba Dados ou menu ⋮ →
+1. Abra o endereço uma vez **com internet**.
+2. Instale: no Android (Chrome), botão **Instalar o app** na aba Dados ou menu ⋮ →
    **Instalar app**; no iPhone (Safari), **Compartilhar → Adicionar à Tela de Início**.
-4. Pronto: o app abre pela tela inicial e funciona sem internet.
+3. Teste: desligue o wi-fi e os dados e abra pelo ícone. Se abrir (inclusive o mapa da
+   cidade), está pronto para usar sem internet.
+
+O site é publicado pelo GitHub Pages a partir do branch `gh-pages`, que a automação
+`.github/workflows/site.yml` copia do `main` a cada atualização. Com internet, o app
+instalado pega a versão nova sozinho.
 
 **Sem publicar:** baixe a pasta do projeto no aparelho e abra `index.html` no navegador.
 
