@@ -1,7 +1,8 @@
 name: Site
 
 # A cada atualização do main, copia o app para o branch gh-pages, de onde o
-# GitHub Pages publica https://marcosvocare.github.io/igreja-/ (uso sem internet).
+# GitHub Pages publica https://marcosvocare.github.io/igreja-/ (uso sem internet),
+# junto com o pacote para instalar no computador (sobrevivencia-urbana.zip).
 on:
   push:
     branches: [main]
@@ -19,12 +20,20 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Copiar o main para o gh-pages
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Gerar o pacote para instalar no computador
+        run: |
+          npm ci
+          node scripts/gerar-pacote.js
+      - name: Copiar o main e o pacote para o gh-pages
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git checkout -B gh-pages
+          cp dist/sobrevivencia-urbana.zip sobrevivencia-urbana.zip
           touch .nojekyll
-          git add .nojekyll
+          git add -f .nojekyll sobrevivencia-urbana.zip
           git commit -m "Site: main ${GITHUB_SHA::7}"
           git push --force origin gh-pages
