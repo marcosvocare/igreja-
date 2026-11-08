@@ -118,6 +118,8 @@ body::before {
   padding: .75rem 1rem 0;
 }
 .topo-linha { display: flex; align-items: center; justify-content: space-between; gap: .5rem; }
+.topo-acoes { display: flex; align-items: center; gap: .4rem; flex-shrink: 0; }
+#botao-tema { min-height: 1.9rem; font-size: .8rem; }
 .emergencia { margin: .35rem 0; font-size: .85rem; color: var(--texto-suave); display: flex; flex-wrap: wrap; gap: .25rem .75rem; }
 .emergencia a { font-weight: 600; text-decoration: none; }
 

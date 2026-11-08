@@ -54,8 +54,26 @@
           instalacao: R.INSTALACOES[n.instalacao] ? n.instalacao : 'portatil',
           lat: ok ? n.lat : null,
           lon: ok ? n.lon : null,
+          exemplo: n.exemplo === true,
         };
       });
+  }
+
+  /** Rede de exemplo: igreja no alto, três casas e um repetidor (a mesma do guia). */
+  function carregarExemplo() {
+    const m = A.estado.mapa;
+    const base = m && coordValida(m.base.lat, m.base.lon) ? { lat: m.base.lat, lon: m.base.lon } : { lat: -23.55, lon: -46.63 };
+    const norte = (metrosN) => ({ lat: base.lat + metrosN / 111195, lon: base.lon });
+    const no = (nome, instalacao, pos) => ({ id: A.novoId(), nome, instalacao, ...pos, exemplo: true });
+    A.estado.radio.nos.push(
+      no('Igreja', 'alto', base),
+      no('Ana', 'portatil', norte(2000)),
+      no('Bia', 'fixo', norte(4000)),
+      no('Caio', 'portatil', norte(-2200)),
+      no('Repetidor 1', 'alto', norte(3000)),
+    );
+    A.salvar();
+    render();
   }
 
   // ------------------------------------------------------------------ montar
@@ -128,8 +146,18 @@
       render();
     });
 
-    // Sugestão de repetidor: adiciona com um toque
+    // Sugestão de repetidor: adiciona com um toque. Também: carregar e apagar o exemplo.
     A.$('#radio-cobertura').addEventListener('click', (e) => {
+      if (e.target.closest('#radio-exemplo')) {
+        carregarExemplo();
+        return;
+      }
+      if (e.target.closest('#radio-apagar-exemplo')) {
+        A.estado.radio.nos = A.estado.radio.nos.filter((n) => !n.exemplo);
+        A.salvar();
+        render();
+        return;
+      }
       const b = e.target.closest('button[data-repetidor]');
       if (!b) return;
       const [lat, lon] = b.dataset.repetidor.split(',').map(Number);
@@ -205,7 +233,13 @@
     if (comLocal.length < 2) {
       A.trocar(
         destino,
-        A.h('div', { class: 'cartao' }, A.h('h3', null, 'Cobertura'), A.h('p', { class: 'ajuda' }, 'Cadastre pelo menos dois rádios com localização. Comece pelo repetidor no ponto mais alto (a igreja, por exemplo) e pelas casas da família.')),
+        A.h(
+          'div',
+          { class: 'cartao' },
+          A.h('h3', null, 'Cobertura'),
+          A.h('p', { class: 'ajuda' }, 'Cadastre pelo menos dois rádios com localização. Comece pelo repetidor no ponto mais alto (a igreja, por exemplo) e pelas casas da família.'),
+          nos.length ? null : A.h('button', { type: 'button', class: 'secundario', id: 'radio-exemplo' }, 'Ver um exemplo'),
+        ),
       );
       return;
     }
@@ -215,8 +249,18 @@
     const cor = an.isolados.length ? 'vermelho' : an.alemDoLimite.length ? 'amarelo' : 'verde';
     const fracos = an.enlaces.filter((e) => e.fraco);
 
+    const temExemplo = nos.some((n) => n.exemplo);
     A.trocar(
       destino,
+      temExemplo
+        ? A.h(
+            'p',
+            { class: 'aviso' },
+            'Esta é uma rede de exemplo. Troque pelos rádios da sua família ou ',
+            A.h('button', { type: 'button', class: 'mini secundario', id: 'radio-apagar-exemplo' }, 'apague o exemplo'),
+            '.',
+          )
+        : null,
       A.h(
         'div',
         { class: 'painel-nivel', dataset: { cor } },

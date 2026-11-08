@@ -11,10 +11,22 @@
   <link rel="stylesheet" href="css/estilo.css">
 </head>
 <body>
+  <script>
+    // Tema escolhido neste aparelho (padrão: escuro), aplicado antes de desenhar a página.
+    (function () {
+      var tema = 'escuro';
+      try { tema = localStorage.getItem('sobrevivencia-urbana:tema') || 'escuro'; } catch (e) {}
+      if (tema === 'escuro') document.documentElement.setAttribute('data-theme', 'dark');
+      else if (tema === 'claro') document.documentElement.setAttribute('data-theme', 'light');
+    })();
+  </script>
   <header class="topo">
     <div class="topo-linha">
       <h1>Sobrevivência Urbana</h1>
-      <a id="selo-nivel" class="selo" data-cor="verde" href="#situacao-resultado" title="Ver o resultado da triagem">Normal</a>
+      <div class="topo-acoes">
+        <button type="button" id="botao-tema" class="mini secundario" aria-label="Mudar o tema">Escuro</button>
+        <a id="selo-nivel" class="selo" data-cor="verde" href="#situacao-resultado" title="Ver o resultado da triagem">Normal</a>
+      </div>
     </div>
     <p class="emergencia">
       Pedir socorro:

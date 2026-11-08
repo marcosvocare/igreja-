@@ -1284,6 +1284,36 @@
   atualizarTudo();
   mostrarSecao();
   window.addEventListener('hashchange', mostrarSecao);
+  // Tema: escuro (padrão) → claro → automático (segue o aparelho). Só neste aparelho.
+  const CHAVE_TEMA = 'sobrevivencia-urbana:tema';
+  const TEMAS = { escuro: { proximo: 'claro', rotulo: 'Escuro' }, claro: { proximo: 'sistema', rotulo: 'Claro' }, sistema: { proximo: 'escuro', rotulo: 'Automático' } };
+  function aplicarTema(tema) {
+    const t = TEMAS[tema] ? tema : 'escuro';
+    if (t === 'escuro') document.documentElement.setAttribute('data-theme', 'dark');
+    else if (t === 'claro') document.documentElement.setAttribute('data-theme', 'light');
+    else document.documentElement.removeAttribute('data-theme');
+    const botao = $('#botao-tema');
+    botao.textContent = TEMAS[t].rotulo;
+    botao.setAttribute('aria-label', `Tema: ${TEMAS[t].rotulo}. Tocar para mudar.`);
+    botao.dataset.tema = t;
+  }
+  let temaSalvo = 'escuro';
+  try {
+    temaSalvo = localStorage.getItem(CHAVE_TEMA) || 'escuro';
+  } catch (e) {
+    /* sem armazenamento: fica no padrão */
+  }
+  aplicarTema(temaSalvo);
+  $('#botao-tema').addEventListener('click', () => {
+    const proximo = TEMAS[$('#botao-tema').dataset.tema].proximo;
+    aplicarTema(proximo);
+    try {
+      localStorage.setItem(CHAVE_TEMA, proximo);
+    } catch (e) {
+      /* sem armazenamento: vale só nesta visita */
+    }
+  });
+
   // O selo do topo leva ao resultado da triagem, mesmo se o endereço já for esse.
   $('#selo-nivel').addEventListener('click', (e) => {
     if (location.hash === '#situacao-resultado') {
