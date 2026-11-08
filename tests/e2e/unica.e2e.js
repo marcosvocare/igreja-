@@ -41,6 +41,11 @@ test('arquivo único: abre sem erros, cabe na tela e a triagem funciona', async 
     assert.equal(await page.evaluate(() => parseFloat(getComputedStyle(document.body).zoom)), 1);
     await page.check('input[value="agua_subindo"]');
     assert.equal((await page.textContent('.painel-nivel .postura')).trim(), 'Evacuar agora');
+    // Mapa da cidade embutido no arquivo.
+    await page.evaluate(() => (location.hash = 'cidade'));
+    await page.waitForSelector('#carregando-mapa[hidden]', { state: 'attached' });
+    await page.fill('#busca-cidade', 'jd amanda');
+    await page.waitForSelector('#resultados-cidade button');
     assert.deepEqual(erros, []);
   } finally {
     await navegador.close();

@@ -3,7 +3,8 @@
 /**
  * Uso offline e instalação: serve o app por http (como o GitHub Pages), deixa
  * o service worker guardar os arquivos, corta a internet e confere que o app
- * continua abrindo e funcionando. Também confere o manifesto e a letra maior.
+ * continua abrindo e funcionando (inclusive o mapa da cidade). Também confere o
+ * manifesto e a letra maior.
  */
 const test = require('node:test');
 const assert = require('node:assert/strict');
@@ -77,6 +78,11 @@ test('offline: depois da primeira visita, o app abre e funciona sem internet', a
   await page.goto(`${url}#socorros`);
   await page.waitForSelector('#socorros.ativa');
   assert.ok((await page.$$('#lista-socorros details')).length >= 10);
+  // Mapa de Hortolândia: os dados vêm do cache, sem internet.
+  await page.goto(`${url}#cidade`);
+  await page.waitForSelector('#carregando-mapa[hidden]', { state: 'attached' });
+  await page.fill('#busca-cidade', 'jd amanda');
+  await page.waitForSelector('#resultados-cidade button');
   assert.deepEqual(erros, []);
   await contexto.close();
 });

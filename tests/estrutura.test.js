@@ -19,6 +19,13 @@ test('estrutura: todo script do app está no cache offline (sw.js) e existe', ()
   assert.equal(scripts[scripts.length - 1], 'js/app.js', 'app.js deve ser o último (as abas se registram antes)');
 });
 
+test('estrutura: dados do mapa da cidade no cache offline, no caminho que a aba carrega', () => {
+  const cidade = fs.readFileSync(path.join(RAIZ, 'js', 'abas', 'cidade.js'), 'utf8');
+  const arquivo = /ARQUIVO_DADOS = '([^']+)'/.exec(cidade)[1];
+  assert.ok(fs.existsSync(path.join(RAIZ, arquivo)), `${arquivo} não existe`);
+  assert.ok(sw.includes(`'${arquivo}'`), `${arquivo} fora do sw.js`);
+});
+
 test('estrutura: toda aba do menu tem seção, e toda seção está no menu', () => {
   const secoes = [...html.matchAll(/<section id="([^"]+)" class="secao"/g)].map((m) => m[1]);
   const abas = [...html.matchAll(/<a href="#([^"]+)" data-grupo="[^"]+">/g)].map((m) => m[1]);

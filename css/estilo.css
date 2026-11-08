@@ -21,7 +21,24 @@
   --cat-alimento: #a8650a;
   --cat-abrigo: #1f6f5c;
   --cat-perigo: #c62828;
+  --cat-material: #5b6670;
   --zona-perigo: rgba(198, 40, 40, .14);
+  --mapa-fundo: #eceee8;
+  --mapa-rua: #ffffff;
+  --mapa-borda-rua: #c3c9c1;
+  --mapa-avenida: #f3c76b;
+  --mapa-rodovia: #e3904a;
+  --mapa-caminho: #7f8a84;
+  --mapa-agua: #a9cfee;
+  --mapa-rio: #3d85c6;
+  --mapa-verde: #cfe5c6;
+  --mapa-ferrovia: #6f7470;
+  --mapa-limite: #8a5cc0;
+  --mapa-texto: #262b28;
+  --mapa-halo: #ffffff;
+  --mapa-rota: #d9480f;
+  --mapa-eu: #1971c2;
+  --mapa-quadricula: rgba(60, 70, 64, .45);
   --raio: 10px;
   color-scheme: light;
 }
@@ -50,6 +67,23 @@
     --cat-abrigo: #4fb39a;
     --cat-perigo: #ef5350;
     --zona-perigo: rgba(239, 83, 80, .2);
+    --cat-material: #9aa7b2;
+    --mapa-fundo: #141917;
+    --mapa-rua: #3b4641;
+    --mapa-borda-rua: #141917;
+    --mapa-avenida: #8c7440;
+    --mapa-rodovia: #a5662f;
+    --mapa-caminho: #6f7b75;
+    --mapa-agua: #1d3d58;
+    --mapa-rio: #3f7fb6;
+    --mapa-verde: #1b2d21;
+    --mapa-ferrovia: #8a908c;
+    --mapa-limite: #b48ae0;
+    --mapa-texto: #e3e8e5;
+    --mapa-halo: #141917;
+    --mapa-rota: #ffb347;
+    --mapa-eu: #4dabf7;
+    --mapa-quadricula: rgba(200, 210, 204, .3);
     color-scheme: dark;
   }
 }
@@ -77,6 +111,23 @@
   --cat-abrigo: #4fb39a;
   --cat-perigo: #ef5350;
   --zona-perigo: rgba(239, 83, 80, .2);
+  --cat-material: #9aa7b2;
+  --mapa-fundo: #141917;
+  --mapa-rua: #3b4641;
+  --mapa-borda-rua: #141917;
+  --mapa-avenida: #8c7440;
+  --mapa-rodovia: #a5662f;
+  --mapa-caminho: #6f7b75;
+  --mapa-agua: #1d3d58;
+  --mapa-rio: #3f7fb6;
+  --mapa-verde: #1b2d21;
+  --mapa-ferrovia: #8a908c;
+  --mapa-limite: #b48ae0;
+  --mapa-texto: #e3e8e5;
+  --mapa-halo: #141917;
+  --mapa-rota: #ffb347;
+  --mapa-eu: #4dabf7;
+  --mapa-quadricula: rgba(200, 210, 204, .3);
   color-scheme: dark;
 }
 
@@ -408,6 +459,7 @@ button[aria-pressed="true"] { box-shadow: inset 0 -3px 0 var(--foco); }
 .ponto-cat.cat-alimento { background: var(--cat-alimento); }
 .ponto-cat.cat-abrigo { background: var(--cat-abrigo); }
 .ponto-cat.cat-perigo { background: var(--cat-perigo); border-radius: 0; }
+.ponto-cat.cat-material { background: var(--cat-material); }
 select.select-mini { width: auto; min-height: 2.5rem; padding: .2rem .4rem; font-size: .9rem; margin: 0; }
 .acoes-linha { white-space: nowrap; }
 .acoes-linha button + button { margin-left: .25rem; }
@@ -491,3 +543,66 @@ html.letra-maior { font-size: 130%; }
 }
 label.linha { min-height: 1.6rem; }
 label.linha input[type="checkbox"] { width: 1.3rem; height: 1.3rem; }
+
+/* ------------------------------------------------------- mapa da cidade */
+.barra-mapa { display: flex; flex-wrap: wrap; gap: .5rem 1rem; align-items: flex-end; }
+.busca-cidade { flex: 1 1 16rem; }
+.resultados-cidade { list-style: none; margin: .4rem 0 0; padding: 0; display: grid; gap: .3rem; }
+.resultados-cidade:empty { display: none; }
+.resultados-cidade button.resultado { width: 100%; justify-content: flex-start; text-align: left; background: var(--superficie); color: var(--texto); border-color: var(--borda); font-weight: 400; }
+.resultados-cidade small { color: var(--texto-suave); }
+.mapa-cidade { position: relative; margin: .75rem 0; border: 1px solid var(--borda); border-radius: var(--raio); overflow: hidden; background: var(--mapa-fundo); }
+#tela-cidade { display: block; width: 100%; height: min(70vh, 640px); min-height: 320px; touch-action: none; cursor: grab; }
+#tela-cidade:active { cursor: grabbing; }
+html.modo-computador #tela-cidade { height: calc(70vh / var(--zoom-tela, 1)); max-height: none; }
+.controles-mapa { position: absolute; top: .5rem; right: .5rem; display: grid; gap: .4rem; }
+.controles-mapa button.mini { width: 2.75rem; height: 2.75rem; font-size: 1.35rem; padding: 0; box-shadow: 0 1px 4px rgba(0, 0, 0, .35); }
+.carregando-mapa { position: absolute; inset: 0; display: grid; place-items: center; margin: 0; padding: 1rem; text-align: center; background: var(--mapa-fundo); color: var(--texto); }
+.carregando-mapa[hidden] { display: none; }
+.topo-info { display: flex; justify-content: space-between; align-items: flex-start; gap: .5rem; }
+.topo-info h3 { margin: 0; }
+.lista-info { margin: .4rem 0 .6rem; padding-left: 1.2rem; }
+.passos-rota { padding-left: 1.5rem; }
+.passos-rota li { margin: .25rem 0; }
+.aviso.aviso-leve { border-left-color: var(--amarelo); background: var(--amarelo-fundo); }
+.camadas { display: grid; gap: .3rem .75rem; grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr)); margin: .5rem 0 1rem; }
+.camadas label.linha { align-items: center; }
+.legenda-mapa { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(13rem, 1fr)); gap: .35rem .75rem; font-size: .92rem; }
+.legenda-simbolo { display: inline-block; width: 1.7rem; height: .5rem; vertical-align: middle; border-radius: 2px; }
+.leg-avenida { background: var(--mapa-avenida); }
+.leg-rua { background: var(--mapa-rua); outline: 1px solid var(--mapa-borda-rua); }
+.leg-caminho { height: 0; border-top: 2px dashed var(--mapa-caminho); }
+.leg-rio { height: 3px; background: var(--mapa-rio); }
+.leg-ferrovia { height: 0; border-top: 2px dashed var(--mapa-ferrovia); }
+.leg-limite { height: 0; border-top: 2px dashed var(--mapa-limite); }
+.leg-rota { height: 5px; background: var(--mapa-rota); }
+.leg-eu { width: .95rem; height: .95rem; border-radius: 50%; background: var(--mapa-eu); border: 2px solid #fff; }
+.leg-base { width: 1rem; height: 1rem; background: var(--texto); clip-path: polygon(50% 0, 100% 42%, 100% 100%, 0 100%, 0 42%); }
+.leg-meu { width: .85rem; height: .85rem; background: var(--cat-agua); }
+.legenda-letra { display: inline-grid; place-items: center; width: 1.3rem; height: 1.3rem; border-radius: 50%; color: #fff; font-size: .68rem; font-weight: 700; vertical-align: middle; }
+.legenda-letra.cat-agua { background: var(--cat-agua); }
+.legenda-letra.cat-remedio { background: var(--cat-remedio); }
+.legenda-letra.cat-alimento { background: var(--cat-alimento); }
+.legenda-letra.cat-abrigo { background: var(--cat-abrigo); }
+.legenda-letra.cat-material { background: var(--cat-material); }
+.linha-form { display: flex; flex-wrap: wrap; gap: .5rem; align-items: flex-end; }
+
+/* ------------------------------------------------------------ bússola */
+.cartao-bussola { text-align: center; }
+.cartao-bussola label.linha { text-align: left; justify-content: center; }
+.cartao-bussola .botoes { justify-content: center; }
+.rosa-bussola { display: block; width: 100%; max-width: 18rem; height: auto; margin: 0 auto; }
+.rosa-bussola .aro { fill: var(--superficie); stroke: var(--borda); stroke-width: 2; }
+.rosa-bussola .marca { stroke: var(--texto-suave); stroke-width: 1.5; }
+.rosa-bussola .marca.longa { stroke: var(--texto); stroke-width: 2.5; }
+.rosa-bussola .grau { fill: var(--texto-suave); font-size: 11px; text-anchor: middle; dominant-baseline: middle; }
+.rosa-bussola .letra { fill: var(--texto); font-size: 20px; font-weight: 700; text-anchor: middle; dominant-baseline: middle; }
+.rosa-bussola .letra.norte { fill: var(--vermelho); }
+.rosa-bussola .indice { fill: var(--vermelho); }
+.rosa-bussola .centro { fill: var(--texto); }
+.rosa-bussola .seta-alvo path { fill: var(--mapa-rota); stroke: var(--superficie); stroke-width: 2; }
+.rumo-atual { margin: .25rem 0 0; font-size: 2.2rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+#rumo-cardeal { font-size: 1.1rem; font-weight: 600; color: var(--texto-suave); }
+.guia-texto { margin: .25rem 0; font-size: 1.25rem; font-weight: 700; }
+.lista-guias { display: grid; gap: .5rem; grid-template-columns: repeat(auto-fill, minmax(18rem, 1fr)); align-items: start; }
+.lista-guias details.cartao { margin: 0; }

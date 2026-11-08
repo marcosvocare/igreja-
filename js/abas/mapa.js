@@ -228,6 +228,10 @@
       if (!b) return;
       const p = est().pontos.find((x) => x.id === b.dataset.id);
       if (!p) return;
+      if (b.dataset.acao === 'cidade') {
+        S.mostrarNaCidade(p.lat, p.lon, p.nome, `${M.CATEGORIAS[p.categoria].tipos[p.tipo]} · meus pontos`);
+        return;
+      }
       if (b.dataset.acao === 'confirmar') p.verificadoEm = new Date().toISOString();
       if (b.dataset.acao === 'remover') est().pontos = est().pontos.filter((x) => x !== p);
       A.salvar();
@@ -479,7 +483,13 @@
                   ),
                 ),
                 A.h('td', { class: 'num' }, temBase && coordValida(p.lat, p.lon) ? metros(M.distanciaMetros(base, p)) : '—'),
-                A.h('td', { class: 'acoes-linha' }, botao('confirmar', p.id, '✓', `Confirmei agora: ${p.nome}`), botao('remover', p.id, '✕', `Remover ${p.nome}`)),
+                A.h(
+                  'td',
+                  { class: 'acoes-linha' },
+                  coordValida(p.lat, p.lon) && S.mostrarNaCidade ? botao('cidade', p.id, '⌖', `Ver ${p.nome} no mapa da cidade`) : null,
+                  botao('confirmar', p.id, '✓', `Confirmei agora: ${p.nome}`),
+                  botao('remover', p.id, '✕', `Remover ${p.nome}`),
+                ),
               ),
             ),
           ),

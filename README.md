@@ -16,8 +16,9 @@ cada parte do plano transformada em uma ferramenta que funciona **sem internet**
 
 | Seção | Abas |
 |---|---|
-| **Agora** | **Situação** (triagem: nível de alerta, ficar, reunir as famílias, abrigar ou evacuar, e qual equipe acionar) · **Protocolos** (12 cenários: colapso, enchente, deslizamento, apagão, falta d'água, incêndio, calor, tiroteio, gás, desabastecimento, epidemia, vendaval) · **Primeiros socorros** (12 guias com o que não fazer e quando é grave) |
-| **Recursos** | **Mapa** (água, remédios, comida, abrigo e perigos; melhor opção a partir da base, rota que atravessa ou passa perto de perigo; pontos marcados por coordenada, GPS ou distância e direção) · **Água** (dosagem de cloro, fervura) · **Higiene** (banheiro sem água, latrina, lixo) · **Estoque** (validade e dias de autonomia) · **Casa e suprimentos** (água e comida da casa, dietas, animais) · **Cozinha** (gás, conservar sem geladeira, horta) · **Energia** (painel solar, bateria, power bank) · **Remédios** (dias de cobertura, doses, onde buscar) |
+| **Agora** | **Situação** (triagem: nível de alerta, ficar, reunir as famílias, abrigar ou evacuar, e qual equipe acionar) · **Protocolos** (13 cenários: colapso, apagão cibernético (internet, celular e bancos fora do ar), enchente, deslizamento, apagão de energia, falta d'água, incêndio, calor, tiroteio, gás, desabastecimento, epidemia, vendaval) · **Primeiros socorros** (12 guias com o que não fazer e quando é grave) |
+| **Mapas** | **Cidade** (mapa de Hortolândia sem internet: ruas, bairros, rios, farmácias, hospitais, mercados, caixas d'água, igrejas, escolas, gás e combustível; busca sem acento; quadrículas de 1 km para dizer a posição pelo rádio; rota a pé que desvia dos perigos) · **Meus pontos** (água, remédios, comida, abrigo e perigos marcados pela comunidade; melhor opção a partir da base; pontos por coordenada, GPS ou distância e direção) · **Bússola** (sensor do celular corrigido para o norte verdadeiro, −21,8° em Hortolândia; quanto virar até um ponto; marcar ponto pelo rumo; sol agora; métodos sem bússola) |
+| **Recursos** | **Água** (dosagem de cloro, fervura) · **Higiene** (banheiro sem água, latrina, lixo) · **Estoque** (validade e dias de autonomia) · **Casa e suprimentos** (água e comida da casa, dietas, animais) · **Cozinha** (gás, conservar sem geladeira, horta) · **Energia** (painel solar, bateria, power bank) · **Remédios** (dias de cobertura, doses, onde buscar) |
 | **Comunidade** | **Rede de apoio** (quem ajuda quem e as equipes de socorro) · **Partilha** (estoque comum dividido com justiça) · **Abrigo** (capacidade da igreja, chegadas, tarefas) · **Pessoas e recados** · **Cuidado** emocional e espiritual · **Defesa** passiva (vigia, senha do dia, segurança da casa, sinais) |
 | **Comunicação** | **Contatos e mensagens** (pontos de encontro, árvore de chamadas, SMS, cartão de bolso) · **Rádio** (rede Meshtastic: alcance, repetidor, testes no bairro, canais, códigos) |
 | **Preparação** | **Começar** (10 passos conferidos pelo app) · **Kit 72 h** · **Caderno** em papel (imprimir ou baixar) · **Dados e senha** |
@@ -75,9 +76,24 @@ sw.js, manifest.webmanifest    uso offline e instalação
 tests/*.test.js                testes dos mecanismos
 tests/e2e/*.e2e.js             testes no navegador
 scripts/gerar-pagina-unica.js  versão de arquivo único
+scripts/baixar-mapa-osm.js     baixa a área de Hortolândia do OpenStreetMap
+scripts/gerar-mapa-cidade.js   gera dados/mapa-hortolandia.js (ruas, bairros, locais)
+dados/                         mapa da cidade e a licença dos dados
 docs/                          o plano
 ```
 
+### Mapa da cidade
+
+`dados/mapa-hortolandia.js` (527 KB) vem do **OpenStreetMap** — © colaboradores do
+OpenStreetMap, licença ODbL (veja `dados/LICENCA-MAPA.md`). O app só o carrega quando a
+aba Cidade é aberta, e o service worker o guarda para uso sem internet. Para atualizar
+ou fazer o de outra cidade:
+
+```bash
+NODE_USE_ENV_PROXY=1 node scripts/baixar-mapa-osm.js   # precisa de internet só aqui
+node scripts/gerar-mapa-cidade.js
+```
+
 Os valores de água, calorias, cloro, energia e capacidade são estimativas de
-planejamento baseadas em referências públicas (OMS, Projeto Esfera). Ajuste à realidade
-da sua família e da sua comunidade.
+planejamento baseadas em referências públicas (OMS, Projeto Esfera). A declinação
+magnética vem do modelo WMM2025. Ajuste à realidade da sua família e da sua comunidade.
