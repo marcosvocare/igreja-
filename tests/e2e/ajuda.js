@@ -31,14 +31,6 @@ async function fecharNavegador() {
 async function abrirApp({ largura = 390, altura = 844, esquema = 'light', tela = 'celular', hash = '' } = {}) {
   const b = await iniciarNavegador();
   const contexto = await b.newContext({ viewport: { width: largura, height: altura }, colorScheme: esquema });
-  // Modo de tela fixado antes de carregar (o padrão do app é "computador").
-  await contexto.addInitScript((t) => {
-    try {
-      if (!localStorage.getItem('sobrevivencia-urbana:tela')) localStorage.setItem('sobrevivencia-urbana:tela', t);
-    } catch (e) {
-      /* ignora */
-    }
-  }, tela);
   const page = await contexto.newPage();
   const erros = [];
   page.on('pageerror', (e) => erros.push(`erro de página: ${e.message}`));
@@ -46,6 +38,12 @@ async function abrirApp({ largura = 390, altura = 844, esquema = 'light', tela =
     if (m.type() === 'error' && !/manifest|service ?worker/i.test(m.text())) erros.push(`console: ${m.text()}`);
   });
   await page.goto(URL_APP + (hash ? `#${hash}` : ''));
+  // O padrão do app é o modo computador; troca pelo botão, como uma pessoa faria.
+  // (Gravar no armazenamento antes de a página carregar faz o Chromium perder dados.)
+  const botaoTela = page.locator('#botao-tela');
+  if (tela === 'celular' && (await botaoTela.isVisible()) && (await botaoTela.textContent()) === 'Computador') {
+    await botaoTela.click();
+  }
   const ir = async (h) => {
     await page.goto(URL_APP + `#${h}`);
     await page.waitForFunction((id) => {
@@ -58,9 +56,15 @@ async function abrirApp({ largura = 390, altura = 844, esquema = 'light', tela =
   return { page, erros, ir, texto, fechar };
 }
 
+/** Recarrega a página, dando antes um tempo para o navegador gravar o armazenamento. */
+async function recarregar(page) {
+  await page.waitForTimeout(1200);
+  await page.reload();
+}
+
 /** Largura do documento maior que a janela = rolagem lateral (proibida). */
 async function rolagemLateral(page) {
   return page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth);
 }
 
-module.exports = { URL_APP, abrirApp, fecharNavegador, rolagemLateral };
+module.exports = { URL_APP, abrirApp, fecharNavegador, rolagemLateral, recarregar };

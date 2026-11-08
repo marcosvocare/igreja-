@@ -6,7 +6,7 @@
  */
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const { abrirApp, fecharNavegador, rolagemLateral } = require('./ajuda');
+const { abrirApp, fecharNavegador, rolagemLateral, recarregar } = require('./ajuda');
 
 const NORTE = (m) => `${(-23.55 + m / 111195).toFixed(5)}, -46.63000`;
 const LESTE_300M = 300 / (111195 * Math.cos((23.55 * Math.PI) / 180));
@@ -182,7 +182,7 @@ test('dados: salvos ao recarregar, cópia por texto e apagar em dois toques', as
   await page.fill('#form-contato input[name="nome"]', 'Ana');
   await page.click('#form-contato button[type="submit"]');
   await page.waitForFunction(() => document.querySelectorAll('#lista-contatos li').length === 1);
-  await page.reload();
+  await recarregar(page);
   await page.waitForSelector('#comunicacao.ativa');
   assert.equal(await page.$$eval('#lista-contatos li', (l) => l.length), 1);
   const copia = await page.evaluate(() => localStorage.getItem('sobrevivencia-urbana:v1'));
@@ -240,7 +240,7 @@ test('sem Estado: nenhum número ou órgão do governo no texto visível', async
 test('dados ilegíveis: guarda cópia de recuperação, avisa e não apaga ao salvar', async () => {
   const { page, erros, ir, fechar } = await abrirApp();
   await page.evaluate(() => localStorage.setItem('sobrevivencia-urbana:v1', '{"versao":1, "contatos": [quebrado'));
-  await page.reload();
+  await recarregar(page);
   await page.waitForSelector('.aviso-topo');
   assert.equal(await page.evaluate(() => localStorage.getItem('sobrevivencia-urbana:v1:recuperacao')), '{"versao":1, "contatos": [quebrado');
   // Mesmo depois de usar o app (que salva), a cópia continua lá.

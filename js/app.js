@@ -281,8 +281,16 @@
     const atual = SECOES.find((id) => hash === id || hash.startsWith(`${id}-`)) || 'situacao';
     const sub = hash.startsWith(`${atual}-`) ? hash.slice(atual.length + 1) : '';
     for (const id of SECOES) document.getElementById(id).classList.toggle('ativa', id === atual);
+    // Menu em dois níveis: seção (grupo) e abas da seção.
+    const linkAtual = document.querySelector(`.abas a[href="#${atual}"]`);
+    const grupo = linkAtual ? linkAtual.dataset.grupo : '';
+    for (const g of document.querySelectorAll('.grupos a')) {
+      if (g.dataset.grupo === grupo) g.setAttribute('aria-current', 'true');
+      else g.removeAttribute('aria-current');
+    }
     for (const a of document.querySelectorAll('.abas a')) {
-      if (a.getAttribute('href') === `#${atual}`) {
+      a.hidden = a.dataset.grupo !== grupo;
+      if (a === linkAtual) {
         a.setAttribute('aria-current', 'page');
         a.scrollIntoView({ block: 'nearest', inline: 'nearest' });
       } else a.removeAttribute('aria-current');

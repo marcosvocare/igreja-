@@ -123,6 +123,26 @@ body::before {
 .emergencia { margin: .35rem 0; font-size: .85rem; color: var(--texto-suave); display: flex; flex-wrap: wrap; gap: .25rem .75rem; }
 .emergencia a { font-weight: 600; text-decoration: none; }
 
+.grupos {
+  display: flex;
+  gap: .4rem;
+  overflow-x: auto;
+  scrollbar-width: none;
+  margin: .35rem -1rem 0;
+  padding: 0 1rem .2rem;
+}
+.grupos::-webkit-scrollbar { display: none; }
+.grupos a {
+  flex: 0 0 auto;
+  padding: .35rem .85rem;
+  border: 1px solid var(--borda);
+  border-radius: 999px;
+  color: var(--texto-suave);
+  text-decoration: none;
+  font-size: .9rem;
+  white-space: nowrap;
+}
+.grupos a[aria-current] { background: var(--primaria); border-color: var(--primaria); color: var(--primaria-texto); font-weight: 600; }
 .abas {
   display: flex;
   gap: .25rem;
