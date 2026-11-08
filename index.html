@@ -65,7 +65,8 @@
     </p>
     <nav class="grupos" aria-label="Seções do app">
       <a href="#situacao" data-grupo="agora">Agora</a>
-      <a href="#mapa" data-grupo="recursos">Recursos</a>
+      <a href="#cidade" data-grupo="mapas">Mapas</a>
+      <a href="#agua" data-grupo="recursos">Recursos</a>
       <a href="#rede" data-grupo="comunidade">Comunidade</a>
       <a href="#comunicacao" data-grupo="comunicacao">Comunicação</a>
       <a href="#inicio" data-grupo="preparacao">Preparação</a>
@@ -74,7 +75,9 @@
       <a href="#situacao" data-grupo="agora">Situação</a>
       <a href="#cenarios" data-grupo="agora">Protocolos</a>
       <a href="#socorros" data-grupo="agora">Primeiros socorros</a>
-      <a href="#mapa" data-grupo="recursos">Mapa</a>
+      <a href="#cidade" data-grupo="mapas">Cidade</a>
+      <a href="#mapa" data-grupo="mapas">Meus pontos</a>
+      <a href="#bussola" data-grupo="mapas">Bússola</a>
       <a href="#agua" data-grupo="recursos">Água</a>
       <a href="#saneamento" data-grupo="recursos">Higiene</a>
       <a href="#estoque" data-grupo="recursos">Estoque</a>
@@ -126,8 +129,104 @@
     </section>
 
     <!-- ========================================================== MAPA -->
+    <section id="cidade" class="secao">
+      <h2>Mapa de Hortolândia</h2>
+      <p class="ajuda">Ruas, bairros, rios e locais úteis guardados no aparelho: funciona sem internet. Arraste para mover, use dois dedos ou os botões para aproximar e toque num lugar para ver a rua, marcar um ponto, usar como base ou traçar uma rota a pé que desvia dos perigos marcados.</p>
+      <div class="barra-mapa">
+        <label for="busca-cidade" class="busca-cidade">Buscar rua, bairro ou local <input id="busca-cidade" type="search" autocomplete="off" placeholder="Ex.: av olivio, jd amanda, farmácia"></label>
+        <div class="botoes">
+          <button type="button" class="secundario so-local" id="onde-estou">Onde estou</button>
+          <button type="button" class="secundario" id="ir-base">Ir para a base</button>
+        </div>
+      </div>
+      <ul id="resultados-cidade" class="resultados-cidade" aria-live="polite"></ul>
+      <p id="msg-cidade" class="ajuda" aria-live="polite"></p>
+      <div class="mapa-cidade">
+        <canvas id="tela-cidade" tabindex="0" aria-label="Mapa de Hortolândia. Setas movem, mais e menos aproximam, Enter escolhe o centro."></canvas>
+        <div class="controles-mapa">
+          <button type="button" class="mini" id="zoom-mais" aria-label="Aproximar">+</button>
+          <button type="button" class="mini" id="zoom-menos" aria-label="Afastar">−</button>
+          <button type="button" class="mini" id="zoom-tudo" aria-label="Ver a cidade inteira">⤢</button>
+        </div>
+        <p id="carregando-mapa" class="carregando-mapa" aria-live="polite">Carregando o mapa…</p>
+      </div>
+      <div id="info-cidade" aria-live="polite"></div>
+      <div id="rota-cidade" aria-live="polite"></div>
+      <div class="duas-colunas">
+        <details class="cartao">
+          <summary>Camadas e legenda</summary>
+          <div id="camadas-cidade" class="camadas"></div>
+          <div id="legenda-cidade"></div>
+        </details>
+        <details class="cartao">
+          <summary>Quadrículas: dizer onde está pelo rádio</summary>
+          <p>O mapa é dividido em quadrados de 1 km. As colunas têm letras (de oeste para leste) e as linhas têm números (de norte para sul). Dizer "estou na F6" basta para alguém achar a área. Ligue as quadrículas em "Camadas" para vê-las no mapa; o lugar tocado mostra a sua.</p>
+          <form id="form-quadricula" class="linha-form" autocomplete="off">
+            <label for="quadricula-ir">Ir para a quadrícula <input id="quadricula-ir" maxlength="4" placeholder="F6"></label>
+            <button type="submit" class="secundario">Ir</button>
+          </form>
+          <p id="msg-quadricula" class="ajuda" aria-live="polite"></p>
+        </details>
+      </div>
+      <p class="ajuda" id="fonte-cidade">Mapa: © colaboradores do OpenStreetMap (licença ODbL).</p>
+    </section>
+
+    <section id="bussola" class="secao">
+      <h2>Bússola</h2>
+      <p class="ajuda">Usa o sensor do celular e corrige para o norte verdadeiro: em Hortolândia o norte magnético fica cerca de 22° a oeste. Sem sensor, oriente-se pelo sol ou pelos métodos do fim da página.</p>
+      <div class="duas-colunas">
+        <div class="cartao cartao-bussola">
+          <svg id="rosa-bussola" class="rosa-bussola" viewBox="-120 -120 240 240" role="img" aria-label="Rosa dos ventos"></svg>
+          <p class="rumo-atual"><span id="rumo-graus">—</span> <span id="rumo-cardeal"></span></p>
+          <p id="precisao-bussola" class="ajuda" aria-live="polite"></p>
+          <p id="estado-bussola" class="ajuda" aria-live="polite">Toque em "Ligar a bússola" e segure o celular deitado.</p>
+          <div class="botoes">
+            <button type="button" id="ligar-bussola">Ligar a bússola</button>
+            <button type="button" class="secundario" id="conferir-sol">Conferir com o sol</button>
+          </div>
+          <p id="msg-conferir-sol" class="ajuda" aria-live="polite">Para conferir: aponte o topo do celular para o sol (sem olhar para ele) e toque em "Conferir com o sol".</p>
+          <label class="linha" for="bussola-verdadeiro"><input type="checkbox" id="bussola-verdadeiro" checked> <span>Norte verdadeiro (corrige a declinação de <span id="texto-declinacao">−21,8°</span>)</span></label>
+        </div>
+        <div>
+          <div class="cartao">
+            <h3>Ir até um ponto</h3>
+            <div class="grade-numeros">
+              <label for="alvo-bussola">Destino <select id="alvo-bussola"></select></label>
+              <label for="bussola-origem">Partindo de <select id="bussola-origem"><option value="gps">Minha localização (GPS)</option><option value="base">Base</option></select></label>
+            </div>
+            <button type="button" class="secundario so-local" id="gps-bussola">Atualizar minha localização</button>
+            <p id="msg-gps-bussola" class="ajuda" aria-live="polite"></p>
+            <div id="guia-bussola" aria-live="polite"></div>
+          </div>
+          <div class="cartao">
+            <h3>Sol agora</h3>
+            <div id="sol-agora"></div>
+          </div>
+        </div>
+      </div>
+      <form id="form-rumo-ponto" class="cartao" autocomplete="off">
+        <h3>Marcar um ponto pelo rumo</h3>
+        <p class="ajuda">Viu fumaça, um alagamento ou uma caixa d'água ao longe? Aponte o topo do celular para lá, toque em "Usar o rumo atual", estime a distância e salve. O ponto vai para Meus pontos e aparece no mapa da cidade.</p>
+        <div class="grade-numeros">
+          <label for="rumo-graus-ponto">Rumo (graus) <input id="rumo-graus-ponto" type="number" min="0" max="359" step="1" inputmode="numeric" required></label>
+          <label for="rumo-distancia">Distância <input id="rumo-distancia" type="number" min="1" max="100000" step="1" inputmode="numeric" required></label>
+          <label for="rumo-unidade">Em <select id="rumo-unidade"><option value="metros">metros</option><option value="passos">passos (1 passo ≈ 0,75 m)</option></select></label>
+          <label for="rumo-categoria">Categoria <select id="rumo-categoria"></select></label>
+          <label for="rumo-tipo">Tipo <select id="rumo-tipo"></select></label>
+        </div>
+        <label for="rumo-nome">Nome <input id="rumo-nome" maxlength="60" required placeholder="Ex.: Fumaça perto da linha do trem"></label>
+        <div class="botoes">
+          <button type="button" class="secundario" id="usar-rumo-atual">Usar o rumo atual</button>
+          <button type="submit">Salvar ponto</button>
+        </div>
+        <p id="msg-rumo-ponto" class="ajuda" aria-live="polite"></p>
+      </form>
+      <h3>Sem bússola</h3>
+      <div id="lista-sem-bussola" class="lista-guias"></div>
+    </section>
+
     <section id="mapa" class="secao">
-      <h2>Mapa de recursos</h2>
+      <h2>Meus pontos: recursos e perigos</h2>
       <p class="ajuda">Onde há água, remédios, comida e abrigo, e onde há perigo. Funciona sem internet: distâncias e direções são calculadas a partir da base (casa ou igreja). Atualize a situação dos pontos a cada saída.</p>
       <div class="duas-colunas">
         <div>
@@ -936,6 +1035,8 @@
   <script src="js/nucleo/defesa.js"></script>
   <script src="js/nucleo/radio.js"></script>
   <script src="js/nucleo/rotulos.js"></script>
+  <script src="js/nucleo/bussola.js"></script>
+  <script src="js/nucleo/cartografia.js"></script>
   <script src="js/nucleo/versoes.js"></script>
   <script src="js/nucleo/configuracao.js"></script>
   <script src="js/nucleo/cofre.js"></script>
@@ -949,6 +1050,8 @@
   <script src="js/nucleo/cuidado.js"></script>
   <script src="js/abas/situacao.js"></script>
   <script src="js/abas/mapa.js"></script>
+  <script src="js/abas/bussola.js"></script>
+  <script src="js/abas/cidade.js"></script>
   <script src="js/abas/defesa.js"></script>
   <script src="js/abas/remedios.js"></script>
   <script src="js/abas/partilha.js"></script>

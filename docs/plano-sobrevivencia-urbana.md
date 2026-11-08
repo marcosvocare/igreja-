@@ -80,6 +80,8 @@ quem acionar.
 | Comunidade | Mapa de habilidades e necessidades; pareamento de quem precisa com quem pode ajudar | `js/nucleo/rede.js` |
 | Rádio da família | Rede Meshtastic (celular + rádio LoRa): alcance, saltos, repetidor, plano de canais e mensagens | `js/nucleo/radio.js` |
 | Mapa de recursos | Fontes de água, remédios, alimentos, abrigos e zonas de perigo; melhor opção a partir da base | `js/nucleo/mapa.js` |
+| Mapa da cidade | Ruas, bairros e locais úteis de Hortolândia sem internet; quadrículas de 1 km; rota a pé que desvia dos perigos | `js/nucleo/cartografia.js` |
+| Bússola | Sensor do celular com correção para o norte verdadeiro, rumo até um ponto, sol e métodos sem bússola | `js/nucleo/bussola.js` |
 | Remédios críticos | Dias de cobertura por pessoa, validade e reposição | `js/nucleo/remedios.js` |
 | Partilha justa | Divisão do estoque comum pela necessidade de cada família | `js/nucleo/partilha.js` |
 | Defesa comunitária | Escala de vigia, senha do dia, avaliação de segurança e código de sinais | `js/nucleo/defesa.js` |
@@ -191,6 +193,31 @@ A rede da igreja se divide em equipes, cada uma com um responsável e um substit
   zona de perigo. Informação com mais de 3 dias vale como desatualizada.
 - Água de qualquer fonte do mapa traz o tratamento obrigatório (ferver ou clorar).
 - Quem volta de uma saída atualiza a situação dos pontos que viu.
+
+**Mapa da cidade:** *Cartografia* (`js/nucleo/cartografia.js`) e o arquivo
+`dados/mapa-hortolandia.js`, gerado do OpenStreetMap e guardado no aparelho.
+
+- Ruas, bairros, rios, lagos, ferrovia, limite do município e 324 locais úteis:
+  farmácias, hospitais e clínicas, mercados, caixas d'água, igrejas, escolas, revendas
+  de gás, postos de combustível e lojas de ferragens. Um local do mapa vira um ponto
+  da comunidade com um toque, como "não verificado", até alguém passar lá.
+- **Quadrículas de 1 km:** colunas com letras (oeste → leste) e linhas com números
+  (norte → sul). Pelo rádio, "equipe de resgate na F6" basta para achar a área, sem
+  coordenadas.
+- **Rota a pé** pelas ruas, com instruções de virada. Atravessar uma zona de perigo
+  custa 10 vezes o trecho, passar a menos de 100 m dela custa 2 vezes e uma rua
+  bloqueada custa 100 vezes. Se não houver caminho limpo, a rota avisa.
+- O mapa pode estar desatualizado: confira no local e marque o que mudou.
+
+**Orientação:** *Bússola* (`js/nucleo/bussola.js`).
+
+- A bússola do celular aponta o norte **magnético**. Em Hortolândia ele fica cerca de
+  **22° a oeste** do norte verdadeiro (−21,8° em 2026, pelo modelo WMM2025). O app
+  corrige isso; numa bússola de agulha, some a diferença de cabeça.
+- Sem sensor: posição do sol pela hora (de frente para o sol, para que lado fica o
+  norte), método da sombra, relógio de ponteiros, Cruzeiro do Sul e agulha imantada.
+- **Marcar pelo rumo:** quem vê fumaça ou uma caixa d'água ao longe aponta o celular,
+  estima a distância e o ponto entra no mapa.
 
 **Remédios:** *Remédios críticos* (`js/nucleo/remedios.js`) mostra quantos dias o remédio
 de cada pessoa dura, considerando a validade, e o que falta para 30 dias. Nunca se

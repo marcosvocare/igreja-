@@ -25,12 +25,13 @@ async function fecharNavegador() {
 
 /**
  * Abre o app numa página nova, com armazenamento limpo.
- * @param {{largura?:number, altura?:number, esquema?:'light'|'dark', tela?:'computador'|'celular', hash?:string}} [opcoes]
+ * @param {{largura?:number, altura?:number, esquema?:'light'|'dark', tela?:'computador'|'celular', hash?:string, contexto?:object}} [opcoes]
+ *   contexto: opções extras do Playwright (ex.: permissões e geolocalização)
  * @returns {Promise<{page, erros:string[], ir:(hash:string)=>Promise<void>, texto:(sel:string)=>Promise<string>, fechar:()=>Promise<void>}>}
  */
-async function abrirApp({ largura = 390, altura = 844, esquema = 'light', tela = 'celular', hash = '' } = {}) {
+async function abrirApp({ largura = 390, altura = 844, esquema = 'light', tela = 'celular', hash = '', contexto: extras = {} } = {}) {
   const b = await iniciarNavegador();
-  const contexto = await b.newContext({ viewport: { width: largura, height: altura }, colorScheme: esquema });
+  const contexto = await b.newContext({ viewport: { width: largura, height: altura }, colorScheme: esquema, ...extras });
   const page = await contexto.newPage();
   const erros = [];
   page.on('pageerror', (e) => erros.push(`erro de página: ${e.message}`));

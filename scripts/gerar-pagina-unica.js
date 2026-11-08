@@ -7,7 +7,8 @@
  * - sem <html>/<head>/<body> (a plataforma acrescenta o esqueleto);
  * - sem service worker, manifesto e ícone (não funcionam lá);
  * - sem os botões de localização do aparelho e de impressão direta
- *   (o viewer não permite; o caderno é baixado como arquivo).
+ *   (o viewer não permite; o caderno é baixado como arquivo);
+ * - com os dados do mapa da cidade embutidos.
  *
  * Uso: npm run build:unica  [-- --saida caminho/arquivo.html]
  */
@@ -47,6 +48,10 @@ corpo = corpo.replace(/<script src="([^"]+)"><\/script>/g, (_, arquivo) => {
   if (arquivo === 'js/app.js') {
     codigo = codigo.replace(/\n {2}if \('serviceWorker' in navigator[\s\S]*?\n {2}\}\n/, '\n');
     if (codigo.includes('serviceWorker')) throw new Error('não consegui retirar o service worker de app.js');
+  }
+  if (arquivo === 'js/abas/cidade.js') {
+    // Dados do mapa da cidade embutidos (no app instalado, carregados só ao abrir a aba).
+    codigo = `${ler('dados/mapa-hortolandia.js')}\n${codigo}`;
   }
   if (/<\/script/i.test(codigo)) throw new Error(`${arquivo} contém </script>`);
   return `<script>\n${codigo}</script>`;
