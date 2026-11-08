@@ -236,3 +236,21 @@ test('sem Estado: nenhum número ou órgão do governo no texto visível', async
   assert.deepEqual(erros, []);
   await fechar();
 });
+
+test('dados ilegíveis: guarda cópia de recuperação, avisa e não apaga ao salvar', async () => {
+  const { page, erros, ir, fechar } = await abrirApp();
+  await page.evaluate(() => localStorage.setItem('sobrevivencia-urbana:v1', '{"versao":1, "contatos": [quebrado'));
+  await page.reload();
+  await page.waitForSelector('.aviso-topo');
+  assert.equal(await page.evaluate(() => localStorage.getItem('sobrevivencia-urbana:v1:recuperacao')), '{"versao":1, "contatos": [quebrado');
+  // Mesmo depois de usar o app (que salva), a cópia continua lá.
+  await ir('comunicacao');
+  await page.fill('#form-contato input[name="nome"]', 'Ana');
+  await page.click('#form-contato button[type="submit"]');
+  assert.equal(await page.evaluate(() => localStorage.getItem('sobrevivencia-urbana:v1:recuperacao')), '{"versao":1, "contatos": [quebrado');
+  await page.click('.aviso-topo button');
+  await page.waitForSelector('#dados.ativa');
+  assert.match(await page.inputValue('#texto-backup'), /quebrado/);
+  assert.deepEqual(erros, []);
+  await fechar();
+});

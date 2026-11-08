@@ -459,5 +459,5 @@
     return false;
   }
 
-  (S.extensoes = S.extensoes || []).push({ padrao, mesclar, montar, render, recarregar, navegar });
+  (S.extensoes = S.extensoes || []).push({ nome: 'radio', padrao, mesclar, montar, render, recarregar, navegar });
 })();
