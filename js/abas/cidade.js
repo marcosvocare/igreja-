@@ -15,17 +15,62 @@
   const PPM_MIN = 0.012;
   const PPM_MAX = 10;
   const BLOCO = 1500; // metros: as ruas são desenhadas por blocos visíveis
-  const LETRAS = { farmacia: 'F', hospital: 'H', posto: '+', mercado: 'M', feira: 'M', torneira: 'A', nascente: 'A', poco: 'A', cisterna: 'A', igreja: 'I', escola: 'E', casa_apoio: 'C', gas: 'G', combustivel: 'P', ferragens: 'Fe' };
+  const LETRAS = { farmacia: 'F', hospital: 'H', posto: '+', mercado: 'M', feira: 'M', torneira: 'A', nascente: 'A', poco: 'A', cisterna: 'A', distribuicao: 'A', igreja: '✝', escola: 'E', casa_apoio: 'C', gas: 'G', combustivel: 'P', ferragens: 'Fe' };
   const CAMADAS = [
     ['remedio', 'Saúde e remédios'],
-    ['alimento', 'Alimentos'],
+    ['alimento', 'Mercados e alimentos'],
     ['agua', 'Água'],
-    ['abrigo', 'Igrejas e escolas'],
+    ['igreja', 'Igrejas'],
+    ['escola', 'Escolas e centros comunitários'],
     ['material', 'Gás, combustível e ferragens'],
     ['meus', 'Meus pontos e perigos'],
     ['bairros', 'Nomes dos bairros'],
     ['quadricula', 'Quadrículas de 1 km'],
   ];
+  /** Camada de um local do mapa: igrejas e escolas têm camadas próprias. */
+  const camadaDe = (l) => (l.categoria === 'abrigo' ? (l.tipo === 'igreja' ? 'igreja' : 'escola') : l.categoria);
+
+  /** Tamanho do pino (raio da cabeça, em pixels) conforme a aproximação; 0 = só um ponto. */
+  function raioPino(ppm) {
+    if (ppm < 0.06) return 0;
+    if (ppm < 0.15) return 8;
+    if (ppm < 0.5) return 10.5;
+    return 13;
+  }
+
+  /** Desenha um pino em gota com a ponta em (x, y). Devolve o centro da cabeça. */
+  function pino(ctx, x, y, R, corFundo, corBorda, texto) {
+    const h = R * 2.15;
+    const cy = y - h;
+    const fi = Math.acos(R / h);
+    const caminho = () => {
+      ctx.beginPath();
+      ctx.moveTo(x, y);
+      ctx.arc(x, cy, R, Math.PI / 2 + fi, Math.PI / 2 - fi + 2 * Math.PI);
+      ctx.closePath();
+    };
+    // Sombra simples (deslocada), mais leve que shadowBlur ao arrastar o mapa.
+    ctx.save();
+    ctx.translate(1, 2);
+    caminho();
+    ctx.fillStyle = 'rgba(0, 0, 0, .35)';
+    ctx.fill();
+    ctx.restore();
+    caminho();
+    ctx.fillStyle = corFundo;
+    ctx.fill();
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = corBorda;
+    ctx.stroke();
+    if (texto) {
+      ctx.fillStyle = '#fff';
+      ctx.font = `800 ${Math.round(R * (texto.length > 1 ? 0.9 : 1.15))}px system-ui, sans-serif`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(texto, x, cy + 0.5);
+    }
+    return { x, y: cy, h };
+  }
 
   let A = null;
   let cidade = null;
@@ -206,6 +251,7 @@
       perigo: v('--cat-perigo'),
       zona: v('--zona-perigo'),
       cat: { agua: v('--cat-agua'), remedio: v('--cat-remedio'), alimento: v('--cat-alimento'), abrigo: v('--cat-abrigo'), material: v('--cat-material'), perigo: v('--cat-perigo') },
+      igreja: v('--cat-igreja'),
     };
   }
 
@@ -339,70 +385,93 @@
 
     if (camadas.quadricula) desenharQuadricula(ctx, W, H, cor, ocupado);
 
-    // Locais do mapa.
-    const locaisVisiveis = cidade.locais.filter((l) => camadas[l.categoria]);
+    // Locais do mapa: pinos em gota com a letra do tipo; os mais ao sul por cima.
+    const R = raioPino(ppm);
+    const locaisVisiveis = cidade.locais.filter((l) => camadas[camadaDe(l)]);
+    const naTela = [];
     for (const l of locaisVisiveis) {
       const s = paraTela(l.x, l.y);
-      if (s.x < -10 || s.y < -10 || s.x > W + 10 || s.y > H + 10) continue;
-      ctx.fillStyle = cor.cat[l.categoria];
-      if (ppm < 0.1) {
+      if (s.x < -20 || s.y < -10 || s.x > W + 20 || s.y > H + 3 * R + 10) continue;
+      naTela.push([l, s]);
+    }
+    naTela.sort((a, b2) => a[1].y - b2[1].y);
+    for (const [l, s] of naTela) {
+      if (!R) {
         ctx.beginPath();
-        ctx.arc(s.x, s.y, 2.5, 0, 2 * Math.PI);
+        ctx.arc(s.x, s.y, 3.5, 0, 2 * Math.PI);
+        ctx.fillStyle = l.tipo === 'igreja' ? cor.igreja : cor.cat[l.categoria];
         ctx.fill();
+        ctx.lineWidth = 1;
+        ctx.strokeStyle = '#fff';
+        ctx.stroke();
         continue;
       }
-      ctx.beginPath();
-      ctx.arc(s.x, s.y, 8, 0, 2 * Math.PI);
-      ctx.fill();
-      ctx.strokeStyle = cor.halo;
-      ctx.lineWidth = 1.5;
-      ctx.stroke();
-      ctx.fillStyle = '#fff';
-      ctx.font = '700 10px system-ui, sans-serif';
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.fillText(LETRAS[l.tipo] || '•', s.x, s.y + 0.5);
-      ocupado.push([s.x - 9, s.y - 9, s.x + 9, s.y + 9]);
+      const c = pino(ctx, s.x, s.y, R, l.tipo === 'igreja' ? cor.igreja : cor.cat[l.categoria], '#fff', R >= 10 ? LETRAS[l.tipo] || '•' : '');
+      l.cabeca = c;
+      ocupado.push([s.x - R - 1, c.y - R - 1, s.x + R + 1, s.y]);
     }
 
-    // Meus pontos (menos as zonas, já desenhadas) e a base.
-    for (const p of meus) {
-      const q = cidade.projetar(p.lat, p.lon);
-      const s = paraTela(q.x, q.y);
-      if (s.x < -20 || s.y < -20 || s.x > W + 20 || s.y > H + 20) continue;
-      ctx.fillStyle = cor.cat[p.categoria] || cor.texto;
-      ctx.strokeStyle = cor.halo;
-      ctx.lineWidth = 2;
-      ctx.beginPath();
+    // Meus pontos (menos as zonas, já desenhadas): pinos maiores, com estrela; perigos em triângulo.
+    const RM = Math.max(R, 9) + 3;
+    const meusOrdenados = meus
+      .map((p) => {
+        const q = cidade.projetar(p.lat, p.lon);
+        return [p, paraTela(q.x, q.y)];
+      })
+      .filter(([, s]) => s.x > -30 && s.y > -10 && s.x < W + 30 && s.y < H + 3 * RM + 10)
+      .sort((a, b2) => a[1].y - b2[1].y);
+    for (const [p, s] of meusOrdenados) {
       if (p.categoria === 'perigo') {
-        ctx.moveTo(s.x, s.y - 10);
-        ctx.lineTo(s.x + 10, s.y + 8);
-        ctx.lineTo(s.x - 10, s.y + 8);
+        const t = RM * 1.25;
+        ctx.beginPath();
+        ctx.moveTo(s.x, s.y - 2 * t);
+        ctx.lineTo(s.x + t * 1.1, s.y);
+        ctx.lineTo(s.x - t * 1.1, s.y);
         ctx.closePath();
-      } else ctx.rect(s.x - 8, s.y - 8, 16, 16);
-      ctx.fill();
+        ctx.fillStyle = cor.perigo;
+        ctx.fill();
+        ctx.lineWidth = 2.5;
+        ctx.strokeStyle = '#fff';
+        ctx.stroke();
+        ctx.fillStyle = '#fff';
+        ctx.font = `900 ${Math.round(t)}px system-ui, sans-serif`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('!', s.x, s.y - t * 0.6);
+        p.cabeca = { x: s.x, y: s.y - t, h: t };
+        ocupado.push([s.x - t * 1.2, s.y - 2 * t - 2, s.x + t * 1.2, s.y + 2]);
+        if (ppm >= 0.15) rotular(ctx, p.nome, s.x + t * 1.2 + 4, s.y - t, cor, ocupado, livre, 'left', '700 12px system-ui, sans-serif');
+        continue;
+      }
+      const c = pino(ctx, s.x, s.y, RM, cor.cat[p.categoria] || cor.texto, cor.texto === '#e3e8e5' ? '#fff' : '#fff', '★');
+      ctx.lineWidth = 1.5;
+      ctx.strokeStyle = cor.texto;
+      ctx.beginPath();
+      ctx.arc(c.x, c.y, RM + 2.5, 0, 2 * Math.PI);
       ctx.stroke();
-      ocupado.push([s.x - 10, s.y - 10, s.x + 10, s.y + 10]);
-      if (ppm >= 0.25) rotular(ctx, p.nome, s.x + 12, s.y, cor, ocupado, livre, 'left', '600 11px system-ui, sans-serif');
+      p.cabeca = c;
+      ocupado.push([s.x - RM - 3, c.y - RM - 3, s.x + RM + 3, s.y]);
+      if (ppm >= 0.15) rotular(ctx, p.nome, s.x + RM + 6, c.y, cor, ocupado, livre, 'left', '700 12px system-ui, sans-serif');
     }
     const b = A.estado.mapa.base;
     if (A.coordValida(b.lat, b.lon)) {
       const q = cidade.projetar(b.lat, b.lon);
       const s = paraTela(q.x, q.y);
+      const k = Math.max(1, RM / 10);
       ctx.fillStyle = cor.texto;
       ctx.strokeStyle = cor.halo;
-      ctx.lineWidth = 2;
+      ctx.lineWidth = 2.5;
       ctx.beginPath();
-      ctx.moveTo(s.x, s.y - 13);
-      ctx.lineTo(s.x + 10, s.y - 4);
-      ctx.lineTo(s.x + 10, s.y + 9);
-      ctx.lineTo(s.x - 10, s.y + 9);
-      ctx.lineTo(s.x - 10, s.y - 4);
+      ctx.moveTo(s.x, s.y - 16 * k);
+      ctx.lineTo(s.x + 13 * k, s.y - 5 * k);
+      ctx.lineTo(s.x + 13 * k, s.y + 11 * k);
+      ctx.lineTo(s.x - 13 * k, s.y + 11 * k);
+      ctx.lineTo(s.x - 13 * k, s.y - 5 * k);
       ctx.closePath();
       ctx.fill();
       ctx.stroke();
-      ocupado.push([s.x - 12, s.y - 14, s.x + 12, s.y + 11]);
-      rotular(ctx, `Base: ${b.nome}`, s.x + 14, s.y, cor, ocupado, livre, 'left', '700 12px system-ui, sans-serif');
+      ocupado.push([s.x - 15 * k, s.y - 18 * k, s.x + 15 * k, s.y + 13 * k]);
+      rotular(ctx, `Base: ${b.nome}`, s.x + 15 * k + 5, s.y, cor, ocupado, livre, 'left', '800 13px system-ui, sans-serif');
     }
 
     // Posição do aparelho e direção da bússola.
@@ -464,12 +533,10 @@
       rotularRuas(ctx, cor, ocupado, livre, cruza);
       if (camadas.bairros) rotularBairros(ctx, cor, ocupado, livre);
     }
-    if (ppm >= 1.2) {
-      for (const l of locaisVisiveis) {
-        if (l.semNome) continue;
-        const s = paraTela(l.x, l.y);
-        if (s.x < 0 || s.y < 0 || s.x > W || s.y > H) continue;
-        rotular(ctx, l.nome, s.x + 11, s.y, cor, ocupado, livre, 'left', '11px system-ui, sans-serif');
+    if (ppm >= 0.9 && R) {
+      for (const [l, s] of naTela) {
+        if (l.semNome || s.x < 0 || s.y < 0 || s.x > W || s.y > H) continue;
+        rotular(ctx, l.nome, s.x + R + 4, l.cabeca.y, cor, ocupado, livre, 'left', '600 11px system-ui, sans-serif');
       }
     }
 
@@ -705,19 +772,35 @@
   // ------------------------------------------------------------ toque
   function aoTocar(sx, sy) {
     const camadas = A.estado.cidade.camadas;
-    const perto = (lat, lon, raio) => {
+    // Distância do toque ao pino: à cabeça (onde está a letra) ou à ponta.
+    const R = raioPino(vista.ppm);
+    const distancia = (lat, lon, item, raioCabeca) => {
       const q = cidade.projetar(lat, lon);
       const s = paraTela(q.x, q.y);
-      return Math.hypot(s.x - sx, s.y - sy) <= raio;
+      const ponta = Math.hypot(s.x - sx, s.y - sy);
+      const cabeca = item.cabeca && raioCabeca ? Math.hypot(s.x - sx, s.y - item.cabeca.h - sy) - raioCabeca : Infinity;
+      return Math.min(ponta, cabeca);
+    };
+    const maisPerto = (lista, alcance, raioCabeca) => {
+      let melhor = null;
+      let dMelhor = alcance;
+      for (const x of lista) {
+        const d = distancia(x.lat, x.lon, x, raioCabeca);
+        if (d <= dMelhor) {
+          melhor = x;
+          dMelhor = d;
+        }
+      }
+      return melhor;
     };
     let escolha = null;
     if (camadas.meus) {
-      const p = A.estado.mapa.pontos.find((x) => A.coordValida(x.lat, x.lon) && perto(x.lat, x.lon, 16));
+      const p = maisPerto(A.estado.mapa.pontos.filter((x) => A.coordValida(x.lat, x.lon)), 14, Math.max(R, 9) + 3);
       if (p) escolha = { lat: p.lat, lon: p.lon, titulo: p.nome, sub: `${M.CATEGORIAS[p.categoria].tipos[p.tipo]} · ${rotuloStatus(p)} · meus pontos`, ponto: p };
     }
-    if (!escolha && vista.ppm >= 0.1) {
-      const l = cidade.locais.find((x) => camadas[x.categoria] && perto(x.lat, x.lon, 14));
-      if (l) escolha = { lat: l.lat, lon: l.lon, titulo: l.nome, sub: `${C.CATEGORIAS[l.categoria].tipos[l.tipo]} · do mapa (OpenStreetMap)`, local: l };
+    if (!escolha && R) {
+      const l = maisPerto(cidade.locais.filter((x) => camadas[camadaDe(x)]), 10, R);
+      if (l) escolha = { lat: l.lat, lon: l.lon, titulo: l.nome, sub: `${C.CATEGORIAS[l.categoria].tipos[l.tipo]} · ${l.fonte === 'overture' ? 'Overture Maps' : 'OpenStreetMap'}`, local: l };
     }
     if (!escolha) {
       const m = paraMundo(sx, sy);
@@ -854,7 +937,7 @@
         status: 'desconhecido',
         lat: Math.round(l.lat * 1e6) / 1e6,
         lon: Math.round(l.lon * 1e6) / 1e6,
-        referencia: 'Do mapa da cidade (OpenStreetMap)',
+        referencia: `Do mapa da cidade (${l.fonte === 'overture' ? 'Overture Maps' : 'OpenStreetMap'})`,
         obs: '',
         raio: 150,
         verificadoEm: null,
@@ -915,7 +998,7 @@
     ruaDestacada = r.tipo === 'rua' ? r.nome : null;
     const ppm = { rua: 0.9, local: 2, bairro: 0.5, agua: 0.4 }[r.tipo] || 1;
     centrar(r.lat, r.lon, ppm);
-    if (r.local) selecionar({ lat: r.lat, lon: r.lon, titulo: r.nome, sub: `${r.rotulo} · do mapa (OpenStreetMap)`, local: r.local });
+    if (r.local) selecionar({ lat: r.lat, lon: r.lon, titulo: r.nome, sub: `${r.rotulo} · ${r.local.fonte === 'overture' ? 'Overture Maps' : 'OpenStreetMap'}`, local: r.local });
     else selecionar({ lat: r.lat, lon: r.lon, titulo: r.nome, sub: r.rotulo });
   }
 
@@ -1038,7 +1121,7 @@
           'label',
           { class: 'linha' },
           A.h('input', { type: 'checkbox', dataset: { camada: id }, checked: Boolean(c[id]) }),
-          C.CATEGORIAS[id] ? A.h('span', { class: `ponto-cat cat-${id}`, 'aria-hidden': 'true' }) : null,
+          C.CATEGORIAS[id] || id === 'igreja' || id === 'escola' ? A.h('span', { class: `ponto-cat cat-${C.CATEGORIAS[id] || id === 'igreja' ? id : 'abrigo'}`, 'aria-hidden': 'true' }) : null,
           ` ${rotulo}`,
         ),
       ),
@@ -1048,7 +1131,7 @@
   function renderLegenda() {
     const item = (classe, texto) => A.h('li', null, A.h('span', { class: `legenda-simbolo ${classe}`, 'aria-hidden': 'true' }), ` ${texto}`);
     const letras = Object.entries(C.CATEGORIAS).flatMap(([cat, c]) =>
-      Object.entries(c.tipos).map(([tipo, rotulo]) => A.h('li', null, A.h('span', { class: `legenda-letra cat-${cat}`, 'aria-hidden': 'true' }, LETRAS[tipo]), ` ${rotulo}`)),
+      Object.entries(c.tipos).map(([tipo, rotulo]) => A.h('li', null, A.h('span', { class: `legenda-letra cat-${tipo === 'igreja' ? 'igreja' : cat}`, 'aria-hidden': 'true' }, LETRAS[tipo]), ` ${rotulo}`)),
     );
     A.trocar(
       A.$('#legenda-cidade'),
@@ -1062,7 +1145,9 @@
         item('leg-rota', 'Rota a pé'),
         item('leg-eu', 'Você (GPS)'),
         item('leg-base', 'Base'),
-        item('leg-meu', 'Meu ponto (quadrado) ou perigo (triângulo)'),
+        item('leg-pino', 'Local do mapa: pino com a letra do tipo'),
+        item('leg-meu', 'Meu ponto: pino maior com estrela'),
+        item('leg-perigo', 'Perigo: triângulo vermelho com !'),
         ...letras,
       ]),
     );

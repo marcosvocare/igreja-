@@ -195,12 +195,17 @@ A rede da igreja se divide em equipes, cada uma com um responsável e um substit
 - Quem volta de uma saída atualiza a situação dos pontos que viu.
 
 **Mapa da cidade:** *Cartografia* (`js/nucleo/cartografia.js`) e o arquivo
-`dados/mapa-hortolandia.js`, gerado do OpenStreetMap e guardado no aparelho.
+`dados/mapa-hortolandia.js`, gerado do OpenStreetMap e da Overture Maps e guardado
+no aparelho.
 
-- Ruas, bairros, rios, lagos, ferrovia, limite do município e 324 locais úteis:
-  farmácias, hospitais e clínicas, mercados, caixas d'água, igrejas, escolas, revendas
-  de gás, postos de combustível e lojas de ferragens. Um local do mapa vira um ponto
-  da comunidade com um toque, como "não verificado", até alguém passar lá.
+- Ruas, bairros, rios, lagos, ferrovia, limite do município e 1.929 locais úteis:
+  572 igrejas, 366 mercados, padarias e açougues, 118 farmácias, clínicas, hospitais,
+  caixas d'água, distribuidoras de água, escolas, revendas de gás, postos de
+  combustível e lojas de material de construção. Cada tipo é um pino com letra e cor
+  (igrejas com ✝); igrejas e escolas têm camadas separadas. Um local do mapa vira um
+  ponto da comunidade com um toque, como "não verificado", até alguém passar lá.
+- Repartições do governo e de segurança ficam de fora: neste plano não há Estado para
+  chamar.
 - **Quadrículas de 1 km:** colunas com letras (oeste → leste) e linhas com números
   (norte → sul). Pelo rádio, "equipe de resgate na F6" basta para achar a área, sem
   coordenadas.

@@ -164,7 +164,7 @@ function cidadeTeste({ comLimite = true } = {}) {
     linhas: { agua: [], ferrovia: [] },
     areas: { agua: [], verde: [] },
     limite: comLimite ? pares([[base[0] + 50, base[1] - 50], [base[0] + 50, base[1] + 450], [base[0] - 410, base[1] + 450], [base[0] - 410, base[1] - 50], [base[0] + 50, base[1] - 50]]) : [],
-    locais: [[0, 0, 'Farmácia Central', base[0] - 2 * dLat, base[1] + 2 * dLon + 10]],
+    locais: [[0, 0, 'Farmácia Central', base[0] - 2 * dLat, base[1] + 2 * dLon + 10], [3, 0, 'Igreja da Paz', base[0] - dLat, base[1] + dLon + 10, 1]],
     bairros: [['Jardim Teste', base[0] - 2 * dLat, base[1] + 2 * dLon]],
   });
 }
@@ -212,6 +212,10 @@ test('mapa: busca sem acento e com abreviação', () => {
   assert.equal(cid.buscar('angela')[0].nome, 'Rua Ãngela');
   assert.equal(cid.buscar('r. cicero')[0].nome, 'Rua Cícero');
   assert.equal(cid.buscar('farmacia')[0].tipo, 'local');
+  assert.equal(cid.buscar('farmacia')[0].local.fonte, 'osm');
+  const igreja = cid.buscar('igreja paz')[0];
+  assert.equal(igreja.local.tipo, 'igreja');
+  assert.equal(igreja.local.fonte, 'overture');
   assert.equal(cid.buscar('jd teste')[0].tipo, 'bairro');
   assert.deepEqual(cid.buscar('xyz inexistente'), []);
   assert.deepEqual(cid.buscar('   '), []);
@@ -278,6 +282,20 @@ test('Hortolândia: dados do OpenStreetMap carregam com ruas, bairros e locais',
   assert.ok(cid.limite.length >= 1);
   const tipos = new Set(cid.locais.map((l) => l.tipo));
   for (const t of ['farmacia', 'hospital', 'mercado', 'igreja', 'escola', 'cisterna', 'combustivel']) assert.ok(tipos.has(t), t);
+});
+
+test('Hortolândia: Overture completa igrejas e mercados, sem repartições do governo', () => {
+  const cid = C.criarCidade(dadosHortolandia);
+  const conta = (tipo) => cid.locais.filter((l) => l.tipo === tipo).length;
+  assert.ok(conta('igreja') > 300, `${conta('igreja')} igrejas`);
+  assert.ok(conta('mercado') > 200, `${conta('mercado')} mercados`);
+  assert.ok(conta('farmacia') > 50, `${conta('farmacia')} farmácias`);
+  assert.ok(cid.locais.some((l) => l.fonte === 'osm') && cid.locais.some((l) => l.fonte === 'overture'));
+  assert.match(cid.fonte, /Overture Maps Foundation/);
+  const orgaos = /\b(prefeitura|secretaria|pol[ií]cia|guarda municipal|conselho tutelar|delegacia|bombeiros?|samu|defesa civil)\b/i;
+  for (const l of cid.locais) assert.ok(!orgaos.test(l.nome), l.nome);
+  // UBS fica como posto de saúde, não como hospital.
+  for (const l of cid.locais.filter((x) => x.tipo === 'hospital')) assert.ok(!/\bUBS\b/.test(l.nome), l.nome);
 });
 
 test('Hortolândia: centro na quadrícula F6, dentro do município; Campinas fica fora da área', () => {
