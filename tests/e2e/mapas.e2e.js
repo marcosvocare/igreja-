@@ -62,12 +62,31 @@ test('cidade: tocar no mapa escolhe o lugar; quadrícula F6 leva ao centro', asy
   await page.fill('#quadricula-ir', 'Z99');
   await page.click('#form-quadricula button');
   assert.match(await texto('#msg-quadricula'), /não existe/);
+  // Com os locais ligados, o toque cai num pino; desligados, escolhe o lugar.
+  await page.click('summary:has-text("Camadas e legenda")');
+  for (const id of ['remedio', 'alimento', 'agua', 'igreja', 'escola', 'material']) await page.uncheck(`[data-camada="${id}"]`);
   await page.evaluate(() => document.getElementById('tela-cidade').scrollIntoView({ block: 'center' }));
   const caixa = await page.locator('#tela-cidade').boundingBox();
   await page.mouse.click(caixa.x + caixa.width / 2 + 30, caixa.y + caixa.height / 2 + 30);
   const info = await texto('#info-cidade');
   assert.match(info, /Lugar escolhido/);
   assert.match(info, /Coordenadas/);
+  assert.deepEqual(erros, []);
+  await fechar();
+});
+
+test('cidade: tocar num pino de igreja abre a igreja, com a fonte do dado', async () => {
+  const { page, erros, texto, fechar } = await abrirCidade();
+  await buscarEEscolher(page, 'assembleia de deus', 'Assembl');
+  const nome = (await page.textContent('#info-cidade h3')).trim();
+  await page.click('[data-acao-cidade="fechar"]');
+  // O lugar buscado fica no centro do mapa; a cabeça do pino fica acima da ponta.
+  await page.evaluate(() => document.getElementById('tela-cidade').scrollIntoView({ block: 'center' }));
+  const caixa = await page.locator('#tela-cidade').boundingBox();
+  await page.mouse.click(caixa.x + caixa.width / 2, caixa.y + caixa.height / 2 - 28);
+  const info = await texto('#info-cidade');
+  assert.match(info, new RegExp(nome.slice(0, 12)));
+  assert.match(info, /Igreja · (Overture Maps|OpenStreetMap)/);
   assert.deepEqual(erros, []);
   await fechar();
 });

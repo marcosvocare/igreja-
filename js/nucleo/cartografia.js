@@ -35,7 +35,7 @@
   const CATEGORIAS = {
     remedio: { rotulo: 'Saúde e remédios', tipos: { farmacia: 'Farmácia', hospital: 'Hospital', posto: 'Posto de saúde ou clínica' } },
     alimento: { rotulo: 'Alimentos', tipos: { mercado: 'Mercado ou mercearia', feira: 'Feira' } },
-    agua: { rotulo: 'Água', tipos: { torneira: 'Bebedouro ou torneira', nascente: 'Nascente ou mina', poco: 'Poço', cisterna: "Caixa d'água ou reservatório" } },
+    agua: { rotulo: 'Água', tipos: { torneira: 'Bebedouro ou torneira', nascente: 'Nascente ou mina', poco: 'Poço', cisterna: "Caixa d'água ou reservatório", distribuicao: 'Distribuidora de água' } },
     abrigo: { rotulo: 'Abrigo e apoio', tipos: { igreja: 'Igreja', escola: 'Escola', casa_apoio: 'Centro comunitário' } },
     material: { rotulo: 'Gás, combustível e ferragens', tipos: { gas: 'Revenda de gás', combustivel: 'Posto de combustível', ferragens: 'Ferragens e construção' } },
   };
@@ -234,13 +234,14 @@
     const verdes = lerFormas(dados.areas && dados.areas.verde, false);
     const limite = lerFormas(dados.limite, false);
 
-    const locais = (dados.locais || []).map(([c, t, nome, qlat, qlon], i) => {
+    // [categoria, tipo, nome, lat, lon, fonte?] — fonte 1 = Overture Maps; sem ela, OpenStreetMap.
+    const locais = (dados.locais || []).map(([c, t, nome, qlat, qlon, f], i) => {
       const categoria = ORDEM_CATEGORIAS[c];
       const tipo = Object.keys(CATEGORIAS[categoria].tipos)[t];
       const lat = latO + qlat * q;
       const lon = lonO + qlon * q;
       const p = projetar(lat, lon);
-      return { id: `osm${i}`, categoria, tipo, nome: nome || CATEGORIAS[categoria].tipos[tipo], semNome: !nome, lat, lon, x: p.x, y: p.y };
+      return { id: `local${i}`, categoria, tipo, nome: nome || CATEGORIAS[categoria].tipos[tipo], semNome: !nome, fonte: f === 1 ? 'overture' : 'osm', lat, lon, x: p.x, y: p.y };
     });
 
     const bairros = (dados.bairros || []).map(([nome, qlat, qlon]) => {

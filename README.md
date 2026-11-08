@@ -86,13 +86,16 @@ docs/                          o plano
 
 ### Mapa da cidade
 
-`dados/mapa-hortolandia.js` (527 KB) vem do **OpenStreetMap** — © colaboradores do
-OpenStreetMap, licença ODbL (veja `dados/LICENCA-MAPA.md`). O app só o carrega quando a
-aba Cidade é aberta, e o service worker o guarda para uso sem internet. Para atualizar
-ou fazer o de outra cidade:
+`dados/mapa-hortolandia.js` (602 KB) junta o **OpenStreetMap** (ruas, bairros, rios e
+parte dos locais; © colaboradores do OpenStreetMap, ODbL) e a **Overture Maps** (a maior
+parte dos 1.929 estabelecimentos: 572 igrejas, 366 mercados, 118 farmácias…;
+© Overture Maps Foundation, CDLA-Permissive-2.0). Veja `dados/LICENCA-MAPA.md`. O app
+só o carrega quando a aba Cidade é aberta, e o service worker o guarda para uso sem
+internet. Para atualizar ou fazer o de outra cidade:
 
 ```bash
 NODE_USE_ENV_PROXY=1 node scripts/baixar-mapa-osm.js   # precisa de internet só aqui
+pip install pyarrow && python3 scripts/baixar-locais-overture.py
 node scripts/gerar-mapa-cidade.js
 ```
 

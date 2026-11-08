@@ -274,7 +274,7 @@ function classificar(t) {
   if (t.natural === 'spring') return ['agua', 'nascente'];
   if (m === 'water_well') return ['agua', 'poco'];
   if (m === 'water_tower' || m === 'reservoir_covered' || (m === 'storage_tank' && t.content === 'water')) return ['agua', 'cisterna'];
-  if (a === 'place_of_worship') return ['abrigo', 'igreja'];
+  if (a === 'place_of_worship' || (['church', 'chapel', 'cathedral', 'temple'].includes(t.building) && t.name)) return ['abrigo', 'igreja'];
   if (['school', 'kindergarten', 'college', 'university'].includes(a)) return ['abrigo', 'escola'];
   if (['community_centre', 'social_facility', 'social_centre'].includes(a)) return ['abrigo', 'casa_apoio'];
   if (s === 'gas') return ['material', 'gas'];
@@ -284,11 +284,15 @@ function classificar(t) {
 }
 
 const locais = [];
+/** Repartições do governo e de segurança ficam fora: no cenário do app não há Estado para chamar. */
+const ORGAOS = /\b(prefeitura|secretaria|pol[ií]cia|guarda (civil )?municipal|conselho tutelar|delegacia|bombeiros?|samu|defesa civil|f[óo]rum|cart[óo]rio|inss|receita federal|cras|creas|poupatempo|tribunal|c[âa]mara municipal|ex[ée]rcito|quartel)\b/i;
+
 function adicionarLocal(t, lat, lon) {
   const c = classificar(t);
   if (!c || !(lat >= caixa.sul && lat <= caixa.norte && lon >= caixa.oeste && lon <= caixa.leste)) return;
   const [categoria, tipo] = c;
   const nome = (t.name || '').trim().slice(0, 80);
+  if (ORGAOS.test(nome)) return;
   const dup = locais.find((l) => l.categoria === categoria && l.tipo === tipo && l.nome === nome && Math.hypot((l.lat - lat) * KY, (l.lon - lon) * KX) < 60);
   if (dup) return;
   locais.push({ categoria, tipo, nome, lat, lon });
@@ -301,14 +305,90 @@ for (const v of vias.values()) {
   const [lat, lon] = centro(lista);
   adicionarLocal(v.tags, lat, lon);
 }
+// ------------------------------------------------------- locais da Overture Maps
+// O OpenStreetMap tem poucos estabelecimentos em Hortolândia; a Overture Maps
+// (baixada por scripts/baixar-locais-overture.py) completa igrejas, mercados,
+// farmácias, saúde, escolas, gás, água e combustível. Só entram registros com
+// confiança de pelo menos 0,5, com nome, abertos e que não repetem o OSM.
+const CONFIANCA_MINIMA = 0.5;
+const arqOverture = path.join(CACHE, 'overture.json');
+let versaoOverture = null;
+const contagemOverture = { lidos: 0, usados: 0, repetidos: 0 };
+
+const semAcento = (s) => String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+const PALAVRAS_VAZIAS = new Set(['de', 'da', 'do', 'das', 'dos', 'e', 'a', 'o', 'igreja', 'supermercado', 'mercado', 'farmacia', 'drogaria', 'posto', 'escola', 'ltda', 'me', 'eireli']);
+const palavras = (s) => new Set(semAcento(s).split(/[^a-z0-9]+/).filter((p) => p.length > 1 && !PALAVRAS_VAZIAS.has(p)));
+function nomesParecidos(a, b) {
+  const pa = palavras(a);
+  const pb = palavras(b);
+  if (!pa.size || !pb.size) return semAcento(a) === semAcento(b);
+  let comuns = 0;
+  for (const p of pa) if (pb.has(p)) comuns++;
+  return comuns / Math.min(pa.size, pb.size) >= 0.5;
+}
+
+/** "IGREJA BATISTA CENTRAL" → "Igreja Batista Central". */
+function arrumarNome(nome) {
+  const n = String(nome || '').replace(/\s+/g, ' ').trim().slice(0, 80);
+  if (n.length < 5 || n !== n.toUpperCase()) return n;
+  return n
+    .toLowerCase()
+    .split(' ')
+    .map((p, i) => (i && ['de', 'da', 'do', 'das', 'dos', 'e'].includes(p) ? p : p.charAt(0).toUpperCase() + p.slice(1)))
+    .join(' ');
+}
+
+function classificarOverture(o) {
+  const c = o.categoria || '';
+  const nome = o.nome || '';
+  const VENDE_GAS = ['chemical_plant', 'manufacturer', 'shopping', 'food_beverage_distributor', 'professional_service', 'home_service', 'propane_supplier', 'supplier_or_distributor', 'bottled_water_company', ''];
+  if (/\bg[áa]s\b|ultragaz|liquig[áa]s|supergasbras|consigaz|copagaz/i.test(nome) && VENDE_GAS.includes(c)) return ['material', 'gas'];
+  if (c === 'bottled_water_company' || (/disk [áa]gua|[áa]gua mineral|distribuidora de [áa]gua/i.test(nome) && !c.includes('worship') && !c.includes('restaurant'))) return ['agua', 'distribuicao'];
+  if (c.endsWith('place_of_worship') || c === 'religious_organization' || c === 'church_cathedral') return ['abrigo', 'igreja'];
+  if (['grocery_store', 'supermarket', 'convenience_store', 'bakery', 'butcher_shop', 'produce_store', 'warehouse_club_store', 'wholesale_grocer', 'meat_wholesaler', 'organic_grocery_store', 'specialty_foods_store', 'food_and_beverage_store', 'health_food_store', 'fruits_and_vegetables'].includes(c)) return ['alimento', 'mercado'];
+  if (['farmers_market', 'night_market', 'public_market'].includes(c)) return ['alimento', 'feira'];
+  if (['pharmacy', 'drugstore', 'medical_supply_store'].includes(c)) return ['remedio', 'farmacia'];
+  // UBS e Saúde da Família vêm como "hospital" na Overture: são postos de saúde.
+  if (['hospital', 'emergency_department', 'emergency_room'].includes(c)) return /\b(ubs|psf|sa[úu]de da fam[ií]lia|unidade b[áa]sica|centro de sa[úu]de)\b/i.test(nome) ? ['remedio', 'posto'] : ['remedio', 'hospital'];
+  if (['health_care', 'doctors_office', 'medical_service_organization', 'urgent_care_clinic', 'pediatric_clinic', 'dental_clinic', 'general_dentistry', 'pediatric_dentistry', 'medical_center', 'community_health_center', 'family_practice'].includes(c)) return ['remedio', 'posto'];
+  if (['school', 'elementary_school', 'public_school', 'high_school', 'middle_school', 'private_school', 'preschool', 'day_care_preschool', 'college_university', 'vocational_and_technical_school'].includes(c)) return ['abrigo', 'escola'];
+  if (['social_or_community_service', 'community_center'].includes(c)) return ['abrigo', 'casa_apoio'];
+  if (c === 'gas_station') return ['material', 'combustivel'];
+  if (['hardware_store', 'building_supply_store', 'home_improvement_store', 'hardware_home_and_garden_store'].includes(c)) return ['material', 'ferragens'];
+  return null;
+}
+
+if (fs.existsSync(arqOverture)) {
+  const ov = JSON.parse(fs.readFileSync(arqOverture, 'utf8'));
+  versaoOverture = ov.release;
+  const doOSM = locais.slice();
+  const candidatos = ov.locais
+    .filter((o) => (o.confianca || 0) >= CONFIANCA_MINIMA && o.nome && !/closed/.test(o.situacao || '') && !ORGAOS.test(o.nome))
+    .sort((a, b) => b.confianca - a.confianca);
+  contagemOverture.lidos = ov.locais.length;
+  for (const o of candidatos) {
+    const c = classificarOverture(o);
+    if (!c) continue;
+    const [categoria, tipo] = c;
+    const nome = arrumarNome(o.nome);
+    const dist = (l) => Math.hypot((l.lat - o.lat) * KY, (l.lon - o.lon) * KX);
+    const repetido = locais.some((l) => l.tipo === tipo && l.categoria === categoria && (dist(l) < 25 || (dist(l) < 80 && nomesParecidos(l.nome, nome))));
+    if (repetido) {
+      if (doOSM.some((l) => l.tipo === tipo && dist(l) < 80)) contagemOverture.repetidos++;
+      continue;
+    }
+    locais.push({ categoria, tipo, nome, lat: o.lat, lon: o.lon, overture: true });
+    contagemOverture.usados++;
+  }
+}
+
 locais.sort((a, b) => ORDEM_CATEGORIAS.indexOf(a.categoria) - ORDEM_CATEGORIAS.indexOf(b.categoria) || a.lat - b.lat);
-const locaisSaida = locais.map((l) => [
-  ORDEM_CATEGORIAS.indexOf(l.categoria),
-  Object.keys(CATEGORIAS[l.categoria].tipos).indexOf(l.tipo),
-  l.nome,
-  qlat(l.lat),
-  qlon(l.lon),
-]);
+// [categoria, tipo, nome, lat, lon, fonte] — fonte 1 = Overture Maps; sem o 6º item = OpenStreetMap.
+const locaisSaida = locais.map((l) => {
+  const linha = [ORDEM_CATEGORIAS.indexOf(l.categoria), Object.keys(CATEGORIAS[l.categoria].tipos).indexOf(l.tipo), l.nome, qlat(l.lat), qlon(l.lon)];
+  if (l.overture) linha.push(1);
+  return linha;
+});
 
 // ------------------------------------------------------------------ bairros
 const bairros = [];
@@ -333,7 +413,10 @@ const dados = {
   v: 1,
   nome: limiteRel.tags.name,
   uf: 'SP',
-  fonte: '© colaboradores do OpenStreetMap — dados sob a licença ODbL (openstreetmap.org/copyright)',
+  fonte: versaoOverture
+    ? 'Ruas e mapa: © colaboradores do OpenStreetMap (licença ODbL). Estabelecimentos: OpenStreetMap e © Overture Maps Foundation (CDLA-Permissive-2.0)'
+    : '© colaboradores do OpenStreetMap — dados sob a licença ODbL (openstreetmap.org/copyright)',
+  overture: versaoOverture,
   data,
   q: Q,
   o: ORIGEM,
@@ -367,3 +450,4 @@ const porCategoria = {};
 for (const l of locais) porCategoria[`${l.categoria}/${l.tipo}`] = (porCategoria[`${l.categoria}/${l.tipo}`] || 0) + 1;
 console.log(`${path.relative(process.cwd(), SAIDA)}: ${(Buffer.byteLength(texto) / 1024).toFixed(0)} KB`);
 console.log(`  ${ruas.length} ruas, ${listaNos.length} nós, ${nomes.length} nomes, ${bairros.length} bairros, ${locais.length} locais`, porCategoria);
+if (versaoOverture) console.log(`  Overture ${versaoOverture}: ${contagemOverture.usados} locais novos de ${contagemOverture.lidos} (${contagemOverture.repetidos} já estavam no OpenStreetMap)`);
