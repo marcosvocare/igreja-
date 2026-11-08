@@ -1,10 +1,17 @@
 /* Service worker: guarda o app em cache para funcionar sem internet. */
-const CACHE = 'sobrevivencia-urbana-v6';
+const CACHE = 'sobrevivencia-urbana-v7';
 const ARQUIVOS = [
   './',
   'index.html',
   'css/estilo.css',
   'js/app.js',
+  'js/nucleo/versoes.js',
+  'js/nucleo/configuracao.js',
+  'js/nucleo/cofre.js',
+  'js/nucleo/sincronizacao.js',
+  'js/abas/inicio.js',
+  'js/abas/caderno.js',
+  'js/abas/dados.js',
   'js/nucleo/suprimentos.js',
   'js/nucleo/agua.js',
   'js/nucleo/estoque.js',

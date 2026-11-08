@@ -36,6 +36,7 @@
         telefone: f.telefone.value.trim().slice(0, 20),
         habilidades: marcados('habilidades'),
         necessidades: marcados('necessidades'),
+        atualizadoEm: new Date().toISOString(),
       });
       form.reset();
       f.nome.focus();

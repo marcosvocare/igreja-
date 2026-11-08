@@ -32,7 +32,7 @@
       .map((f) => {
         const casa = {};
         for (const k of PERFIS_FAMILIA) casa[k] = u.inteiro(objeto(f.casa)[k], 0, 30, 0);
-        return { id: u.texto(f.id, 40) || u.novoId(), nome: f.nome.slice(0, 40), casa, vulneravel: f.vulneravel === true };
+        return { id: u.texto(f.id, 40) || u.novoId(), nome: f.nome.slice(0, 40), casa, vulneravel: f.vulneravel === true, atualizadoEm: u.dataValida(f.atualizadoEm) };
       });
   }
 
@@ -84,7 +84,7 @@
       const casa = {};
       for (const k of PERFIS_FAMILIA) casa[k] = A.inteiro(A.$(`#fam-${k}`).value, 0, 30, 0);
       if (!Object.values(casa).some(Boolean)) return;
-      A.estado.partilha.familias.push({ id: A.novoId(), nome: nome.slice(0, 40), casa, vulneravel: A.$('#fam-vulneravel').checked });
+      A.estado.partilha.familias.push({ id: A.novoId(), nome: nome.slice(0, 40), casa, vulneravel: A.$('#fam-vulneravel').checked, atualizadoEm: new Date().toISOString() });
       A.$('#fam-nome').value = '';
       A.$('#fam-vulneravel').checked = false;
       A.$('#fam-nome').focus();

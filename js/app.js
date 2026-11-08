@@ -128,7 +128,9 @@
 
   function padrao() {
     const base = {
-      versao: 1,
+      versao: S.versoes.VERSAO_ATUAL,
+      casaRevisada: false,
+      ultimaCopia: null,
       casa: { adultos: 2, idosos: 0, gestantes: 0, criancas: 0, bebes: 0, caes: 0, gatos: 0 },
       extras: { remediosContinuos: false, mobilidadeReduzida: false, dependenteEnergia: false },
       diasMeta: 7,
@@ -147,6 +149,11 @@
     };
     for (const ext of EXTENSOES) if (ext.padrao) Object.assign(base, ext.padrao());
     return base;
+  }
+
+  /** Data ISO válida ou null (usada para saber qual versão de um item é mais nova). */
+  function dataValida(v) {
+    return typeof v === 'string' && Number.isFinite(new Date(v).getTime()) ? v : null;
   }
 
   /** Mescla dados salvos/importados sobre o padrão, descartando o que for inválido. */
@@ -171,6 +178,8 @@
     r.rotaSegura = dados.rotaSegura !== false;
     if (typeof dados.horarios === 'string') r.horarios = dados.horarios.slice(0, 200);
     r.nomeSms = texto(dados.nomeSms, 30);
+    r.casaRevisada = dados.casaRevisada === true;
+    r.ultimaCopia = typeof dados.ultimaCopia === 'string' && Number.isFinite(new Date(dados.ultimaCopia).getTime()) ? dados.ultimaCopia : null;
     if (dados.equipes && typeof dados.equipes === 'object') {
       for (const k of Object.keys(r.equipes)) r.equipes[k] = texto(dados.equipes[k], 80);
     }
@@ -209,48 +218,264 @@
         telefone: texto(m.telefone, 20),
         habilidades: Array.isArray(m.habilidades) ? m.habilidades.filter((x) => habs.has(x)) : [],
         necessidades: Array.isArray(m.necessidades) ? m.necessidades.filter((x) => necs.has(x)) : [],
+        atualizadoEm: dataValida(m.atualizadoEm),
       }));
-    for (const ext of EXTENSOES) if (ext.mesclar) ext.mesclar(dados, r, { texto, lista, inteiro, numeroPositivo, novoId });
+    for (const ext of EXTENSOES) if (ext.mesclar) ext.mesclar(dados, r, { texto, lista, inteiro, numeroPositivo, novoId, dataValida });
     return r;
   }
 
   const CHAVE_RECUPERACAO = `${CHAVE}:recuperacao`;
+  const SINAIS_IDS = S.situacao.SINAIS.map((x) => x.id);
   let problemaAoCarregar = null;
+  let avisosMigracao = [];
+
+  // Senha do app: a chave fica só na memória enquanto o app está aberto.
+  let chaveCofre = null;
+  let salCofre = null;
+  let gravacao = Promise.resolve();
+
+  function lerBruto() {
+    try {
+      return localStorage.getItem(CHAVE);
+    } catch (e) {
+      return null; // armazenamento indisponível: nada a perder
+    }
+  }
+
+  function guardarRecuperacao(bruto) {
+    try {
+      if (bruto && !localStorage.getItem(CHAVE_RECUPERACAO)) localStorage.setItem(CHAVE_RECUPERACAO, bruto);
+    } catch (e) {
+      /* sem espaço: o aviso ainda orienta */
+    }
+  }
+
+  /** Interpreta dados (texto JSON), migrando de versões antigas. Lança erro se forem ilegíveis. */
+  function interpretar(texto) {
+    const m = S.versoes.migrar(JSON.parse(texto), SINAIS_IDS);
+    return { estado: mesclar(m.dados), avisos: m.avisos };
+  }
 
   /**
-   * Lê os dados salvos. Se não for possível (arquivo corrompido ou erro do app),
+   * Lê os dados salvos (já decifrados, se havia senha). Se não for possível,
    * guarda uma cópia intacta em CHAVE_RECUPERACAO antes de seguir com dados
    * vazios, para que nada se perca ao salvar de novo.
    */
-  function carregar() {
-    let bruto = null;
+  function carregarTexto(texto, bruto) {
+    if (!texto) return padrao();
     try {
-      bruto = localStorage.getItem(CHAVE);
-    } catch (e) {
-      return padrao(); // armazenamento indisponível: nada a perder
-    }
-    if (!bruto) return padrao();
-    try {
-      return mesclar(JSON.parse(bruto));
+      const r = interpretar(texto);
+      avisosMigracao = r.avisos;
+      return r.estado;
     } catch (e) {
       problemaAoCarregar = e;
-      try {
-        if (!localStorage.getItem(CHAVE_RECUPERACAO)) localStorage.setItem(CHAVE_RECUPERACAO, bruto);
-      } catch (e2) {
-        /* sem espaço: o aviso abaixo ainda orienta */
-      }
+      guardarRecuperacao(bruto);
       return padrao();
     }
   }
 
-  let estado = carregar();
+  let estado = padrao();
 
-  function salvar() {
+  /** Cópia do estado como deve ser gravada (cada aba pode tirar o que não deve ficar salvo). */
+  function paraSalvar() {
+    const c = JSON.parse(JSON.stringify(estado));
+    for (const ext of EXTENSOES) if (ext.limpar) ext.limpar(c);
+    c.versao = S.versoes.VERSAO_ATUAL;
+    return c;
+  }
+
+  function gravarBruto(texto) {
     try {
-      localStorage.setItem(CHAVE, JSON.stringify(estado));
+      localStorage.setItem(CHAVE, texto);
     } catch (e) {
       /* armazenamento indisponível (modo privado): o app segue funcionando nesta sessão */
     }
+  }
+
+  /**
+   * Grava o estado. Todas as gravações passam por uma fila, na ordem em que as
+   * mudanças aconteceram; com senha, cada uma é cifrada antes de ir para o disco.
+   */
+  function salvar() {
+    const texto = JSON.stringify(paraSalvar());
+    const chave = chaveCofre;
+    const sal = salCofre;
+    gravacao = gravacao
+      .then(() => (chave ? S.cofre.cifrar(texto, chave, sal).then((pacote) => JSON.stringify(pacote)) : texto))
+      .then(gravarBruto)
+      .catch(() => {});
+    return gravacao;
+  }
+
+  /** Troca todo o estado (restauração, pacote, apagar) e redesenha. */
+  function substituirEstado(novo) {
+    estado = novo;
+    salvar();
+    recarregarFormularios();
+  }
+
+  /** Dados exportados para cópia de segurança (cifrados se pedido e houver senha). */
+  async function exportar({ proteger = true } = {}) {
+    const texto = JSON.stringify(paraSalvar());
+    if (proteger && chaveCofre) return JSON.stringify(await S.cofre.cifrar(texto, chaveCofre, salCofre));
+    return texto;
+  }
+
+  /** Restaura uma cópia (texto). Se a cópia tiver senha, `senha` é obrigatória. */
+  async function restaurar(texto, senha = '') {
+    let obj;
+    try {
+      obj = JSON.parse(texto);
+    } catch (e) {
+      throw new Error('Não foi possível ler essa cópia. Use um arquivo ou texto gerado por este app, sem alterações.');
+    }
+    let claro = texto;
+    if (S.cofre.eCofre(obj)) {
+      if (!senha) {
+        const erro = new Error('Esta cópia tem senha: digite a senha da cópia.');
+        erro.codigo = 'precisa_senha';
+        throw erro;
+      }
+      claro = (await S.cofre.abrir(obj, senha)).texto;
+    } else if (!obj || typeof obj !== 'object' || !('versao' in obj)) {
+      throw new Error('Isto não é uma cópia de segurança do app.');
+    }
+    const r = interpretar(claro);
+    substituirEstado(r.estado);
+    return r.avisos;
+  }
+
+  const senha = {
+    ativa: () => Boolean(chaveCofre),
+    /** Ativa ou troca a senha (o app já está aberto). */
+    async definir(nova) {
+      const sal = S.cofre.gerarSal();
+      chaveCofre = await S.cofre.derivarChave(nova, sal);
+      salCofre = sal;
+      salvar();
+      await gravacao;
+      iniciarBloqueioAutomatico();
+    },
+    async remover() {
+      chaveCofre = null;
+      salCofre = null;
+      salvar();
+      await gravacao;
+    },
+    bloquear() {
+      gravacao.then(() => location.reload());
+    },
+  };
+
+  /** Espera as gravações pendentes terminarem. */
+  function aguardarGravacao() {
+    return gravacao;
+  }
+
+  // Bloqueio automático depois de 10 minutos sem uso (só com senha ativa).
+  let relogioBloqueio = null;
+  function iniciarBloqueioAutomatico() {
+    if (!chaveCofre) return;
+    const reiniciar = () => {
+      clearTimeout(relogioBloqueio);
+      relogioBloqueio = setTimeout(() => senha.bloquear(), 10 * 60 * 1000);
+    };
+    for (const ev of ['pointerdown', 'keydown']) document.addEventListener(ev, reiniciar, { passive: true });
+    reiniciar();
+  }
+
+  /**
+   * Oferece um arquivo para baixar. Na página publicada usa o download do
+   * claude.ai; no app instalado ou aberto pelo arquivo, um link de download.
+   */
+  async function baixar(nome, conteudo, tipo = 'application/json') {
+    if (window.claude && typeof window.claude.use === 'function') {
+      let dl = null;
+      try {
+        dl = await window.claude.use('downloads');
+      } catch (e) {
+        dl = null;
+      }
+      if (dl) {
+        const r = await dl.save({ filename: nome, data: conteudo });
+        return r.status;
+      }
+    }
+    const url = URL.createObjectURL(new Blob([conteudo], { type: tipo }));
+    const a = h('a', { href: url, download: nome });
+    document.body.append(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    return 'saved';
+  }
+
+  /** Tela de bloqueio: resolve com o texto decifrado quando a senha certa é digitada. */
+  function pedirSenha(pacote, bruto) {
+    return new Promise((resolver) => {
+      document.body.classList.add('bloqueado');
+      const tela = $('#bloqueio');
+      tela.hidden = false;
+      const campo = $('#senha-bloqueio');
+      const msg = $('#msg-bloqueio');
+      const botao = $('#form-bloqueio button[type="submit"]');
+      let erros = 0;
+      campo.focus();
+      const liberar = (texto) => {
+        tela.hidden = true;
+        document.body.classList.remove('bloqueado');
+        resolver(texto);
+      };
+      $('#form-bloqueio').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        if (botao.disabled) return;
+        botao.disabled = true;
+        msg.textContent = 'Abrindo…';
+        try {
+          const { texto, chave } = await S.cofre.abrir(pacote, campo.value);
+          chaveCofre = chave;
+          salCofre = pacote.sal;
+          campo.value = '';
+          liberar(texto);
+        } catch (erro) {
+          erros++;
+          campo.value = '';
+          if (erros >= 5) {
+            let espera = 30;
+            msg.textContent = `Senha incorreta. Aguarde ${espera} s para tentar de novo.`;
+            const t = setInterval(() => {
+              espera--;
+              msg.textContent = `Senha incorreta. Aguarde ${espera} s para tentar de novo.`;
+              if (espera <= 0) {
+                clearInterval(t);
+                botao.disabled = false;
+                msg.textContent = 'Tente de novo.';
+              }
+            }, 1000);
+            return;
+          }
+          msg.textContent = 'Senha incorreta.';
+        }
+        botao.disabled = false;
+        campo.focus();
+      });
+      // Esqueci a senha: guarda os dados cifrados (se um dia lembrar) e começa de novo.
+      let confirmar = false;
+      $('#apagar-bloqueio').addEventListener('click', (e) => {
+        if (!confirmar) {
+          confirmar = true;
+          e.target.textContent = 'Toque de novo para apagar e começar de novo';
+          return;
+        }
+        guardarRecuperacao(bruto);
+        try {
+          localStorage.removeItem(CHAVE);
+        } catch (erro) {
+          /* ignora */
+        }
+        liberar(null);
+      });
+    });
   }
 
   // ------------------------------------------------------ cálculos derivados
@@ -285,8 +510,10 @@
     const linkAtual = document.querySelector(`.abas a[href="#${atual}"]`);
     const grupo = linkAtual ? linkAtual.dataset.grupo : '';
     for (const g of document.querySelectorAll('.grupos a')) {
-      if (g.dataset.grupo === grupo) g.setAttribute('aria-current', 'true');
-      else g.removeAttribute('aria-current');
+      if (g.dataset.grupo === grupo) {
+        g.setAttribute('aria-current', 'true');
+        g.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+      } else g.removeAttribute('aria-current');
     }
     for (const a of document.querySelectorAll('.abas a')) {
       a.hidden = a.dataset.grupo !== grupo;
@@ -321,88 +548,6 @@
       }
     }
     window.scrollTo(0, 0);
-  }
-
-  // ------------------------------------------------------------------- dados
-
-  function montarDados() {
-    const msg = $('#mensagem-dados');
-    $('#exportar').addEventListener('click', () => {
-      const blob = new Blob([JSON.stringify(estado, null, 2)], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-      const a = h('a', { href: url, download: `sobrevivencia-urbana-${new Date().toISOString().slice(0, 10)}.json` });
-      document.body.append(a);
-      a.click();
-      a.remove();
-      setTimeout(() => URL.revokeObjectURL(url), 1000);
-      msg.textContent = 'Cópia de segurança baixada.';
-    });
-    const restaurar = (texto) => {
-      try {
-        const dados = JSON.parse(texto);
-        if (!dados || typeof dados !== 'object' || dados.versao !== 1) throw new Error('formato');
-        estado = mesclar(dados);
-        salvar();
-        recarregarFormularios();
-        msg.textContent = 'Cópia restaurada.';
-        return true;
-      } catch (erro) {
-        msg.textContent = 'Não foi possível ler essa cópia. Use um arquivo ou texto gerado por este app, sem alterações.';
-        return false;
-      }
-    };
-    $('#importar').addEventListener('change', async (e) => {
-      const arquivo = e.target.files && e.target.files[0];
-      if (arquivo) restaurar(await arquivo.text());
-      e.target.value = '';
-    });
-    $('#copiar-dados').addEventListener('click', () => {
-      const texto = JSON.stringify(estado);
-      const area = $('#texto-backup');
-      copiarTexto(
-        texto,
-        null,
-        () => (msg.textContent = 'Dados copiados. Cole em um e-mail ou bloco de notas e guarde fora deste aparelho.'),
-        () => {
-          area.value = texto;
-          $('#restaurar-texto').open = true;
-          area.focus();
-          area.select();
-          msg.textContent = 'O texto está selecionado abaixo: copie e guarde fora deste aparelho.';
-        },
-      );
-    });
-    $('#restaurar-texto-botao').addEventListener('click', () => {
-      if (restaurar($('#texto-backup').value.trim())) $('#texto-backup').value = '';
-    });
-
-    // Apagar pede um segundo toque (o navegador do app publicado não mostra confirm()).
-    let aguardandoConfirmacao = false;
-    let relogio = null;
-    const botaoApagar = $('#apagar');
-    const cancelarApagar = () => {
-      aguardandoConfirmacao = false;
-      clearTimeout(relogio);
-      botaoApagar.textContent = 'Apagar todos os dados';
-    };
-    botaoApagar.addEventListener('click', () => {
-      if (!aguardandoConfirmacao) {
-        aguardandoConfirmacao = true;
-        botaoApagar.textContent = 'Toque de novo para apagar tudo';
-        msg.textContent = 'Isso apaga estoque, contatos, kit e rede deste aparelho. Faça uma cópia antes.';
-        relogio = setTimeout(cancelarApagar, 6000);
-        return;
-      }
-      cancelarApagar();
-      try {
-        localStorage.removeItem(CHAVE);
-      } catch (erro) {
-        /* ignora */
-      }
-      estado = padrao();
-      recarregarFormularios();
-      msg.textContent = 'Dados apagados.';
-    });
   }
 
   /** Reaplica o estado nos formulários (após importar ou apagar). */
@@ -447,12 +592,22 @@
     calculoSuprimentos,
     necessidade,
     autonomia,
+    dataValida,
+    baixar,
+    exportar,
+    restaurar,
+    substituirEstado,
+    padrao,
+    mesclar,
+    senha,
+    aguardarGravacao,
+    CHAVE,
     get estado() {
       return estado;
     },
   };
 
-  montarDados();
+  function montarApp() {
   for (const ext of EXTENSOES) ext.montar(api);
 
   // Dados salvos que não puderam ser lidos: avisa e oferece a cópia guardada.
@@ -484,9 +639,14 @@
       ),
     );
   }
+  if (avisosMigracao.length) {
+    $('main').prepend(h('div', { class: 'aviso aviso-topo', role: 'status' }, `Seus dados foram atualizados para a versão nova do app. ${avisosMigracao.join(' ')}`));
+  }
   atualizarTudo();
   mostrarSecao();
   window.addEventListener('hashchange', mostrarSecao);
+  iniciarBloqueioAutomatico();
+  }
   // Tema: escuro (padrão) → claro → automático (segue o aparelho). Só neste aparelho.
   const CHAVE_TEMA = 'sobrevivencia-urbana:tema';
   const TEMAS = { escuro: { proximo: 'claro', rotulo: 'Escuro' }, claro: { proximo: 'sistema', rotulo: 'Claro' }, sistema: { proximo: 'escuro', rotulo: 'Automático' } };
@@ -556,6 +716,24 @@
       mostrarSecao();
     }
   });
+
+  // Abre os dados: com senha, mostra a tela de bloqueio antes de montar o app.
+  (async () => {
+    const bruto = lerBruto();
+    let obj = null;
+    try {
+      obj = bruto ? JSON.parse(bruto) : null;
+    } catch (e) {
+      obj = null;
+    }
+    if (obj && S.cofre.eCofre(obj)) {
+      const texto = await pedirSenha(obj, bruto);
+      estado = carregarTexto(texto, bruto);
+    } else {
+      estado = carregarTexto(bruto, bruto);
+    }
+    montarApp();
+  })();
 
   if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) {
     navigator.serviceWorker.register('sw.js').catch(() => {});

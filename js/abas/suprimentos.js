@@ -24,6 +24,7 @@
 
     form.addEventListener('input', (e) => {
       const alvo = e.target;
+      A.estado.casaRevisada = true;
       if (alvo.name in A.estado.casa) {
         A.estado.casa[alvo.name] = inteiro(alvo.value === '' ? 0 : alvo.value, 0, 50, A.estado.casa[alvo.name]);
       } else if (alvo.name in A.estado.extras) {

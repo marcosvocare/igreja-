@@ -27,6 +27,20 @@
       }
     })();
   </script>
+  <div id="bloqueio" class="bloqueio" hidden>
+    <form id="form-bloqueio" class="cartao" autocomplete="off">
+      <h2>Sobrevivência Urbana</h2>
+      <p>Os dados deste aparelho estão protegidos por senha.</p>
+      <label for="senha-bloqueio">Senha <input id="senha-bloqueio" type="password" autocomplete="current-password"></label>
+      <button type="submit">Abrir</button>
+      <p id="msg-bloqueio" class="ajuda" aria-live="polite"></p>
+      <details>
+        <summary>Esqueci a senha</summary>
+        <p class="ajuda">Sem a senha, os dados não podem ser abertos, nem por quem fez o app. Se tiver uma cópia de segurança sem senha, você pode restaurá-la depois de começar de novo.</p>
+        <button type="button" id="apagar-bloqueio" class="perigo">Apagar e começar de novo</button>
+      </details>
+    </form>
+  </div>
   <header class="topo">
     <div class="topo-linha">
       <h1>Sobrevivência Urbana</h1>
@@ -47,7 +61,7 @@
       <a href="#mapa" data-grupo="recursos">Recursos</a>
       <a href="#rede" data-grupo="comunidade">Comunidade</a>
       <a href="#comunicacao" data-grupo="comunicacao">Comunicação</a>
-      <a href="#kit" data-grupo="preparacao">Preparação</a>
+      <a href="#inicio" data-grupo="preparacao">Preparação</a>
     </nav>
     <nav class="abas" aria-label="Abas da seção">
       <a href="#situacao" data-grupo="agora">Situação</a>
@@ -62,14 +76,17 @@
       <a href="#defesa" data-grupo="comunidade">Defesa</a>
       <a href="#comunicacao" data-grupo="comunicacao">Contatos e mensagens</a>
       <a href="#radio" data-grupo="comunicacao">Rádio</a>
+      <a href="#inicio" data-grupo="preparacao">Começar</a>
       <a href="#kit" data-grupo="preparacao">Kit 72 h</a>
-      <a href="#dados" data-grupo="preparacao">Dados</a>
+      <a href="#caderno" data-grupo="preparacao">Caderno</a>
+      <a href="#dados" data-grupo="preparacao">Dados e senha</a>
     </nav>
   </header>
 
   <main>
     <!-- ======================================================= SITUAÇÃO -->
     <section id="situacao" class="secao">
+      <div id="lembretes"></div>
       <h2>Triagem da situação</h2>
       <p class="ajuda">Marque o que está acontecendo agora. O nível de alerta e a postura (ficar, se preparar ou sair) são recalculados na hora.</p>
       <div class="duas-colunas">
@@ -167,6 +184,7 @@
             <p class="ajuda">Combine pessoalmente com a comunidade uma frase secreta. Quem a conhece vê as mesmas palavras no mesmo dia, sem precisar mandar mensagem. Na porta, quem está dentro diz a senha e quem chega responde a contrassenha.</p>
             <label for="frase-secreta">Frase secreta <input id="frase-secreta" type="password" maxlength="80" autocomplete="off" spellcheck="false"></label>
             <label class="linha"><input type="checkbox" id="mostrar-frase"> Mostrar a frase</label>
+            <label class="linha"><input type="checkbox" id="lembrar-frase"> Lembrar a frase neste aparelho (se não marcar, digite a cada vez que abrir o app)</label>
             <div id="senhas" aria-live="polite"></div>
           </form>
           <div class="cartao">
@@ -525,40 +543,114 @@
       <div id="lista-rede"></div>
     </section>
 
+    <!-- ======================================================== INÍCIO -->
+    <section id="inicio" class="secao">
+      <h2>Começar</h2>
+      <p class="ajuda">Os passos que mais fazem diferença, na ordem. O app confere sozinho o que já foi feito.</p>
+      <div id="passos-inicio"></div>
+    </section>
+
+    <!-- ======================================================= CADERNO -->
+    <section id="caderno" class="secao">
+      <h2>Caderno em papel</h2>
+      <p class="ajuda">Quando a bateria acabar, o papel continua. Escolha o que entra, confira a prévia e imprima ou baixe o arquivo para imprimir em outro lugar.</p>
+      <div class="cartao">
+        <div id="partes-caderno" class="grade-checks"></div>
+        <div class="botoes">
+          <button type="button" id="imprimir-caderno" class="so-local">Imprimir caderno</button>
+          <button type="button" id="baixar-caderno" class="secundario">Baixar caderno (arquivo)</button>
+        </div>
+        <p id="msg-caderno" class="ajuda" aria-live="polite"></p>
+      </div>
+      <div class="cartao">
+        <h3>Prévia</h3>
+        <div id="caderno-conteudo" class="caderno"></div>
+      </div>
+    </section>
+
     <!-- ========================================================= DADOS -->
     <section id="dados" class="secao">
-      <h2>Dados e uso offline</h2>
-      <div class="cartao">
-        <p>Tudo o que você cadastra fica salvo <strong>apenas neste aparelho</strong>. Faça cópias de segurança e guarde em outro lugar (e-mail, pen drive, outro celular).</p>
-        <div class="botoes">
-          <button type="button" id="exportar">Baixar cópia de segurança</button>
-          <button type="button" id="copiar-dados" class="secundario">Copiar dados como texto</button>
-          <label class="botao secundario" id="rotulo-importar">Restaurar de arquivo
-            <input type="file" id="importar" accept="application/json,.json" hidden>
-          </label>
-          <button type="button" id="apagar" class="perigo">Apagar todos os dados</button>
+      <h2>Dados, senha e compartilhamento</h2>
+      <p class="ajuda">Tudo o que você cadastra fica salvo <strong>apenas neste aparelho</strong>.</p>
+      <div class="duas-colunas">
+        <div>
+          <div class="cartao" id="dados-copia">
+            <h3>Cópia de segurança</h3>
+            <p id="info-copia" class="ajuda"></p>
+            <label class="linha" id="rotulo-copia-protegida" hidden><input type="checkbox" id="copia-protegida" checked> Proteger a cópia com a senha do app</label>
+            <div class="botoes">
+              <button type="button" id="exportar">Baixar cópia de segurança</button>
+              <button type="button" id="copiar-dados" class="secundario">Copiar dados como texto</button>
+              <label class="botao secundario" id="rotulo-importar">Restaurar de arquivo
+                <input type="file" id="importar" accept="application/json,.json" hidden>
+              </label>
+            </div>
+            <p id="mensagem-dados" class="ajuda" aria-live="polite"></p>
+            <details id="restaurar-texto">
+              <summary>Restaurar colando o texto</summary>
+              <label for="texto-backup">Cole aqui o texto copiado antes</label>
+              <textarea id="texto-backup" rows="5" spellcheck="false"></textarea>
+              <label for="senha-copia">Senha da cópia (só se ela tiver senha) <input id="senha-copia" type="password" autocomplete="off"></label>
+              <button type="button" id="restaurar-texto-botao">Restaurar</button>
+            </details>
+          </div>
+          <form class="cartao" id="dados-senha" autocomplete="off">
+            <h3>Senha do app</h3>
+            <p id="estado-senha"></p>
+            <div class="grade-numeros">
+              <label for="senha-nova">Nova senha <input id="senha-nova" type="password" autocomplete="new-password" maxlength="64"></label>
+              <label for="senha-confirma">Repita a senha <input id="senha-confirma" type="password" autocomplete="new-password" maxlength="64"></label>
+            </div>
+            <p id="forca-senha" class="ajuda"></p>
+            <div class="botoes">
+              <button type="submit" id="definir-senha">Ativar senha</button>
+              <button type="button" id="bloquear-agora" class="secundario" hidden>Bloquear agora</button>
+              <button type="button" id="remover-senha" class="perigo" hidden>Desativar senha</button>
+            </div>
+            <p id="msg-senha" class="ajuda" aria-live="polite"></p>
+            <p class="ajuda">Sem a senha, ninguém abre os dados, nem você: anote-a em lugar seguro. O app se bloqueia sozinho depois de 10 minutos sem uso.</p>
+          </form>
         </div>
-        <p id="mensagem-dados" class="ajuda" aria-live="polite"></p>
-        <details id="restaurar-texto">
-          <summary>Restaurar colando o texto</summary>
-          <label for="texto-backup">Cole aqui o texto copiado antes</label>
-          <textarea id="texto-backup" rows="5" spellcheck="false"></textarea>
-          <button type="button" id="restaurar-texto-botao">Restaurar</button>
-        </details>
-      </div>
-      <div class="cartao" id="como-usar">
-        <h3>Como usar sem internet</h3>
-        <ul>
-          <li>Salve a pasta do projeto no celular ou computador e abra o arquivo <code>index.html</code> no navegador.</li>
-          <li>Se o app estiver publicado na internet, abra uma vez com conexão: depois ele funciona offline e pode ser instalado na tela inicial.</li>
-          <li>Leia o plano completo em <code>docs/plano-sobrevivencia-urbana.md</code>.</li>
-        </ul>
+        <div>
+          <div class="cartao" id="dados-pacote">
+            <h3>Compartilhar com a comunidade</h3>
+            <p class="ajuda">Gere um pacote com o que quer passar adiante e envie por mensagem, cabo ou pen drive. Quem recebe junta aos seus dados sem perder nada: entra o que é novo e, no que é igual, fica a versão mais recente. Estoque, remédios e a frase da senha do dia nunca vão no pacote.</p>
+            <div id="partes-pacote" class="grade-checks"></div>
+            <label for="senha-pacote">Senha do pacote (opcional, combine pessoalmente) <input id="senha-pacote" type="password" autocomplete="off"></label>
+            <div class="botoes">
+              <button type="button" id="copiar-pacote">Copiar pacote</button>
+              <button type="button" id="baixar-pacote" class="secundario">Baixar pacote</button>
+            </div>
+            <h4>Receber um pacote</h4>
+            <label for="texto-pacote">Cole o pacote <textarea id="texto-pacote" rows="4" spellcheck="false"></textarea></label>
+            <label class="botao secundario" id="rotulo-arquivo-pacote">Abrir arquivo de pacote
+              <input type="file" id="arquivo-pacote" accept="application/json,.json" hidden>
+            </label>
+            <label for="senha-receber">Senha do pacote (se tiver) <input id="senha-receber" type="password" autocomplete="off"></label>
+            <button type="button" id="juntar-pacote">Juntar aos meus dados</button>
+            <div id="resumo-pacote" aria-live="polite"></div>
+          </div>
+          <div class="cartao">
+            <h3>Apagar</h3>
+            <button type="button" id="apagar" class="perigo">Apagar todos os dados</button>
+            <p id="mensagem-apagar" class="ajuda" aria-live="polite"></p>
+          </div>
+          <div class="cartao" id="como-usar">
+            <h3>Como usar sem internet</h3>
+            <ul>
+              <li>Instale o app pelo GitHub Pages (veja o README do projeto): abra o endereço uma vez com internet e depois use “Adicionar à tela inicial”. Ele passa a funcionar sem internet.</li>
+              <li>Ou salve a pasta do projeto no aparelho e abra o arquivo <code>index.html</code> no navegador.</li>
+              <li>Leia o plano completo em <code>docs/plano-sobrevivencia-urbana.md</code>.</li>
+            </ul>
+          </div>
+        </div>
       </div>
     </section>
   </main>
 
   <!-- Cartão de bolso (aparece só na impressão) -->
   <div id="cartao-bolso" class="cartao-bolso" aria-hidden="true"></div>
+  <div id="caderno-impressao" class="caderno caderno-impressao" aria-hidden="true"></div>
 
   <footer class="rodape">
     <p>Ferramenta de preparação e organização da comunidade. Os valores são estimativas: na dúvida, consulte a equipe de saúde da comunidade.</p>
@@ -578,6 +670,10 @@
   <script src="js/nucleo/defesa.js"></script>
   <script src="js/nucleo/radio.js"></script>
   <script src="js/nucleo/rotulos.js"></script>
+  <script src="js/nucleo/versoes.js"></script>
+  <script src="js/nucleo/configuracao.js"></script>
+  <script src="js/nucleo/cofre.js"></script>
+  <script src="js/nucleo/sincronizacao.js"></script>
   <script src="js/abas/situacao.js"></script>
   <script src="js/abas/mapa.js"></script>
   <script src="js/abas/defesa.js"></script>
@@ -590,6 +686,9 @@
   <script src="js/abas/comunicacao.js"></script>
   <script src="js/abas/radio.js"></script>
   <script src="js/abas/rede.js"></script>
+  <script src="js/abas/inicio.js"></script>
+  <script src="js/abas/caderno.js"></script>
+  <script src="js/abas/dados.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>

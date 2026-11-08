@@ -21,7 +21,7 @@
   // ------------------------------------------------------------------ estado
 
   function padrao() {
-    return { defesa: { feitos: {}, frase: '', voluntarios: '', escala: { inicio: '', horas: 24, turno: 3, por: 2, descanso: 6 } } };
+    return { defesa: { feitos: {}, frase: '', lembrarFrase: false, voluntarios: '', escala: { inicio: '', horas: 24, turno: 3, por: 2, descanso: 6 } } };
   }
 
   function mesclar(dados, r, u) {
@@ -34,6 +34,8 @@
     const ids = new Set(S.defesa.CHECKLIST.map((c) => c.id));
     for (const [k, v] of Object.entries(objeto(df.feitos))) if (ids.has(k) && v === true) r.defesa.feitos[k] = true;
     r.defesa.frase = u.texto(df.frase, 80);
+    // Dados antigos com frase salva continuam lembrando; o padrão novo é não salvar.
+    r.defesa.lembrarFrase = df.lembrarFrase === true || (df.lembrarFrase === undefined && r.defesa.frase !== '');
     r.defesa.voluntarios = u.texto(df.voluntarios, 2000);
     const es = objeto(df.escala);
     r.defesa.escala = {
@@ -84,6 +86,10 @@
       A.salvar();
       renderSenhas();
     });
+    A.$('#lembrar-frase').addEventListener('change', (e) => {
+      A.estado.defesa.lembrarFrase = e.target.checked;
+      A.salvar();
+    });
     A.$('#mostrar-frase').addEventListener('change', (e) => {
       A.$('#frase-secreta').type = e.target.checked ? 'text' : 'password';
     });
@@ -107,6 +113,7 @@
     const df = A.estado.defesa;
     for (const i of document.querySelectorAll('[data-seguranca]')) i.checked = Boolean(df.feitos[i.dataset.seguranca]);
     A.$('#frase-secreta').value = df.frase;
+    A.$('#lembrar-frase').checked = df.lembrarFrase;
     A.$('#voluntarios').value = df.voluntarios;
     if (!df.escala.inicio) {
       const d = new Date();
@@ -222,6 +229,10 @@
     nome: 'defesa',
     padrao,
     mesclar,
+    // A frase da senha do dia só fica gravada se a pessoa pedir.
+    limpar(copia) {
+      if (copia.defesa && !copia.defesa.lembrarFrase) copia.defesa.frase = '';
+    },
     montar(api) {
       A = api;
       montarDefesa();

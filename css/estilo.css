@@ -332,6 +332,7 @@ td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; white-sp
 .rodape { max-width: 1100px; margin: 0 auto; padding: 1rem 1rem 2rem; color: var(--texto-suave); font-size: .85rem; }
 
 .cartao-bolso { display: none; }
+.caderno-impressao { display: none; }
 .previa-cartao { margin: .25rem 0 1rem; }
 .previa-cartao .unidade {
   max-width: 22rem;
@@ -350,6 +351,9 @@ td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; white-sp
   body { background: #fff; color: #000; }
   .topo, main, .rodape { display: none !important; }
   .cartao-bolso { display: block !important; }
+  body.imprimindo-caderno .cartao-bolso { display: none !important; }
+  body.imprimindo-caderno .caderno-impressao { display: block !important; }
+  .caderno-impressao, .caderno-impressao * { color: #000 !important; background: #fff !important; }
   .cartao-bolso .unidade {
     width: 8.5cm;
     border: 1px dashed #000;
@@ -441,3 +445,29 @@ button.codigo strong { font-size: 1.05rem; min-width: 1.2rem; }
 .canais li::marker { font-weight: 700; }
 .sugestao { border-color: var(--primaria); }
 code { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: .9em; background: var(--fundo); padding: .05rem .3rem; border-radius: 4px; }
+
+/* ------------------------------------------------- bloqueio por senha */
+body.bloqueado > header, body.bloqueado > main, body.bloqueado > footer { display: none !important; }
+.bloqueio { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding-block: 2rem; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.bloqueio[hidden] { display: none; }
+.bloqueio .cartao { width: 100%; max-width: 24rem; }
+.bloqueio button[type="submit"] { width: 100%; margin: .25rem 0; }
+
+/* ------------------------------------------- lembretes e primeiro uso */
+#lembretes:empty { display: none; }
+#lembretes { margin-bottom: 1rem; }
+.lembrete { margin: 0 0 .5rem; padding: .55rem .75rem; border: 1px solid var(--borda); border-radius: 8px; background: var(--superficie); }
+.lembrete.aviso { border-left: 4px solid var(--laranja); }
+.aviso-topo { margin-bottom: 1rem; }
+.passos { padding-left: 1.4rem; }
+.passos li { margin-bottom: .6rem; }
+.passos li.feito > a { color: var(--texto-suave); }
+
+/* --------------------------------------------------------- caderno */
+.caderno-doc h1 { font-size: 1.25rem; }
+.caderno-doc h2 { font-size: 1.1rem; border-bottom: 2px solid var(--borda); padding-bottom: .2rem; margin-top: 1.25rem; }
+.caderno-doc h4 { margin: .75rem 0 .25rem; }
+.caderno-doc table { margin: .25rem 0 .75rem; }
+.caderno-doc .checklist { list-style: none; padding-left: 0; }
+.caderno-doc .vazio { color: var(--texto-suave); font-style: italic; }
+#caderno-conteudo { overflow-x: auto; }

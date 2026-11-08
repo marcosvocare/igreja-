@@ -190,12 +190,14 @@ test('dados: salvos ao recarregar, cópia por texto e apagar em dois toques', as
   await page.click('#apagar');
   assert.match(await page.textContent('#apagar'), /Toque de novo/);
   await page.click('#apagar');
+  await page.waitForFunction(() => document.getElementById('mensagem-apagar').textContent.includes('apagados'));
   await ir('comunicacao');
   assert.equal(await page.$$eval('#lista-contatos li', (l) => l.length), 0);
   await ir('dados');
   await page.evaluate(() => (document.getElementById('restaurar-texto').open = true));
   await page.fill('#texto-backup', copia);
   await page.click('#restaurar-texto-botao');
+  await page.waitForFunction(() => document.getElementById('mensagem-dados').textContent.includes('restaurada'));
   await ir('comunicacao');
   assert.equal(await page.$$eval('#lista-contatos li', (l) => l.length), 1);
   assert.deepEqual(erros, []);

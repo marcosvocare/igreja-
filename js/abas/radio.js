@@ -55,6 +55,7 @@
           lat: ok ? n.lat : null,
           lon: ok ? n.lon : null,
           exemplo: n.exemplo === true,
+          atualizadoEm: u.dataValida ? u.dataValida(n.atualizadoEm) : null,
         };
       });
   }
@@ -111,7 +112,7 @@
         msg.textContent = 'Coordenadas não reconhecidas. Exemplo: -23.5505, -46.6333';
         return;
       }
-      A.estado.radio.nos.push({ id: A.novoId(), nome: nome.slice(0, 36), instalacao: A.$('#radio-instalacao').value, lat: c ? c.lat : null, lon: c ? c.lon : null });
+      A.estado.radio.nos.push({ atualizadoEm: new Date().toISOString(), id: A.novoId(), nome: nome.slice(0, 36), instalacao: A.$('#radio-instalacao').value, lat: c ? c.lat : null, lon: c ? c.lon : null });
       A.$('#radio-nome').value = '';
       A.$('#radio-coord').value = '';
       msg.textContent = c ? `${nome} entrou na rede.` : `${nome} entrou sem localização: informe as coordenadas para calcular o alcance.`;
@@ -135,6 +136,7 @@
       const n = A.estado.radio.nos.find((x) => x.id === sel.dataset.instalacao);
       if (!n) return;
       n.instalacao = sel.value;
+      n.atualizadoEm = new Date().toISOString();
       A.salvar();
       render();
     });
@@ -163,7 +165,7 @@
       const [lat, lon] = b.dataset.repetidor.split(',').map(Number);
       if (!coordValida(lat, lon)) return;
       const total = A.estado.radio.nos.filter((n) => n.nome.startsWith('Repetidor')).length;
-      A.estado.radio.nos.push({ id: A.novoId(), nome: `Repetidor ${total + 1}`, instalacao: 'alto', lat, lon });
+      A.estado.radio.nos.push({ atualizadoEm: new Date().toISOString(), id: A.novoId(), nome: `Repetidor ${total + 1}`, instalacao: 'alto', lat, lon });
       A.salvar();
       render();
     });
