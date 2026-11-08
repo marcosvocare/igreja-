@@ -1,0 +1,30 @@
+name: Site
+
+# A cada atualização do main, copia o app para o branch gh-pages, de onde o
+# GitHub Pages publica https://marcosvocare.github.io/igreja-/ (uso sem internet).
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: site
+  cancel-in-progress: true
+
+jobs:
+  publicar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Copiar o main para o gh-pages
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -B gh-pages
+          touch .nojekyll
+          git add .nojekyll
+          git commit -m "Site: main ${GITHUB_SHA::7}"
+          git push --force origin gh-pages
