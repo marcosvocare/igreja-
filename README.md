@@ -1,66 +1,83 @@
 # Sobrevivência Urbana
 
-Plano de sobrevivência urbana para famílias e para a comunidade (igreja, vizinhança),
-com **mecanismos práticos** para executá-lo e um **app que funciona sem internet**.
+Plano de sobrevivência para famílias e para a comunidade da igreja num cenário **sem
+serviços do Estado** (sem bombeiros, polícia, SAMU nem defesa civil para chamar), com
+cada parte do plano transformada em uma ferramenta que funciona **sem internet**.
 
-- 📄 **Plano:** [`docs/plano-sobrevivencia-urbana.md`](docs/plano-sobrevivencia-urbana.md) —
-  princípios, fases, níveis de alerta, pontos de encontro, rotina de manutenção e o papel
-  da igreja como ponto de apoio.
-- ⚙️ **Mecanismos:** `js/nucleo/` — cada pilar do plano virou uma ferramenta testada.
-- 📱 **App offline:** `index.html` — abre direto no navegador, sem servidor e sem internet.
+- 📄 **Plano:** [`docs/plano-sobrevivencia-urbana.md`](docs/plano-sobrevivencia-urbana.md)
+- 📱 **App:** `index.html` — abre no navegador, instala na tela inicial e funciona offline.
+- ⚙️ **Mecanismos:** `js/nucleo/` — a lógica de cada parte, testada.
 
-> Pensado para um cenário sem serviços do Estado: o socorro vem das equipes da própria
-> comunidade (saúde, incêndio, resgate, vigilância, água e coordenação). Perigo imediato:
-> código **2** no rádio da família ou **3 toques de apito** repetidos.
+> Perigo imediato: código **2** no rádio da família, **3 toques de apito** repetidos ou
+> folha escrita **AJUDA** na janela. O socorro vem das equipes da comunidade (aba
+> Comunidade → Rede de apoio → Equipes de socorro).
 
-## Mecanismos
+## O que o app faz
 
-| Mecanismo | O que faz | Arquivo |
-|---|---|---|
-| **Triagem da situação** | A partir dos sinais observados (chuva, falta de energia, água subindo, saques, tiroteio…) e da autonomia da casa, calcula o nível de alerta (0–3) e decide a postura: rotina, monitorar, racionar, preparar a saída, abrigar no local, evacuar ou pedir socorro. Indica qual equipe da comunidade acionar, com o contato dela, e o protocolo relacionado. | `situacao.js` |
-| **Protocolos por cenário** | Antes / durante / depois para colapso e desordem, enchente, deslizamento, apagão, falta d'água, incêndio, onda de calor, tiroteio, vazamento de gás, desabastecimento, epidemia e vendaval. | `cenarios.js` |
-| **Calculadora de suprimentos** | Água (beber, higiene, preparo dos alimentos, animais), calorias, lista de compras por kg, fraldas, fórmula e ração, conforme a composição da casa e os dias de meta. Avisa quando falta comida que dispensa fogão. | `suprimentos.js` |
-| **Estoque e autonomia** | Validades na ordem "o primeiro que vence é o primeiro que sai", dias de autonomia (água × comida, apontando o gargalo), quanto falta para a meta e plano de racionamento. | `estoque.js` |
-| **Água segura** | Gotas de água sanitária por volume e concentração (dobra se turva), tempo de fervura por altitude, métodos (fervura, cloração, SODIS, filtragem) e fontes de água escondidas em casa. | `agua.js` |
-| **Kit de 72 horas** | Mochila de emergência personalizada para bebês, crianças, idosos, gestantes, mobilidade reduzida, dependentes de energia e pets, com progresso salvo. | `kit.js` |
-| **Plano de comunicação** | Árvore de chamadas (cada um avisa até N pessoas), SMS padronizados sem acento (160 caracteres em vez de 70), próxima janela de contato, cargas de power bank e cartão de bolso para imprimir. | `comunicacao.js` |
-| **Rádio da família** | Rede Meshtastic (celular + rádio LoRa, sem operadora e sem internet): estima quem alcança quem e em quantos saltos, aponta quem fica isolado e sugere onde pôr um repetidor (com um toque para adicioná-lo); gera o plano de canais, nomes curtos e papéis dos aparelhos, códigos rápidos e mensagens que cabem no limite do rádio. | `radio.js` |
-| **Mapa de recursos** | Fontes de água, remédios, alimentos, abrigos e zonas de perigo, com coordenadas (do Google Maps ou do GPS do aparelho). Indica a melhor opção a partir da base, com distância, direção, tempo a pé, tratamento da água e aviso quando a rota atravessa ou passa perto de um perigo. Desenha o mapa ao redor da base sem internet. | `mapa.js` |
-| **Remédios críticos** | Dias que o remédio de cada pessoa dura (considerando a validade), quem está em risco e quanto falta para 30 dias. | `remedios.js` |
-| **Partilha justa** | Divide a água e a comida do estoque comum pela necessidade de cada família, com prioridade para bebês, gestantes, idosos e doentes. | `partilha.js` |
-| **Defesa comunitária** | Defesa passiva e legal: escala de vigia em duplas com descanso garantido, senha do dia calculada a partir de uma frase combinada, avaliação de segurança da casa com prioridades e código de sinais. | `defesa.js` |
-| **Rede de apoio comunitária** | Cadastro de habilidades (saúde, carro, gerador, abrigo…) e necessidades (acamado, idoso sozinho, dependente de energia…); pareia quem precisa com quem pode ajudar, priorizando o mesmo bairro e distribuindo a carga, e aponta lacunas por bairro. | `rede.js` |
+| Seção | Abas |
+|---|---|
+| **Agora** | **Situação** (triagem: nível de alerta, ficar, reunir as famílias, abrigar ou evacuar, e qual equipe acionar) · **Protocolos** (12 cenários: colapso, enchente, deslizamento, apagão, falta d'água, incêndio, calor, tiroteio, gás, desabastecimento, epidemia, vendaval) · **Primeiros socorros** (12 guias com o que não fazer e quando é grave) |
+| **Recursos** | **Mapa** (água, remédios, comida, abrigo e perigos; melhor opção a partir da base, rota que atravessa ou passa perto de perigo; pontos marcados por coordenada, GPS ou distância e direção) · **Água** (dosagem de cloro, fervura) · **Higiene** (banheiro sem água, latrina, lixo) · **Estoque** (validade e dias de autonomia) · **Casa e suprimentos** (água e comida da casa, dietas, animais) · **Cozinha** (gás, conservar sem geladeira, horta) · **Energia** (painel solar, bateria, power bank) · **Remédios** (dias de cobertura, doses, onde buscar) |
+| **Comunidade** | **Rede de apoio** (quem ajuda quem e as equipes de socorro) · **Partilha** (estoque comum dividido com justiça) · **Abrigo** (capacidade da igreja, chegadas, tarefas) · **Pessoas e recados** · **Cuidado** emocional e espiritual · **Defesa** passiva (vigia, senha do dia, segurança da casa, sinais) |
+| **Comunicação** | **Contatos e mensagens** (pontos de encontro, árvore de chamadas, SMS, cartão de bolso) · **Rádio** (rede Meshtastic: alcance, repetidor, testes no bairro, canais, códigos) |
+| **Preparação** | **Começar** (10 passos conferidos pelo app) · **Kit 72 h** · **Caderno** em papel (imprimir ou baixar) · **Dados e senha** |
 
-## Como usar
+### Segurança e dados
 
-**Sem instalar nada:** baixe ou clone o repositório e abra `index.html` no navegador
-(computador ou celular). Os dados ficam salvos **apenas no próprio aparelho**; use a aba
-**Dados** para baixar e restaurar cópias de segurança.
+- Tudo fica **só no aparelho**. Nada vai para servidor nenhum.
+- **Senha do app:** com ela, os dados são cifrados no aparelho (AES-GCM de 256 bits,
+  chave derivada da senha por PBKDF2-SHA-256 com 210 mil rodadas). Sem a senha, ninguém
+  abre, nem quem fez o app. O app se bloqueia depois de 10 minutos sem uso.
+- **Cópia de segurança:** baixar ou copiar como texto, com ou sem a senha. O app lembra
+  quando faz mais de 7 dias sem cópia.
+- **Compartilhar com a comunidade:** pacotes com as partes escolhidas (mapa, equipes,
+  rede, rádios, pessoas, recados…), com senha opcional. Quem recebe junta aos seus dados
+  sem perder nada. Estoque, remédios e a frase da senha do dia nunca vão em pacote.
 
-**Publicado na internet (opcional):** hospede a pasta como site estático (ex.: GitHub
-Pages). Ao abrir uma vez com conexão, o service worker (`sw.js`) guarda o app e ele passa
-a funcionar offline, podendo ser instalado na tela inicial.
+## Instalar e usar sem internet
+
+**Pelo GitHub Pages (recomendado):**
+
+1. No GitHub, em **Settings → Pages**, escolha **Deploy from a branch**, branch **main**,
+   pasta **/ (root)**, e salve.
+2. Abra o endereço que aparecer (algo como `https://<usuário>.github.io/igreja-/`) uma
+   vez **com internet**.
+3. Instale: no Android (Chrome), botão **Instalar o app** na aba Dados ou menu ⋮ →
+   **Instalar app**; no iPhone (Safari), **Compartilhar → Adicionar à Tela de Início**.
+4. Pronto: o app abre pela tela inicial e funciona sem internet.
+
+**Sem publicar:** baixe a pasta do projeto no aparelho e abra `index.html` no navegador.
+
+**Versão publicada no claude.ai:** a mesma interface num arquivo único
+(`npm run build:unica`). Ela precisa de internet e de login; use a cópia por texto para
+levar os dados de uma versão para a outra.
 
 ## Desenvolvimento
 
-Os mecanismos são JavaScript puro, sem dependências, e funcionam tanto no navegador
-(`<script>` comum, compatível com `file://`) quanto no Node.
+JavaScript puro, sem dependências em produção. Cada mecanismo em `js/nucleo/` funciona
+no navegador (`<script>` comum, compatível com `file://`) e no Node.
 
 ```bash
-npm test   # Node 18+
+npm test             # testes dos mecanismos (Node 18+)
+npm ci && npx playwright install chromium
+npm run test:e2e     # testes no navegador, inclusive uso sem internet
+npm run build:unica  # gera dist/sobrevivencia-urbana.html (versão de arquivo único)
 ```
 
+A checagem automática (`.github/workflows/testes.yml`) roda os três a cada envio.
+
 ```
-docs/plano-sobrevivencia-urbana.md   plano completo
-js/nucleo/*.js                       mecanismos (lógica pura, testada)
-js/app.js                            interface
-js/app-colapso.js                    abas Mapa, Defesa, Remédios e Partilha
-js/app-radio.js                      aba Rádio
-index.html, css/estilo.css           app offline
-sw.js, manifest.webmanifest          uso offline quando publicado
-tests/*.test.js                      testes dos mecanismos
+index.html, css/estilo.css     app
+js/app.js                      núcleo: estado, senha, gravação, navegação, tema
+js/abas/*.js                   uma aba por arquivo (registradas como extensões)
+js/nucleo/*.js                 mecanismos (lógica pura e testada)
+sw.js, manifest.webmanifest    uso offline e instalação
+tests/*.test.js                testes dos mecanismos
+tests/e2e/*.e2e.js             testes no navegador
+scripts/gerar-pagina-unica.js  versão de arquivo único
+docs/                          o plano
 ```
 
-Todos os valores (água por pessoa, calorias, dosagem de cloro etc.) são estimativas de
-planejamento baseadas em orientações públicas; ajuste à realidade da sua família e da
-sua cidade.
+Os valores de água, calorias, cloro, energia e capacidade são estimativas de
+planejamento baseadas em referências públicas (OMS, Projeto Esfera). Ajuste à realidade
+da sua família e da sua comunidade.

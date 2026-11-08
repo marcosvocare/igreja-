@@ -715,6 +715,53 @@
     aplicarTela();
   });
 
+  // Tamanho da letra: normal → grande → maior. Só neste aparelho.
+  const CHAVE_LETRA = 'sobrevivencia-urbana:letra';
+  const LETRAS = { '': { proximo: 'grande', rotulo: 'A+' }, grande: { proximo: 'maior', rotulo: 'A++' }, maior: { proximo: '', rotulo: 'A' } };
+  let letra = '';
+  try {
+    letra = localStorage.getItem(CHAVE_LETRA) || '';
+  } catch (e) {
+    /* sem armazenamento: fica no padrão */
+  }
+  function aplicarLetra() {
+    if (!LETRAS[letra]) letra = '';
+    document.documentElement.classList.toggle('letra-grande', letra === 'grande');
+    document.documentElement.classList.toggle('letra-maior', letra === 'maior');
+    const botao = $('#botao-letra');
+    botao.textContent = LETRAS[letra].rotulo;
+    botao.setAttribute('aria-label', `Tamanho da letra: ${letra || 'normal'}. Tocar para mudar.`);
+  }
+  aplicarLetra();
+  $('#botao-letra').addEventListener('click', () => {
+    letra = LETRAS[letra].proximo;
+    try {
+      localStorage.setItem(CHAVE_LETRA, letra);
+    } catch (e) {
+      /* sem armazenamento: vale só nesta visita */
+    }
+    aplicarLetra();
+  });
+
+  // Instalar o app (Chrome/Android oferece; no iPhone, pelo menu Compartilhar).
+  let pedidoInstalacao = null;
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    pedidoInstalacao = e;
+    $('#instalar-app').hidden = false;
+  });
+  $('#instalar-app').addEventListener('click', async () => {
+    if (!pedidoInstalacao) return;
+    pedidoInstalacao.prompt();
+    const escolha = await pedidoInstalacao.userChoice;
+    pedidoInstalacao = null;
+    $('#instalar-app').hidden = true;
+    if (escolha && escolha.outcome === 'accepted') $('#texto-instalar').textContent = 'App instalado: abra pela tela inicial.';
+  });
+  window.addEventListener('appinstalled', () => {
+    $('#texto-instalar').textContent = 'App instalado: abra pela tela inicial.';
+  });
+
   // O selo do topo leva ao resultado da triagem, mesmo se o endereço já for esse.
   $('#selo-nivel').addEventListener('click', (e) => {
     if (location.hash === '#situacao-resultado') {

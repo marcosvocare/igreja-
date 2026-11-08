@@ -1,5 +1,5 @@
 /* Service worker: guarda o app em cache para funcionar sem internet. */
-const CACHE = 'sobrevivencia-urbana-v8';
+const CACHE = 'sobrevivencia-urbana-v9';
 const ARQUIVOS = [
   './',
   'index.html',
@@ -53,6 +53,9 @@ const ARQUIVOS = [
   'js/abas/radio.js',
   'js/abas/rede.js',
   'icone.svg',
+  'icones/icone-180.png',
+  'icones/icone-192.png',
+  'icones/icone-512.png',
   'manifest.webmanifest',
 ];
 

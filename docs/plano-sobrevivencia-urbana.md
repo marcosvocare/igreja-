@@ -56,6 +56,8 @@ quem acionar.
 
 - **Evacuar** quando o risco está *dentro* do imóvel ou do terreno: água subindo, sinais
   de deslizamento, fogo, cheiro forte de gás, ordem da coordenação da comunidade.
+- **Reunir as famílias** quando há saques ou violência no bairro, sem risco imediato no
+  imóvel: famílias vizinhas juntas numa casa mais segura ou no ponto de apoio da igreja.
 - **Abrigar no local** quando o risco está *do lado de fora*: tiroteio, nuvem de fumaça ou
   produto químico.
 - Se há risco dentro **e** fora, o risco imediato dentro do imóvel prevalece: sair pelo
@@ -81,6 +83,16 @@ quem acionar.
 | Remédios críticos | Dias de cobertura por pessoa, validade e reposição | `js/nucleo/remedios.js` |
 | Partilha justa | Divisão do estoque comum pela necessidade de cada família | `js/nucleo/partilha.js` |
 | Defesa comunitária | Escala de vigia, senha do dia, avaliação de segurança e código de sinais | `js/nucleo/defesa.js` |
+| Primeiros socorros | 12 guias para leigos, com o que não fazer e quando é grave | `js/nucleo/socorros.js` |
+| Higiene e saneamento | Banheiro sem água, latrina, mãos, lixo; banheiros e sabão por pessoas | `js/nucleo/saneamento.js` |
+| Cozinha | Duração do gás, economia, conservar sem geladeira, horta rápida | `js/nucleo/cozinha.js` |
+| Energia | Consumo, painel solar, bateria e power banks | `js/nucleo/energia.js` |
+| Abrigo coletivo | Capacidade, chegadas e saídas, escala de tarefas, regras | `js/nucleo/abrigo.js` |
+| Pessoas e recados | Quem está onde (desaparecidos primeiro) e quadro de recados | `js/nucleo/pessoas.js` |
+| Cuidado | Acolhimento, crianças, luto, quem cuida e sinais de alerta | `js/nucleo/cuidado.js` |
+| Proteção dos dados | Senha do app com criptografia | `js/nucleo/cofre.js` |
+| Partilha de dados | Pacotes para juntar dados entre aparelhos | `js/nucleo/sincronizacao.js` |
+| Primeiro uso | Passos de preparação e lembrete de cópia | `js/nucleo/configuracao.js` |
 
 ### 4.1 Água
 
@@ -215,6 +227,37 @@ mais, até 100 %. A sobra de quem já foi atendido volta para os demais.
 - Ferimentos: pressionar sangramentos, imobilizar fraturas e levar, em grupo, ao
   profissional de saúde da rede ou ao hospital funcionando mais próximo (aba Mapa).
 
+### 5.5 Saúde sem socorro de fora
+
+- **Primeiros socorros:** cada casa com o kit e alguém que pratique os guias (RCP,
+  sangramento, engasgo, queimadura, fratura, choque, soro caseiro, convulsão).
+- **Saneamento:** sem água encanada, diarreia mata. Banheiro de balde com serragem ou
+  cal, latrina a 30 m de poços e nascentes, um banheiro para cada 20 pessoas, mãos
+  lavadas sempre, nada de água parada.
+
+### 5.6 Abrigo e pessoas
+
+- O templo recebe com dignidade: 3,5 m² cobertos por pessoa, 20 pessoas por banheiro,
+  15 litros de água por pessoa por dia. O menor desses limites é a capacidade.
+- Cadastro de quem chega e de quem sai, escala de tarefas por família e regras de
+  convivência afixadas na entrada.
+- Lista de pessoas da comunidade com a situação de cada uma (desaparecidos e feridos
+  primeiro) e um quadro de recados no ponto de encontro.
+
+### 5.7 Energia e cozinha
+
+- Energia vai primeiro para aparelhos de saúde, rádios e celulares. Painel solar com
+  controlador de carga; gerador só ao ar livre.
+- Gás dura mais com molho, panela de pressão e caixa térmica. Comer primeiro o que
+  estraga primeiro; horta de colheita rápida desde o primeiro dia.
+
+### 5.8 Cuidado emocional e espiritual
+
+- Acolher (observar, escutar, aproximar), manter crianças com seus cuidadores e com
+  rotina, permitir o luto e cuidar de quem cuida.
+- Quem fala em morrer ou se machucar não fica sozinho: equipe de saúde e liderança da
+  igreja na hora.
+
 ## 6. Rotina de manutenção
 
 | Frequência | Tarefa |
@@ -242,3 +285,14 @@ socorro**). Os contatos aparecem na triagem e no cartão de bolso.
 **Como pedir socorro:** código **2** no canal da família do rádio (com a posição ligada);
 sem rádio, **3 toques de apito repetidos** ou **3 piscadas de lanterna** à noite; na janela,
 folha escrita **AJUDA**.
+
+## 8. Proteção e partilha dos dados
+
+- **Senha do app:** os dados do aparelho ficam cifrados; sem a senha ninguém lê. Em caso
+  de saque ou roubo do celular, a lista de quem tem estoque, remédios e endereços fica
+  protegida.
+- **Cópia de segurança semanal**, guardada fora do aparelho (pen drive, outro celular).
+- **Pacotes para a comunidade:** cada um passa à coordenação o que viu (mapa, pessoas,
+  recados); a coordenação junta e devolve. Nada se perde ao juntar.
+- **Caderno em papel:** imprima equipes, contatos, mapa, remédios, escala e protocolos.
+  Quando a bateria acabar, o papel continua.

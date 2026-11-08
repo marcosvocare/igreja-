@@ -226,9 +226,21 @@ ul, ol { margin: 3pt 0 6pt; padding-left: 16pt; } .checklist { list-style: none;
 section { break-inside: auto; } h2, h4 { break-after: avoid; } tr { break-inside: avoid; }
 @media print { body { margin: 0; } }`;
 
+  /** Documento HTML completo do caderno, montado pelo navegador (sem tags literais no código). */
   function arquivoHtml() {
-    const titulo = `Caderno da família — ${new Date().toISOString().slice(0, 10)}`;
-    return `<!doctype html>\n<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>${titulo}</title><style>${CSS_ARQUIVO}</style></head><body>${documento().innerHTML}</body></html>\n`;
+    const doc = document.implementation.createHTMLDocument(`Caderno da família — ${new Date().toISOString().slice(0, 10)}`);
+    doc.documentElement.lang = 'pt-BR';
+    const charset = doc.createElement('meta');
+    charset.setAttribute('charset', 'utf-8');
+    const viewport = doc.createElement('meta');
+    viewport.name = 'viewport';
+    viewport.content = 'width=device-width, initial-scale=1';
+    const estilo = doc.createElement('style');
+    estilo.textContent = CSS_ARQUIVO;
+    doc.head.prepend(charset, viewport);
+    doc.head.append(estilo);
+    doc.body.append(doc.importNode(documento(), true));
+    return `<${'!'}doctype html>\n${doc.documentElement.outerHTML}\n`;
   }
 
   function montar(api) {

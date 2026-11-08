@@ -8,6 +8,7 @@
   <meta name="theme-color" content="#1f6f5c">
   <link rel="icon" href="icone.svg" type="image/svg+xml">
   <link rel="manifest" href="manifest.webmanifest">
+  <link rel="apple-touch-icon" href="icones/icone-180.png">
   <link rel="stylesheet" href="css/estilo.css">
 </head>
 <body>
@@ -18,6 +19,10 @@
       try { tema = localStorage.getItem('sobrevivencia-urbana:tema') || 'escuro'; } catch (e) {}
       if (tema === 'escuro') document.documentElement.setAttribute('data-theme', 'dark');
       else if (tema === 'claro') document.documentElement.setAttribute('data-theme', 'light');
+      // Tamanho da letra escolhido neste aparelho.
+      var letra = '';
+      try { letra = localStorage.getItem('sobrevivencia-urbana:letra') || ''; } catch (e) {}
+      if (letra === 'grande' || letra === 'maior') document.documentElement.classList.add('letra-' + letra);
       // Modo de tela (padrão: computador). Em tela estreita, monta largo e reduz para caber.
       var tela = 'computador';
       try { tela = localStorage.getItem('sobrevivencia-urbana:tela') || 'computador'; } catch (e) {}
@@ -45,6 +50,7 @@
     <div class="topo-linha">
       <h1>Sobrevivência Urbana</h1>
       <div class="topo-acoes">
+        <button type="button" id="botao-letra" class="mini secundario" aria-label="Tamanho da letra">A+</button>
         <button type="button" id="botao-tela" class="mini secundario" aria-label="Mudar o modo de tela">Computador</button>
         <button type="button" id="botao-tema" class="mini secundario" aria-label="Mudar o tema">Escuro</button>
         <a id="selo-nivel" class="selo" data-cor="verde" href="#situacao-resultado" title="Ver o resultado da triagem">Normal</a>
@@ -884,6 +890,15 @@
             <h3>Apagar</h3>
             <button type="button" id="apagar" class="perigo">Apagar todos os dados</button>
             <p id="mensagem-apagar" class="ajuda" aria-live="polite"></p>
+          </div>
+          <div class="cartao" id="instalar">
+            <h3>Instalar no aparelho</h3>
+            <p class="ajuda" id="texto-instalar">Instalado, o app abre pela tela inicial e funciona sem internet.</p>
+            <button type="button" id="instalar-app" hidden>Instalar o app</button>
+            <ul class="ajuda">
+              <li>Android (Chrome): menu ⋮ → “Instalar app” ou “Adicionar à tela inicial”.</li>
+              <li>iPhone (Safari): Compartilhar → “Adicionar à Tela de Início”.</li>
+            </ul>
           </div>
           <div class="cartao" id="como-usar">
             <h3>Como usar sem internet</h3>
