@@ -18,12 +18,20 @@
       try { tema = localStorage.getItem('sobrevivencia-urbana:tema') || 'escuro'; } catch (e) {}
       if (tema === 'escuro') document.documentElement.setAttribute('data-theme', 'dark');
       else if (tema === 'claro') document.documentElement.setAttribute('data-theme', 'light');
+      // Modo de tela (padrão: computador). Em tela estreita, monta largo e reduz para caber.
+      var tela = 'computador';
+      try { tela = localStorage.getItem('sobrevivencia-urbana:tela') || 'computador'; } catch (e) {}
+      if (tela === 'computador' && window.innerWidth < 1180) {
+        document.documentElement.classList.add('modo-computador');
+        document.body.style.zoom = String(window.innerWidth / 1180);
+      }
     })();
   </script>
   <header class="topo">
     <div class="topo-linha">
       <h1>Sobrevivência Urbana</h1>
       <div class="topo-acoes">
+        <button type="button" id="botao-tela" class="mini secundario" aria-label="Mudar o modo de tela">Computador</button>
         <button type="button" id="botao-tema" class="mini secundario" aria-label="Mudar o tema">Escuro</button>
         <a id="selo-nivel" class="selo" data-cor="verde" href="#situacao-resultado" title="Ver o resultado da triagem">Normal</a>
       </div>

@@ -1314,6 +1314,38 @@
     }
   });
 
+  // Modo de tela: "computador" monta a página com 1180 px e reduz para caber em telas
+  // estreitas; "celular" usa o layout de uma coluna. Só neste aparelho.
+  const CHAVE_TELA = 'sobrevivencia-urbana:tela';
+  const LARGURA_COMPUTADOR = 1180;
+  let modoTela = 'computador';
+  try {
+    modoTela = localStorage.getItem(CHAVE_TELA) || 'computador';
+  } catch (e) {
+    /* sem armazenamento: fica no padrão */
+  }
+  function aplicarTela() {
+    const estreita = window.innerWidth < LARGURA_COMPUTADOR;
+    const reduzir = modoTela === 'computador' && estreita;
+    document.documentElement.classList.toggle('modo-computador', reduzir);
+    document.body.style.zoom = reduzir ? String(window.innerWidth / LARGURA_COMPUTADOR) : '';
+    const botao = $('#botao-tela');
+    botao.hidden = !estreita; // numa tela larga os dois modos são iguais
+    botao.textContent = modoTela === 'computador' ? 'Computador' : 'Celular';
+    botao.setAttribute('aria-label', `Tela: ${botao.textContent}. Tocar para mudar.`);
+  }
+  aplicarTela();
+  window.addEventListener('resize', aplicarTela);
+  $('#botao-tela').addEventListener('click', () => {
+    modoTela = modoTela === 'computador' ? 'celular' : 'computador';
+    try {
+      localStorage.setItem(CHAVE_TELA, modoTela);
+    } catch (e) {
+      /* sem armazenamento: vale só nesta visita */
+    }
+    aplicarTela();
+  });
+
   // O selo do topo leva ao resultado da triagem, mesmo se o endereço já for esse.
   $('#selo-nivel').addEventListener('click', (e) => {
     if (location.hash === '#situacao-resultado') {
