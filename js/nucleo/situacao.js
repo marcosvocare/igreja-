@@ -38,10 +38,11 @@
     { id: 'alerta_comunidade', cenario: 'enchente', texto: 'Alerta da vigilância ou da coordenação da comunidade', nivel: 1, acionar: [] },
     { id: 'chuva_forte', cenario: 'enchente', texto: 'Chuva forte e contínua por várias horas', nivel: 1, acionar: [] },
     { id: 'energia_curta', cenario: 'apagao', texto: 'Sem energia há menos de 24 horas', nivel: 1, acionar: [] },
-    { id: 'rede_instavel', texto: 'Celular/internet instáveis na região', nivel: 1, acionar: [] },
+    { id: 'rede_instavel', cenario: 'ciber', texto: 'Celular/internet instáveis na região', nivel: 1, acionar: [] },
     { id: 'calor_extremo', cenario: 'calor', texto: 'Onda de calor extremo', nivel: 1, acionar: [] },
     { id: 'energia_longa', cenario: 'apagao', texto: 'Sem energia há mais de 24 horas', nivel: 2, acionar: [] },
     { id: 'sem_agua', cenario: 'falta_agua', texto: 'Sem água da rede', nivel: 2, acionar: [] },
+    { id: 'sem_sistemas', cenario: 'ciber', texto: 'Internet, celular, bancos e cartões fora do ar em toda a região', nivel: 2, acionar: ['coordenacao'] },
     { id: 'desabastecimento', cenario: 'desabastecimento', texto: 'Mercados, farmácias ou postos desabastecidos', nivel: 2, acionar: [] },
     { id: 'saques', cenario: 'colapso', texto: 'Saques ou violência no bairro', nivel: 2, acionar: ['vigilancia', 'coordenacao'] },
     { id: 'doenca_casa', cenario: 'epidemia', texto: 'Alguém da casa com febre/doença contagiosa', nivel: 2, acionar: ['saude'] },
@@ -199,6 +200,10 @@
     // Contexto também pede preparação em nível 1 quando a autonomia é muito baixa.
     if (postura === 'MONITORAR' && diasAutonomia !== null && diasAutonomia !== undefined && Number(diasAutonomia) < 1) {
       avisos.push('Estoque para menos de 1 dia: reabasteça água e comida pronta enquanto a situação permite.');
+    }
+
+    if (sinais.some((s) => s.id === 'sem_sistemas')) {
+      avisos.push('Sistemas fora do ar: celular em modo avião quando não estiver usando, notícias pelo rádio AM/FM, pague em dinheiro e, se a família estiver separada, vá ao ponto de encontro no horário combinado.');
     }
 
     if (postura !== 'SOCORRO' && sinais.some((s) => s.id === 'ferido_grave')) {

@@ -71,7 +71,7 @@ quem acionar.
 | Pilar | Mecanismo | Arquivo |
 |---|---|---|
 | Avaliação da situação | Triagem: nível de alerta + ficar ou sair | `js/nucleo/situacao.js` |
-| Protocolos | Antes / durante / depois para 11 cenários urbanos | `js/nucleo/cenarios.js` |
+| Protocolos | Antes / durante / depois para 13 cenários urbanos, inclusive o apagão cibernético | `js/nucleo/cenarios.js` |
 | Água | Dosagem de hipoclorito, tempo de fervura, métodos de purificação | `js/nucleo/agua.js` |
 | Suprimentos | Calculadora de água, calorias, lista de alimentos e itens especiais | `js/nucleo/suprimentos.js` |
 | Estoque | Controle de validade (o primeiro que vence é o primeiro que sai) e dias de autonomia | `js/nucleo/estoque.js` |
@@ -284,6 +284,28 @@ mais, até 100 %. A sobra de quem já foi atendido volta para os demais.
   rotina, permitir o luto e cuidar de quem cuida.
 - Quem fala em morrer ou se machucar não fica sozinho: equipe de saúde e liderança da
   igreja na hora.
+
+### 5.9 Apagão cibernético
+
+Quando a internet, o celular, os bancos e os cartões param de uma vez (ataque ou falha
+grande), o que vale é o que foi preparado **antes** e o que não depende de rede.
+
+- **Para:** internet, aplicativos, Pix, cartões, maquininhas e caixas eletrônicos; às
+  vezes o celular, a energia, as bombas de água e de combustível e os sistemas de
+  mercados e farmácias.
+- **Continua:** dinheiro em espécie, papel, rádio AM/FM a pilha, os rádios da família
+  (Meshtastic), o GPS do celular e este app, **se estiver instalado**.
+- **Antes:** app instalado e testado sem internet, caderno impresso, dinheiro em notas
+  pequenas, telefones e endereços em papel, ponto e horário de encontro combinados,
+  água, comida e remédios para 3 a 7 dias, rádio, pilhas e power banks.
+- **Durante:** confirmar pelo rádio se é geral, celular em modo avião quando não estiver
+  em uso, SMS curto em vez de ligação, encontro no horário combinado, encher garrafas
+  enquanto há água, pagar em dinheiro, não repassar boatos.
+- **Depois:** cuidado com golpes (banco não pede senha nem código), conferir extrato e
+  cartão, trocar senhas se alguém as viu, repor as reservas.
+
+Na triagem, o sinal "Internet, celular, bancos e cartões fora do ar" leva ao protocolo
+e aciona a coordenação da comunidade.
 
 ## 6. Rotina de manutenção
 

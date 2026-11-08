@@ -10,6 +10,25 @@ const { abrirApp, fecharNavegador } = require('./ajuda');
 
 test.after(fecharNavegador);
 
+test('apagão cibernético: triagem avisa, abre o protocolo e ele vai para o caderno', async () => {
+  const { page, erros, ir, texto, fechar } = await abrirApp();
+  await page.check('input[value="sem_sistemas"]');
+  const resultado = await texto('#resultado-situacao');
+  assert.match(resultado, /modo avião/);
+  assert.match(resultado, /Coordenação da comunidade/);
+  await page.click('#resultado-situacao a:has-text("Apagão cibernético")');
+  await page.waitForFunction(() => document.getElementById('cen-ciber') && document.getElementById('cen-ciber').open);
+  const protocolo = await texto('#cen-ciber');
+  assert.match(protocolo, /dinheiro em espécie/);
+  assert.match(protocolo, /Cuidado com golpes/);
+  await ir('caderno');
+  const caderno = await texto('#caderno-conteudo');
+  assert.match(caderno, /Apagão cibernético/);
+  assert.match(caderno, /modo avião/);
+  assert.deepEqual(erros, []);
+  await fechar();
+});
+
 test('primeiros socorros: busca abre o guia certo com o que não fazer', async () => {
   const { page, erros, ir, texto, fechar } = await abrirApp();
   await ir('socorros');

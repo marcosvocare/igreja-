@@ -240,6 +240,22 @@ test('sem Estado: nenhum mecanismo manda pedir ajuda a órgãos do governo', () 
     for (const t of textos) assert.ok(!proibido.test(t), `${nome}: "${t}"`);
   }
   // Avisos gerados pela triagem também
-  const r = situacao.avaliarSituacao(['fogo', 'tiroteio', 'ferido_grave'], { rotaSegura: false });
+  const r = situacao.avaliarSituacao(['fogo', 'tiroteio', 'ferido_grave', 'sem_sistemas'], { rotaSegura: false });
   for (const a of r.avisos) assert.ok(!proibido.test(a), a);
+});
+
+test('apagão cibernético: protocolo para leigos e triagem que leva a ele', () => {
+  const c = cenarios.buscarCenario('ciber');
+  assert.equal(c.titulo, 'Apagão cibernético');
+  const tudo = [...c.antes, ...c.durante, ...c.depois].join(' ');
+  // O essencial: app sem internet, papel, dinheiro, encontro combinado, bateria, rádio, golpes.
+  for (const termo of [/sem internet/, /caderno/i, /dinheiro em espécie/, /ponto de encontro/, /modo avião/, /rádio AM\/FM/, /golpes/, /senha ou código/]) {
+    assert.match(tudo, termo);
+  }
+  const r = situacao.avaliarSituacao(['sem_sistemas']);
+  assert.equal(r.nivel, 2);
+  assert.deepEqual(r.cenarios, ['ciber']);
+  assert.ok(r.acionar.some((e) => e.id === 'coordenacao'));
+  assert.ok(r.avisos.some((a) => /modo avião/.test(a) && /ponto de encontro/.test(a)));
+  assert.deepEqual(situacao.avaliarSituacao(['rede_instavel']).cenarios, ['ciber']);
 });
